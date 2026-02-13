@@ -150,6 +150,15 @@ export default [{
             }
         },
         {
+            path: '/psd',
+            name: 'particle size distribution',
+            lazy: async () => {
+                const {default: PsdRoute} = await import('../psd/PsdRoute.jsx')
+                return {element: <Suspense fallback={<LoadingDisplay/>}><PsdRoute/></Suspense>}
+            }
+        },
+
+        {
             path: '/privacy',
             name: 'privacy policy',
             lazy: async () => {
