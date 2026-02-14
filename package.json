@@ -44,6 +44,7 @@
     "eslint-plugin-promise": "^6.5.1",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^16.4.0",
+    "js-aruco2": "^2.0.0",
     "jsdom": "^25.0.1",
     "lint-staged": "^15.2.9",
     "msw": "^2.6.6",

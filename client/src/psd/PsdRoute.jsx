@@ -9,6 +9,7 @@ export default function PsdRoute() {
     const [settings, setSettings] = useState({
         templateSize: 100,
         ...PSD_DEFAULTS,
+        maxAreaMm2: 10,
         splitOverlaps: false,
         splitSensitivity: 0.5
     })

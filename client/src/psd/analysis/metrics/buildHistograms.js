@@ -1,5 +1,5 @@
-export function buildHistograms(particles, {bins = 30, spacing = 'log', weighting = 'count'} = {}) {
-    const ds = particles.map(p => p.eqDiameterPx).filter(Boolean)
+export function buildHistograms(particles, {bins = 30, spacing = 'log', weighting = 'count', mmPerPx = 1} = {}) {
+    const ds = particles.map(p => p.eqDiameterPx * mmPerPx).filter(Boolean)
     if (!ds.length) {
         return {bins: [], values: [], weighting, spacing}
     }
@@ -9,7 +9,7 @@ export function buildHistograms(particles, {bins = 30, spacing = 'log', weightin
     const edges = buildEdges(min, max, bins, spacing)
     const values = new Array(bins).fill(0)
 
-    const weights = particles.map(p => weightFor(p, weighting))
+    const weights = particles.map(p => weightFor(p.eqDiameterPx * mmPerPx, weighting))
     const total = weights.reduce((a, b) => a + b, 0) || 1
 
     for (let i = 0; i < ds.length; i++) {
@@ -56,8 +56,7 @@ function findBin(edges, v) {
     return edges.length - 2
 }
 
-function weightFor(p, mode) {
-    const d = p.eqDiameterPx
+function weightFor(d, mode) {
     if (mode === 'surface') return Math.PI * d * d
     if (mode === 'volume') return (Math.PI / 6) * d * d * d
     return 1

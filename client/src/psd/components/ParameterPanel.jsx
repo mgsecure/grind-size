@@ -31,7 +31,7 @@ export default function ParameterPanel({settings, setSettings}) {
                 <Slider
                     value={settings.adaptiveBlockSize}
                     min={21}
-                    max={121}
+                    max={301}
                     step={2}
                     onChange={(_, v) => setSettings(prev => ({...prev, adaptiveBlockSize: v}))}
                 />
@@ -52,6 +52,15 @@ export default function ParameterPanel({settings, setSettings}) {
                     max={100}
                     step={1}
                     onChange={(_, v) => setSettings(prev => ({...prev, minAreaPx: v}))}
+                />
+
+                <Typography variant='body2'>Max Surface (mm²): {settings.maxAreaMm2}</Typography>
+                <Slider
+                    value={settings.maxAreaMm2}
+                    min={1}
+                    max={100}
+                    step={1}
+                    onChange={(_, v) => setSettings(prev => ({...prev, maxAreaMm2: v}))}
                 />
 
                 <FormControl size='small' fullWidth>

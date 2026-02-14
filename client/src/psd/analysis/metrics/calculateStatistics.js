@@ -1,5 +1,5 @@
-export function calculateStatistics(particles, {weighting = 'count'} = {}) {
-    const ds = particles.map(p => p.eqDiameterPx).filter(Boolean).sort((a, b) => a - b)
+export function calculateStatistics(particles, {weighting = 'count', mmPerPx = 1} = {}) {
+    const ds = particles.map(p => p.eqDiameterPx * mmPerPx).filter(Boolean).sort((a, b) => a - b)
     if (!ds.length) {
         return {
             count: 0,
@@ -16,7 +16,7 @@ export function calculateStatistics(particles, {weighting = 'count'} = {}) {
     }
 
     const ws = particles
-        .map(p => ({d: p.eqDiameterPx, w: weightFor(p.eqDiameterPx, weighting)}))
+        .map(p => ({d: p.eqDiameterPx * mmPerPx, w: weightFor(p.eqDiameterPx * mmPerPx, weighting)}))
         .filter(x => Number.isFinite(x.d) && Number.isFinite(x.w))
         .sort((a, b) => a.d - b.d)
 

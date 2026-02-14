@@ -7,15 +7,21 @@ export function morphologyOpen(maskObj) {
 
 function erode(src, w, h) {
     const out = new Uint8ClampedArray(src.length)
+    // Avoid boundary issues by skipping the outer edge
     for (let y = 1; y < h - 1; y++) {
+        const row = y * w
         for (let x = 1; x < w - 1; x++) {
             let ok = 255
             for (let dy = -1; dy <= 1; dy++) {
                 for (let dx = -1; dx <= 1; dx++) {
-                    if (src[(y + dy) * w + (x + dx)] === 0) ok = 0
+                    if (src[(y + dy) * w + (x + dx)] === 0) {
+                        ok = 0
+                        break
+                    }
                 }
+                if (ok === 0) break
             }
-            out[y * w + x] = ok
+            out[row + x] = ok
         }
     }
     return out
@@ -24,14 +30,19 @@ function erode(src, w, h) {
 function dilate(src, w, h) {
     const out = new Uint8ClampedArray(src.length)
     for (let y = 1; y < h - 1; y++) {
+        const row = y * w
         for (let x = 1; x < w - 1; x++) {
             let v = 0
             for (let dy = -1; dy <= 1; dy++) {
                 for (let dx = -1; dx <= 1; dx++) {
-                    if (src[(y + dy) * w + (x + dx)] === 255) v = 255
+                    if (src[(y + dy) * w + (x + dx)] === 255) {
+                        v = 255
+                        break
+                    }
                 }
+                if (v === 255) break
             }
-            out[y * w + x] = v
+            out[row + x] = v
         }
     }
     return out

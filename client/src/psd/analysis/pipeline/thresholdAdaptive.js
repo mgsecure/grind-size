@@ -1,5 +1,5 @@
 // Adaptive threshold (Gaussian-ish) using mean of neighborhood (box filter) + constant C.
-export function adaptiveThreshold(grayObj, {blockSize = 71, C = 4} = {}) {
+export function adaptiveThreshold(grayObj, {blockSize = 201, C = 4} = {}) {
     const {width, height, gray} = grayObj
     const bs = blockSize % 2 === 0 ? blockSize + 1 : blockSize
     const r = Math.floor(bs / 2)
@@ -19,7 +19,15 @@ export function adaptiveThreshold(grayObj, {blockSize = 71, C = 4} = {}) {
             const mean = sum / area
             const idx = y * width + x
             // Invert: particles are dark → 255 in mask
-            mask[idx] = gray[idx] < (mean - C) ? 255 : 0
+            // In digital templates, black is 0, white is 255.
+            // In coffee photos, particles are dark, background is lighter.
+            
+            // If the local neighborhood is very dark (mean < 50), we are likely 
+            // deep inside a large particle or a dark area (like ArUco marker bits).
+            // We should keep it as foreground (255) IF the pixel itself is dark.
+            const isInsideDark = mean < 50 && gray[idx] < 128;
+            
+            mask[idx] = (gray[idx] < (mean - C)) || isInsideDark ? 255 : 0
         }
     }
     return {width, height, mask}

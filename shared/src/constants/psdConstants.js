@@ -11,9 +11,10 @@ export const PSD_DEFAULTS = {
     warpSizePx: 2000,
     insetPx: 8,
     bgSigma: 35,
-    adaptiveBlockSize: 71,
+    adaptiveBlockSize: 201,
     adaptiveC: 4,
     minAreaPx: 8,
+    maxAreaMm2: 10,
     bins: 30,
     binSpacing: 'log', // 'log' | 'linear'
     weighting: 'count', // 'count' | 'surface' | 'volume'

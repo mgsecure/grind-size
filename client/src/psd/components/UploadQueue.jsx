@@ -2,6 +2,9 @@ import React from 'react'
 import {List, ListItemButton, ListItemText, Paper, Typography, Chip, Stack} from '@mui/material'
 
 export default function UploadQueue({items, activeId, onSelect}) {
+
+    console.log('items', items)
+
     return (
         <Paper sx={{p: 2}}>
             <Stack direction='row' justifyContent='space-between' alignItems='center' sx={{mb: 1}}>

@@ -4,6 +4,7 @@ import {ResponsiveBar} from '@nivo/bar'
 import {ResponsiveLine} from '@nivo/line'
 import BarChartIcon from '@mui/icons-material/BarChart'
 import ShowChartIcon from '@mui/icons-material/ShowChart'
+import {useTheme} from '@mui/material/styles'
 
 function fmtNumber(n, digits = 2) {
     if (!Number.isFinite(n)) return '—'
@@ -16,6 +17,12 @@ export default function HistogramPanel({
                                            yAxisLabel = '%',
                                            seriesId = 'Distribution'
                                        }) {
+
+    console.log('histogram', histogram)
+
+    const theme = useTheme()
+    const tickLegendColor = theme.palette.text.primary
+
     const [chartMode, setChartMode] = useState('bar')
 
     const chartData = useMemo(() => {
@@ -46,8 +53,33 @@ export default function HistogramPanel({
     }, [histogram, seriesId])
 
     const commonProps = {
-        margin: {top: 20, right: 20, bottom: 90, left: 60},
+        margin: {top: 20, right: 20, bottom: 150, left: 60},
         enableLabel: false,
+        theme: {
+            axis: {
+                ticks: {
+                    text: {
+                        fill: tickLegendColor
+                    }
+                },
+                legend: {
+                    text: {
+                        fill: tickLegendColor
+                    }
+                }
+            },
+            legends: {
+                text: {
+                    fill: tickLegendColor
+                }
+            },
+            grid: {
+                line: {
+                    stroke: '#999', // Desired color
+                    strokeWidth: 1,
+                },
+            },
+        },
         axisBottom: {
             tickSize: 5,
             tickPadding: 5,
@@ -113,7 +145,7 @@ export default function HistogramPanel({
     }
 
     return (
-        <Paper sx={{p: 2, height: 420}}>
+        <Paper sx={{p: 2, height: 500}}>
             <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{mb: 1}}>
                 <Typography variant='h6'>Histogram</Typography>
                 <ToggleButtonGroup

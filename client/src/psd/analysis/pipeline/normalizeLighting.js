@@ -24,8 +24,8 @@ export function normalizeLighting(imageData, {bgSigma = 35} = {}) {
 
 function boxBlur(src, w, h, r) {
     // horizontal then vertical
-    const tmp = new Uint16Array(w * h)
-    const out = new Uint16Array(w * h)
+    const tmp = new Uint32Array(w * h)
+    const out = new Uint32Array(w * h)
 
     for (let y = 0; y < h; y++) {
         let sum = 0

@@ -9,11 +9,13 @@ import {analyzeImageFiles} from './analysis/analyzeImage.js'
 
 export default function PsdPage({settings, setSettings}) {
     const [queue, setQueue] = useState([]) // {id, file, status, error, result}
+    const [droppedFiles, setDroppedFiles] = useState([])
     const [activeId, setActiveId] = useState(null)
 
     const active = useMemo(() => queue.find(q => q.id === activeId)?.result ?? null, [queue, activeId])
 
     const onFiles = useCallback(async files => {
+        setDroppedFiles(files)
         const next = Array.from(files).slice(0, 5).map(file => ({
             id: crypto.randomUUID(),
             file,
@@ -28,7 +30,11 @@ export default function PsdPage({settings, setSettings}) {
         for (const item of next) {
             setQueue(prev => prev.map(p => p.id === item.id ? {...p, status: 'analyzing'} : p))
             try {
+                console.log('Analyzing file:', item.file.name)
                 const result = await analyzeImageFiles(item.file, settings)
+
+                console.log('Result for:', item.file.name, result)
+
                 setQueue(prev => prev.map(p => p.id === item.id ? {...p, status: 'done', result} : p))
             } catch (err) {
                 setQueue(prev => prev.map(p => p.id === item.id ? {...p, status: 'error', error: String(err)} : p))
@@ -47,7 +53,7 @@ export default function PsdPage({settings, setSettings}) {
 
             <Paper sx={{p: 2, width: '100%'}}>
                 <Dropzone
-                    files={queue}
+                    files={droppedFiles}
                     handleDroppedFiles={onFiles}
                     accept={{'image/*': []}}
                     multiple
