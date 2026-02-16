@@ -1,8 +1,10 @@
 import React, {useMemo, useState} from 'react'
 import {Paper, ToggleButton, ToggleButtonGroup, Stack, Typography} from '@mui/material'
+import CropFreeIcon from '@mui/icons-material/CropFree'
 
 export default function ImageViewer({result}) {
     const [mode, setMode] = useState('overlay') // original | mask | overlay
+    const [showBoundaries, setShowBoundaries] = useState(true) // original | mask | overlay
 
     const src = useMemo(() => {
         if (!result) return null
@@ -15,14 +17,24 @@ export default function ImageViewer({result}) {
         <Paper sx={{p: 2}}>
             <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{mb: 1}}>
                 <Typography variant='h6'>Preview</Typography>
+
                 <ToggleButtonGroup
                     size='small'
                     value={mode}
                     exclusive
                     onChange={(_, v) => v && setMode(v)}
                 >
+                    <ToggleButton value='original'>Original</ToggleButton>
                     <ToggleButton value='overlay'>Overlay</ToggleButton>
                     <ToggleButton value='mask'>Threshold</ToggleButton>
+                </ToggleButtonGroup>
+                <ToggleButtonGroup
+                    size='small'
+                    value={showBoundaries}
+                    exclusive
+                    onChange={() => setShowBoundaries(!showBoundaries)}
+                >
+                    <ToggleButton value='boundaries' selected={showBoundaries}><CropFreeIcon/></ToggleButton>
                 </ToggleButtonGroup>
             </Stack>
 

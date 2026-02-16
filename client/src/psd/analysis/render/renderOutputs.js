@@ -1,30 +1,64 @@
+import {getUnwarpedPoint} from '../pipeline/warpPerspective.js'
+
 export async function renderMaskPng(maskObj, width, height, originalImageData, validParticleIds = null) {
     const canvas = document.createElement('canvas')
     canvas.width = width
     canvas.height = height
     const ctx = canvas.getContext('2d')
     
+    // Use maskObj width/height if available, otherwise fallback to parameters
+    const w = maskObj.width || width
+    const h = maskObj.height || height
+    
+    if (canvas.width !== w || canvas.height !== h) {
+        canvas.width = w
+        canvas.height = h
+    }
+
     if (originalImageData) {
         // Draw original image first
-        const tempImageData = new ImageData(
-            new Uint8ClampedArray(originalImageData.data),
-            width,
-            height
-        )
-        ctx.putImageData(tempImageData, 0, 0)
+        // If the originalImageData has different dimensions than w/h, we need to scale it
+        if (originalImageData.width !== w || originalImageData.height !== h) {
+            const tempCanvas = document.createElement('canvas')
+            tempCanvas.width = originalImageData.width
+            tempCanvas.height = originalImageData.height
+            const tempCtx = tempCanvas.getContext('2d')
+            const tempImgData = new ImageData(
+                new Uint8ClampedArray(originalImageData.data),
+                originalImageData.width,
+                originalImageData.height
+            )
+            tempCtx.putImageData(tempImgData, 0, 0)
+            ctx.drawImage(tempCanvas, 0, 0, w, h)
+        } else {
+            const tempImageData = new ImageData(
+                new Uint8ClampedArray(originalImageData.data),
+                originalImageData.width,
+                originalImageData.height
+            )
+            ctx.putImageData(tempImageData, 0, 0)
+        }
         
-        // Overlay red particles
-        const labels = maskObj.labels
-        const img = ctx.getImageData(0, 0, width, height)
-        
-        // If validParticleIds is provided, we only show those.
-        // Otherwise we show all labeled pixels.
-        const validSet = validParticleIds ? new Set(validParticleIds) : null
+    // Overlay red particles
+    const labels = maskObj.labels
+    const img = ctx.getImageData(0, 0, w, h)
+    
+    // If validParticleIds is provided, we only show those.
+    // Otherwise we show all labeled pixels.
+    const validSet = validParticleIds ? new Set(validParticleIds) : null
 
-        for (let i = 0, p = 0; i < labels.length; i++, p += 4) {
-            const label = labels[i]
+    if (labels.length !== w * h) {
+        console.warn(`renderMaskPng: label buffer length (${labels.length}) does not match dimensions (${w}x${h}=${w*h})`);
+    }
+
+    for (let y = 0; y < h; y++) {
+        const rowOffset = y * w;
+        for (let x = 0; x < w; x++) {
+            const i = rowOffset + x;
+            const label = labels[i];
             if (label !== 0 && label !== 0xFFFFFFFF) {
                 if (!validSet || validSet.has(label)) {
+                    const p = i * 4;
                     img.data[p] = 255     // R
                     img.data[p + 1] = 0   // G
                     img.data[p + 2] = 0   // B
@@ -32,25 +66,35 @@ export async function renderMaskPng(maskObj, width, height, originalImageData, v
                 }
             }
         }
-        ctx.putImageData(img, 0, 0)
+    }
+    ctx.putImageData(img, 0, 0)
     } else {
         // Fallback to binary mask if original not provided (this path might need labels too if used)
-        const img = ctx.createImageData(width, height)
+        const img = ctx.createImageData(w, h)
         const labels = maskObj.labels
         const validSet = validParticleIds ? new Set(validParticleIds) : null
         
-        for (let i = 0, p = 0; i < labels.length; i++, p += 4) {
-            const label = labels[i]
-            let v = 0
-            if (label !== 0 && label !== 0xFFFFFFFF) {
-                if (!validSet || validSet.has(label)) {
-                    v = 255
+        if (labels.length !== w * h) {
+            console.warn(`renderMaskPng (fallback): label buffer length (${labels.length}) does not match dimensions (${w}x${h}=${w*h})`);
+        }
+
+        for (let y = 0; y < h; y++) {
+            const rowOffset = y * w;
+            for (let x = 0; x < w; x++) {
+                const i = rowOffset + x;
+                const label = labels[i];
+                let v = 0
+                if (label !== 0 && label !== 0xFFFFFFFF) {
+                    if (!validSet || validSet.has(label)) {
+                        v = 255
+                    }
                 }
+                const p = i * 4;
+                img.data[p] = v
+                img.data[p + 1] = v
+                img.data[p + 2] = v
+                img.data[p + 3] = 255
             }
-            img.data[p] = v
-            img.data[p + 1] = v
-            img.data[p + 2] = v
-            img.data[p + 3] = 255
         }
         ctx.putImageData(img, 0, 0)
     }
@@ -58,7 +102,7 @@ export async function renderMaskPng(maskObj, width, height, originalImageData, v
     return canvas.toDataURL('image/png')
 }
 
-export async function renderOverlayPng(imageData, particles, meta = {}) {
+export async function renderOverlayPng(imageData, particles, meta = {}, options = {showParticles: true, showMarkers: true, showScale: true, showRoi: true}) {
     const {width, height} = imageData
     const canvas = document.createElement('canvas')
     canvas.width = width
@@ -74,7 +118,7 @@ export async function renderOverlayPng(imageData, particles, meta = {}) {
     ctx.putImageData(tempImageData, 0, 0)
     
     // 1. Draw ArUco markers (magenta #ff3399, 3px wide)
-    if (meta.markers) {
+    if (meta.markers && options.showMarkers) {
         ctx.lineWidth = 3
         ctx.strokeStyle = '#ff3399'
         for (const m of meta.markers) {
@@ -89,31 +133,42 @@ export async function renderOverlayPng(imageData, particles, meta = {}) {
     }
 
     // 2. Draw outer polygon (green #33ff33, 3px wide)
-    if (meta.template) {
-        const ids = meta.template.config.cornerIds
-        const markerMap = {}
-        meta.template.markers.forEach(m => { markerMap[m.id] = m })
-        
-        const outerPoints = []
-        ids.forEach((id, i) => {
-            if (markerMap[id]) outerPoints.push(markerMap[id].corners[i])
-        })
-
-        if (outerPoints.length >= 2) {
-            ctx.lineWidth = 3
-            ctx.strokeStyle = '#33ff33'
-            ctx.beginPath()
-            ctx.moveTo(outerPoints[0].x, outerPoints[0].y)
-            for (let i = 1; i < outerPoints.length; i++) {
-                ctx.lineTo(outerPoints[i].x, outerPoints[i].y)
-            }
-            if (outerPoints.length === 4) ctx.closePath()
-            ctx.stroke()
+    if (meta.template && meta.warpCorners && options.showScale) {
+        ctx.lineWidth = 3
+        ctx.strokeStyle = '#33ff33'
+        ctx.beginPath()
+        ctx.moveTo(meta.warpCorners[0].x, meta.warpCorners[0].y)
+        for (let i = 1; i < 4; i++) {
+            if (meta.warpCorners[i]) ctx.lineTo(meta.warpCorners[i].x, meta.warpCorners[i].y)
         }
+        ctx.closePath()
+        ctx.stroke()
     }
 
     // 3. Draw inner polygon / analysis region (blue #0033ff, 3px wide)
-    if (meta.roi && meta.roi.points && meta.roi.points.length >= 2) {
+    if (meta.roi && meta.warpCorners && options.showRoi) {
+        // Map warped ROI bounds back to original coordinates
+        const {minX, maxX, minY, maxY} = meta.roi.actualBounds
+        const p1 = getUnwarpedPoint({x: minX, y: minY}, meta.warpCorners)
+        const p2 = getUnwarpedPoint({x: maxX, y: minY}, meta.warpCorners)
+        const p3 = getUnwarpedPoint({x: maxX, y: maxY}, meta.warpCorners)
+        const p4 = getUnwarpedPoint({x: minX, y: maxY}, meta.warpCorners)
+
+        ctx.lineWidth = 3
+        ctx.strokeStyle = '#0033ff'
+        ctx.beginPath()
+        ctx.moveTo(p1.x, p1.y)
+        ctx.lineTo(p2.x, p2.y)
+        ctx.lineTo(p3.x, p3.y)
+        ctx.lineTo(p4.x, p4.y)
+        ctx.closePath()
+        ctx.stroke()
+        
+        // Draw dashed safe zone if requested or useful
+        ctx.setLineDash([10, 5])
+        ctx.stroke()
+        ctx.setLineDash([])
+    } else if (meta.roi && meta.roi.points && meta.roi.points.length >= 2 && options.showRoi) {
         ctx.lineWidth = 3
         ctx.strokeStyle = '#0033ff'
         ctx.beginPath()
@@ -124,24 +179,26 @@ export async function renderOverlayPng(imageData, particles, meta = {}) {
         if (meta.roi.points.length === 4) ctx.closePath()
         ctx.stroke()
 
-        // Also draw the inset ROI if needed, but the spec says "inner polygon that defines the active analysis region"
-        // I'll draw the rectangle used for filtering
         if (meta.roi.actualBounds) {
-            const {minX, maxX, minY, maxY} = meta.roi.actualBounds
             ctx.setLineDash([10, 5])
-            ctx.strokeRect(minX, minY, maxX - minX, maxY - minY)
+            ctx.strokeRect(meta.roi.actualBounds.minX, meta.roi.actualBounds.minY, meta.roi.actualBounds.maxX - meta.roi.actualBounds.minX, meta.roi.actualBounds.maxY - meta.roi.actualBounds.minY)
             ctx.setLineDash([])
         }
     }
 
-    // 4. Draw detected particles (green circles as before, but maybe thinner)
-    ctx.lineWidth = 1
-    ctx.strokeStyle = 'rgba(0, 255, 0, 0.9)'
-    for (const p of particles) {
-        const r = p.eqDiameterPx / 2
-        ctx.beginPath()
-        ctx.ellipse(p.cxPx, p.cyPx, r, r, 0, 0, Math.PI * 2)
-        ctx.stroke()
+    // 4. Draw detected particles (green ellipses based on moments)
+    if (options.showParticles) {
+        ctx.lineWidth = 1
+        ctx.strokeStyle = 'rgba(0, 255, 0, 0.9)'
+        for (const p of particles) {
+            const radiusX = (p.longAxisPx || p.eqDiameterPx) / 2
+            const radiusY = (p.shortAxisPx || p.eqDiameterPx) / 2
+            const rotation = p.angleRad || 0
+            
+            ctx.beginPath()
+            ctx.ellipse(p.cxPx, p.cyPx, radiusX, radiusY, rotation, 0, Math.PI * 2)
+            ctx.stroke()
+        }
     }
     
     return canvas.toDataURL('image/png')

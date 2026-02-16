@@ -1,9 +1,10 @@
 import React from 'react'
-import {Stack, Paper, Typography} from '@mui/material'
-import HistogramPanel from './HistogramPanel.jsx'
+import {Stack, Paper, Typography, Button} from '@mui/material'
 import StatsTable from './StatsTable.jsx'
+import DownloadIcon from '@mui/icons-material/Download'
+import {convertHistogramToCsv, convertParticlesToCsv, convertStatsToCsv, downloadCsv} from '../analysis/exportCsv.js'
 
-export default function ResultsPanel({result}) {
+export default function ResultsPanel({result, binSpacing}) {
     if (!result) {
         return (
             <Paper sx={{p: 2}}>
@@ -14,23 +15,56 @@ export default function ResultsPanel({result}) {
         )
     }
 
-    const {scale} = result
+    const handleExportParticles = () => {
+        const csv = convertParticlesToCsv(result.particles, result.scale.pxPerMm)
+        downloadCsv(`${result.filename}_particles.csv`, csv)
+    }
+
+    const handleExportStats = () => {
+        const csv = convertStatsToCsv(result.stats)
+        downloadCsv(`${result.filename}_stats.csv`, csv)
+    }
+
+    const handleExportHistogram = () => {
+        const histogram = binSpacing === 'log' ? result.histograms?.log : result.histograms?.linear
+        if (histogram) {
+            const csv = convertHistogramToCsv(histogram)
+            downloadCsv(`${result.filename}_histogram.csv`, csv)
+        }
+    }
 
     return (
         <Stack spacing={2}>
-            {scale && (
-                <Paper sx={{p: 2}}>
-                    <Typography variant='h6'>Scale Info</Typography>
-                    <Typography variant='body2'>
-                        Detected Template: {scale.detectedTemplate ? `${scale.detectedTemplate}mm` : 'None'}
-                    </Typography>
-                    <Typography variant='body2'>
-                        Pixel Scale: {scale.pxPerMm.toFixed(3)} px/mm
-                    </Typography>
-                </Paper>
-            )}
-            <HistogramPanel histogram={result.histogram}/>
-            <StatsTable stats={result.stats} mmPerPx={scale?.mmPerPx}/>
+            <StatsTable result={result}/>
+            <Paper sx={{p: 2}}>
+                <Typography variant='h6' sx={{mb: 1}}>Exports</Typography>
+                <Stack direction='row' spacing={1}>
+                    <Button
+                        variant='outlined'
+                        size='small'
+                        startIcon={<DownloadIcon/>}
+                        onClick={handleExportParticles}
+                    >
+                        Particles
+                    </Button>
+                    <Button
+                        variant='outlined'
+                        size='small'
+                        startIcon={<DownloadIcon/>}
+                        onClick={handleExportStats}
+                    >
+                        Stats
+                    </Button>
+                    <Button
+                        variant='outlined'
+                        size='small'
+                        startIcon={<DownloadIcon/>}
+                        onClick={handleExportHistogram}
+                    >
+                        Histogram
+                    </Button>
+                </Stack>
+            </Paper>
         </Stack>
     )
 }

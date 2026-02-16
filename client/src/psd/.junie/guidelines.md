@@ -20,12 +20,20 @@ The analysis is performed in the browser using an orchestrator: `analyzeImageFil
     - Removes single-pixel noise and detaches lightly touching particles.
 - **`detectMarkers(imageData)`**:
     - Uses `js-aruco2` to detect ArUco markers.
+    - **Implementation Note**: Imports `AR` directly from `js-aruco2/src/aruco.js` to ensure compatibility across build environments (Vite/Node).
+    - Robustness: Automatically downscales high-resolution images and applies a custom `adaptiveThreshold` (blockSize=41) to ensure reliable detection regardless of rotation or lighting gradients.
     - Configured to use the `ARUCO` dictionary by default for compatibility with existing templates.
     - Returns an array of marker objects with `id`, `corners`, and `hammingDistance`.
-- **`detectParticles(maskObj, {minAreaPx})`**:
-    - Implements connected-component labeling (flood fill).
+- **`detectParticles(maskObj, {minAreaPx, externalLabels})`**:
+    - Implements connected-component labeling (flood fill) or uses `externalLabels` (from Watershed).
     - Returns a `labels` buffer (Uint32Array) where each pixel contains the particle ID.
-    - Calculates area and equivalent diameter ($D = 2\sqrt{Area/\pi}$) in pixels.
+    - Calculates area, equivalent diameter ($D = 2\sqrt{Area/\pi}$), axes (major/minor), and orientation angle.
+- **`distanceTransform(maskObj)`**:
+    - Computes the distance from each foreground pixel to the nearest background pixel.
+    - Used as a prerequisite for Watershed segmentation.
+- **`watershed(distObj, labels, minPeakDist)`**:
+    - Implements a priority-queue based Watershed algorithm to separate touching particles.
+    - Uses local maxima of the distance transform as seeds for region growing.
 - **Filtering**:
     - Particles are filtered by an analysis ROI (if markers are detected) with a 20px safe-zone inset.
     - Particles are filtered by a configurable `maxAreaMm2` (default 10mm²) to exclude large noise or artifacts.

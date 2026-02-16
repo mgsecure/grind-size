@@ -14,7 +14,7 @@
     "shared"
   ],
   "scripts": {
-    "dev": "concurrently -k -n client,server -c auto \"yarn workspace @starter/client dev\" \"yarn workspace @starter/server dev\"",
+    "dev": "concurrently -k -n client,server -c auto \"yarn workspace @starter/client dev --host\" \"yarn workspace @starter/server dev\"",
     "client": "yarn workspace @starter/client dev",
     "server": "yarn workspace @starter/server dev",
     "build": "yarn workspace @starter/client build",

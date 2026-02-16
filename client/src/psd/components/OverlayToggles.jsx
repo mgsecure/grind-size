@@ -12,15 +12,15 @@ export default function OverlayToggles({options = {}, onChange = () => {}}) {
                 />
                 <FormControlLabel
                     control={<Checkbox checked={!!options.showMarkers} onChange={e => onChange({...options, showMarkers: e.target.checked})}/>}
-                    label='ArUco markers (coming soon)'
+                    label='ArUco markers'
                 />
                 <FormControlLabel
                     control={<Checkbox checked={!!options.showScale} onChange={e => onChange({...options, showScale: e.target.checked})}/>}
-                    label='Scale boundary (coming soon)'
+                    label='Scale boundary'
                 />
                 <FormControlLabel
                     control={<Checkbox checked={!!options.showRoi} onChange={e => onChange({...options, showRoi: e.target.checked})}/>}
-                    label='Analysis region (coming soon)'
+                    label='Analysis region'
                 />
             </FormGroup>
         </Paper>

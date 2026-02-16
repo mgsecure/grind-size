@@ -89,8 +89,15 @@ export function ColorModeProvider({children}) {
 
     const style = getRootStyle(theme)
 
+    const value = useMemo(() => ({
+        colorMode,
+        lightTheme,
+        darkTheme,
+        theme
+    }), [colorMode, darkTheme, lightTheme, theme])
+
     return (
-        <ColorModeContext.Provider value={colorMode}>
+        <ColorModeContext.Provider value={value}>
             <ThemeProvider theme={theme}>
                 <CssBaseline enableColorScheme/>
                 <style>{style}</style>
@@ -104,7 +111,7 @@ export function ColorModeProvider({children}) {
 
 export default ColorModeContext
 
-const getRootStyle = styleTheme => {
+export const getRootStyle = styleTheme => {
     //const linkTextColor = styleTheme.palette.text.primary.icon
     const linkTextColor = styleTheme.palette.primary.dark
     const backgroundColor = styleTheme.palette.background.default
