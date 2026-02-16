@@ -4,7 +4,7 @@ import StatsTable from './StatsTable.jsx'
 import DownloadIcon from '@mui/icons-material/Download'
 import {convertHistogramToCsv, convertParticlesToCsv, convertStatsToCsv, downloadCsv} from '../analysis/exportCsv.js'
 
-export default function ResultsPanel({result, binSpacing}) {
+export default function ExportPanel({result, binSpacing}) {
     if (!result) {
         return (
             <Paper sx={{p: 2}}>
@@ -35,7 +35,6 @@ export default function ResultsPanel({result, binSpacing}) {
 
     return (
         <Stack spacing={2}>
-            <StatsTable result={result}/>
             <Paper sx={{p: 2}}>
                 <Typography variant='h6' sx={{mb: 1}}>Exports</Typography>
                 <Stack direction='row' spacing={1}>

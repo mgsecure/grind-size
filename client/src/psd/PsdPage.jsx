@@ -3,21 +3,20 @@ import {Stack, Paper, Typography, Divider, Alert, AlertTitle} from '@mui/materia
 import Dropzone from '../formUtils/Dropzone.jsx'
 import UploadQueue from './components/UploadQueue.jsx'
 import ImageViewer from './components/ImageViewer.jsx'
-import ResultsPanel from './components/ResultsPanel.jsx'
+import ExportPanel from './components/ExportPanel.jsx'
 import ParameterPanel from './components/ParameterPanel.jsx'
 import {analyzeImageFiles} from './analysis/analyzeImage.js'
 import HistogramPanel from './components/HistogramPanel.jsx'
 import ManualCornerSelector from './components/ManualCornerSelector.jsx'
-import OverlayToggles from './components/OverlayToggles.jsx'
 import {buildHistograms} from './analysis/metrics/buildHistograms.js'
 import {calculateStatistics} from './analysis/metrics/calculateStatistics.js'
-import {getFileNameWithoutExtension} from '../util/stringUtils.js'
-import Footer from '../nav/Footer.jsx'
+import StatsTable from './components/StatsTable.jsx'
 
 export default function PsdPage({settings, setSettings}) {
     const [queue, setQueue] = useState([]) // {id, file, status, error, result}
     const [droppedFiles, setDroppedFiles] = useState([])
     const [activeId, setActiveId] = useState(null)
+    const [activeIdList, setActiveIdList] = useState([])
     const [viewMode, setViewMode] = useState('single') // 'single' | 'aggregate'
     const [xAxis, setXAxis] = useState(settings.metric || 'diameter')
     const [yAxis, setYAxis] = useState(settings.value || 'mass')
@@ -35,6 +34,22 @@ export default function PsdPage({settings, setSettings}) {
     })
 
     const activeItem = useMemo(() => queue.find(q => q.id === activeId) ?? null, [queue, activeId])
+    const activeItems = useMemo(() => {
+        return queue.filter(q => activeIdList.includes(q.id)).map(q => {
+                return {
+                    id: q.id,
+                    filename: q.result.filename,
+                    stats: q.result.stats,
+                    histograms: q.result.histograms
+                }
+            }
+        )
+    }, [queue, activeIdList])
+
+    console.log('activeItem', activeItem)
+    console.log('activeItems', activeItems)
+
+
     const activeResult = activeItem?.result ?? null
 
     useEffect(() => {
@@ -48,44 +63,54 @@ export default function PsdPage({settings, setSettings}) {
         }
     }, [manualSelectionId, queue])
 
+    const aggregateItem = useMemo(() => {
+        const allDone = queue.filter(q => q.status === 'done' && q.result)
+        if (allDone.length === 0) return null
+
+        const normalizedParticles = allDone.flatMap(item => {
+            const mmPerPx = item.result.scale.mmPerPx
+            const factor = mmPerPx * 1000
+            return item.result.particles.map(p => ({
+                ...p,
+                // calculateStatistics expects these properties in pixels and uses factor to convert.
+                // So we provide them such that p.shortAxisPx * factor = actual_microns
+                // If we set factor=1, then p.shortAxisPx must be microns.
+                shortAxisPx: p.shortAxisPx * factor,
+                longAxisPx: p.longAxisPx * factor,
+                areaPx: p.areaPx * (factor ** 2),
+                surfaceAreaPx: p.surfaceAreaPx * (factor ** 2),
+                volumePx: p.volumePx * (factor ** 3),
+                eqDiameterPx: p.eqDiameterPx * factor
+            }))
+        })
+
+        const aggregateData = {
+            filename: 'Aggregate Results',
+            particles: normalizedParticles,
+            scale: {mmPerPx: 0.001, pxPerMm: 1000, detectedTemplate: 'Multiple'},
+            histograms: null // will be built below
+        }
+
+    }, [queue])
+
     const processedActive = useMemo(() => {
         let activeData = null
-        
+
         if (viewMode === 'aggregate') {
             const allDone = queue.filter(q => q.status === 'done' && q.result)
             if (allDone.length === 0) return null
-            
-            // Pool particles
-            const pooledParticles = []
-            allDone.forEach(item => {
-                const mmPerPx = item.result.scale.mmPerPx
-                item.result.particles.forEach(p => {
-                    pooledParticles.push({
-                        ...p,
-                        // Ensure we use physical properties or scale them correctly
-                        // The particles already have areaPx, longAxisPx etc.
-                        // We need to pass the pooled scale info if we want to use calculateStatistics
-                        // But calculateStatistics uses mmPerPx. If different images have different scales,
-                        // we must convert pixels to microns/mm first or normalize them.
-                        
-                        // Let's create a "normalized" particle object for the pool
-                        // where pixel values are converted to a standard scale (e.g. 1px = 1um)
-                        // or just add micron properties to detectParticles output.
-                    })
-                })
-            })
 
             // Actually, calculateStatistics and buildHistograms take mmPerPx as a parameter.
             // If we have a pool of particles from different images, we can't use a single mmPerPx.
             // We should modify calculateStatistics to handle pre-scaled particles or normalize them here.
-            
+
             // For now, let's normalize to 1px = 1um
             const normalizedParticles = allDone.flatMap(item => {
                 const mmPerPx = item.result.scale.mmPerPx
                 const factor = mmPerPx * 1000
                 return item.result.particles.map(p => ({
                     ...p,
-                    // calculateStatistics expects these properties in pixels and uses factor to convert
+                    // calculateStatistics expects these properties in pixels and uses factor to convert.
                     // So we provide them such that p.shortAxisPx * factor = actual_microns
                     // If we set factor=1, then p.shortAxisPx must be microns.
                     shortAxisPx: p.shortAxisPx * factor,
@@ -100,7 +125,7 @@ export default function PsdPage({settings, setSettings}) {
             activeData = {
                 filename: 'Aggregate Results',
                 particles: normalizedParticles,
-                scale: { mmPerPx: 0.001, pxPerMm: 1000, detectedTemplate: 'Multiple' },
+                scale: {mmPerPx: 0.001, pxPerMm: 1000, detectedTemplate: 'Multiple'},
                 histograms: null // will be built below
             }
         } else {
@@ -109,12 +134,13 @@ export default function PsdPage({settings, setSettings}) {
 
         if (!activeData) return null
 
-        const currentBinsType = activeData.histograms?.[binSpacing]?.customBinsUsed ? 'dynamic' : 'default'
+        const currentBinsType = activeData.histograms?.[binSpacing]?.customBinsUsed ? 'default' : 'dynamic'
 
         if (activeData.histograms?.[binSpacing]?.metric !== xAxis ||
             activeData.histograms?.[binSpacing]?.weighting !== yAxis ||
             currentBinsType !== settings.binsType ||
-            activeData.histograms?.[binSpacing]?.spacing !== binSpacing) {
+            activeData.histograms?.[binSpacing]?.spacing !== binSpacing ||
+            activeData.histograms?.[binSpacing]?.binCount !== settings.bins) {
 
             const hists = buildHistograms(activeData.particles, {
                 binCount: settings.bins,
@@ -137,7 +163,7 @@ export default function PsdPage({settings, setSettings}) {
     const globalMaxY = useMemo(() => {
         let logMax = 0
         let linearMax = 0
-        
+
         // Items to consider for global normalization
         const results = queue.filter(q => q.status === 'done' && q.result).map(q => q.result)
         if (viewMode === 'aggregate' && processedActive && processedActive.filename === 'Aggregate Results') {
@@ -150,22 +176,23 @@ export default function PsdPage({settings, setSettings}) {
 
             // If the item's result has a different metric or weighting than current,
             // we need to recalculate its maxY to have a consistent global scale.
-            const currentBinsType = result.histograms?.[binSpacing]?.customBinsUsed ? 'dynamic' : 'default'
+            const currentBinsType = result.histograms?.[binSpacing]?.customBinsUsed ? 'default' : 'dynamic'
 
             if (result.histograms?.log?.metric !== xAxis ||
                 result.histograms?.log?.weighting !== yAxis ||
-                currentBinsType !== settings.binsType) {
-                
+                currentBinsType !== settings.binsType ||
+                result.histograms?.log?.binCount !== settings.bins) {
+
                 // Recalculate histograms for this item to get the correct maxY
                 const hists = buildHistograms(result.particles, {
                     binCount: settings.bins,
-                    spacing: binSpacing, 
+                    spacing: binSpacing,
                     weighting: yAxis,
                     mmPerPx: result.scale.mmPerPx,
                     metric: xAxis,
                     binsType: settings.binsType
                 })
-                result = { ...result, histograms: hists }
+                result = {...result, histograms: hists}
             }
 
             if (result?.histograms?.log) {
@@ -179,7 +206,7 @@ export default function PsdPage({settings, setSettings}) {
         // Add 5% headroom for better visualization
         const log = logMax > 0 ? logMax * 1.05 : 100
         const linear = linearMax > 0 ? linearMax * 1.05 : 100
-        return { logMax: log, linearMax: linear }
+        return {logMax: log, linearMax: linear}
     }, [queue, processedActive, xAxis, yAxis, settings.bins, settings.binsType, binSpacing, viewMode])
 
     const onFiles = useCallback(async (files) => {
@@ -224,33 +251,38 @@ export default function PsdPage({settings, setSettings}) {
     useEffect(() => {
         const startAnalysis = async () => {
             if (isAnalyzing || manualSelectionId) return
-            
+
             const toProcess = queue.filter(q => q.status === 'queued')
             if (toProcess.length === 0) return
 
             setIsAnalyzing(true)
             for (const item of toProcess) {
-                // Double check status hasn't changed while we were waiting for previous item
+                // Double-check status hasn't changed while we were waiting for previous item
                 setQueue(prev => {
                     const currentItem = prev.find(p => p.id === item.id)
                     if (currentItem?.status !== 'queued') return prev
                     return prev.map(p => p.id === item.id ? {...p, status: 'analyzing'} : p)
                 })
-                
+
                 try {
                     const result = await analyzeImageFiles(item.file, {...settings, binSpacing}, null, overlayOptions)
-                    
+
                     // If no template detected, prompt for manual corners
                     if (!result.template && !result.scale?.detectedTemplate) {
                         setManualSelectionId(item.id)
                         setQueue(prev => prev.map(p => p.id === item.id ? {...p, status: 'manual_needed'} : p))
                         setIsAnalyzing(false) // Break and wait for user
-                        return 
+                        return
                     }
 
                     setQueue(prev => prev.map(p => p.id === item.id ? {...p, status: 'done', result} : p))
                 } catch (err) {
-                    setQueue(prev => prev.map(p => p.id === item.id ? {...p, status: 'error', error: String(err), result: null} : p))
+                    setQueue(prev => prev.map(p => p.id === item.id ? {
+                        ...p,
+                        status: 'error',
+                        error: String(err),
+                        result: null
+                    } : p))
                 }
             }
             setIsAnalyzing(false)
@@ -279,7 +311,7 @@ export default function PsdPage({settings, setSettings}) {
         const id = manualSelectionId
         setManualSelectionId(null)
         setQueue(prev => prev.map(p => p.id === id ? {...p, status: 'analyzing'} : p))
-        
+
         try {
             const item = queue.find(q => q.id === id)
             const result = await analyzeImageFiles(item.file, {...settings, binSpacing}, corners, overlayOptions)
@@ -295,11 +327,23 @@ export default function PsdPage({settings, setSettings}) {
         setQueue(prev => prev.map(p => p.id === id ? {...p, status: 'error', error: 'Manual selection cancelled'} : p))
     }
 
+    const handleQueueRemove = (id) => {
+        if (id === 'all') {
+            setQueue([])
+            setDroppedFiles([])
+        } else {
+            setQueue(prev => prev.filter(p => p.id !== id))
+            setDroppedFiles(prev => prev.filter(f => f.path !== queue.find(q => q.id === id)?.file.path))
+        }
+    }
+
+    const disabledStyle = {opacity: 0.5, pointerEvents: 'none'}
+
     return (
         <Stack spacing={2} sx={{width: '100%'}}>
             {manualSelectionId && (
                 <Paper sx={{p: 2}}>
-                    <ManualCornerSelector 
+                    <ManualCornerSelector
                         imageUrl={manualSelectionUrl}
                         onCornersSelected={handleManualCorners}
                         onCancel={cancelManual}
@@ -313,74 +357,86 @@ export default function PsdPage({settings, setSettings}) {
                 </Typography>
             </Paper>
 
-            <Paper sx={{p: 2, width: '100%'}}>
+            <Stack direction={{xs: 'column', md: 'row'}} spacing={2} sx={{width: '100%'}}>
                 <Dropzone
                     files={droppedFiles}
                     handleDroppedFiles={onFiles}
                     accept={{'image/*': []}}
                     multiple
                     maxFiles={15}
-                    maxMBperFile ={15}
+                    maxMBperFile={15}
                     label='Drop grind photos here (max 6)'
+                    zoneStyle={{fontSize: '0.9rem', height: '100%', padding: 10, borderRadius: 4}}
                 />
-            </Paper>
-
-            <Paper sx={{p: 2, width: '100%'}}>
                 <UploadQueue
-                    items={queue}
+                    queue={queue}
+                    setQueue={setQueue}
+                    handleQueueRemove={handleQueueRemove}
                     activeId={activeId}
+                    activeIdList={activeIdList}
+                    setActiveIdList={setActiveIdList}
                     onSelect={setActiveId}
                     viewMode={viewMode}
                     setViewMode={setViewMode}
                 />
-                <HistogramPanel
-                    histograms={processedActive?.histograms}
-                    xAxis={xAxis}
-                    setXAxis={setXAxis}
-                    yAxis={yAxis}
-                    setYAxis={setYAxis}
-                    binSpacing={binSpacing}
-                    setBinSpacing={setBinSpacing}
-                    maxY={binSpacing === 'log' ? globalMaxY.logMax : globalMaxY.linearMax}
-                    seriesId={processedActive?.filename}
-                />
-            </Paper>
+            </Stack>
+
+            <ParameterPanel
+                queue={queue}
+                settings={settings}
+                setSettings={setSettings}
+                resetToggle={resetToggle}
+                setResetToggle={setResetToggle}/>
+
+            <HistogramPanel
+                histograms={processedActive?.histograms}
+                xAxis={xAxis}
+                setXAxis={setXAxis}
+                yAxis={yAxis}
+                setYAxis={setYAxis}
+                settings={settings}
+                setSettings={setSettings}
+                binSpacing={binSpacing}
+                setBinSpacing={setBinSpacing}
+                maxY={binSpacing === 'log' ? globalMaxY.logMax : globalMaxY.linearMax}
+                seriesId={processedActive?.filename}
+            />
 
             {processedActive?.warnings?.length > 0 && (
                 <Stack spacing={1} sx={{mb: 2}}>
                     {processedActive.warnings.map((w, i) => (
-                        <Alert key={i} severity="warning">
+                        <Alert key={i} severity='warning'>
                             <AlertTitle>Analysis Warning</AlertTitle>
                             {w}
                         </Alert>
                     ))}
                 </Stack>
             )}
+
             <Stack direction={{xs: 'column', md: 'row'}} spacing={2} sx={{width: '100%'}}>
-                <Stack spacing={2} sx={{flex: 1, minWidth: 320}}>
-                    <ParameterPanel settings={settings} setSettings={setSettings} resetToggle={resetToggle}
-                                    setResetToggle={setResetToggle}/>
-                    <OverlayToggles options={overlayOptions} onChange={setOverlayOptions} />
+                <Stack spacing={2} sx={{flex: 1, minWidth: 320}} style={viewMode === 'single' ? {} : disabledStyle}>
+                    <ImageViewer result={processedActive} overlayOptions={overlayOptions}
+                                 setOverlayOptions={setOverlayOptions}/>
+                    <ExportPanel result={processedActive} binSpacing={binSpacing}/>
                 </Stack>
 
                 <Stack spacing={2} sx={{flex: 2}}>
-                    {viewMode === 'single' && <ImageViewer result={processedActive}/>}
                     {viewMode === 'aggregate' && (
                         <Paper sx={{p: 2}}>
-                            <Typography variant="h6">Aggregate Analysis</Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                Displaying pooled statistics from all {queue.filter(q => q.status === 'done').length} analyzed images.
+                            <Typography variant='h6'>Aggregate Analysis</Typography>
+                            <Typography variant='body2' color='text.secondary'>
+                                Displaying pooled statistics from
+                                all {queue.filter(q => q.status === 'done').length} analyzed images.
                             </Typography>
                         </Paper>
                     )}
-                    <Divider/>
-                    <ResultsPanel result={processedActive} binSpacing={binSpacing}/>
+
+                    <StatsTable result={processedActive} activeItems={activeItems}/>
+
                 </Stack>
             </Stack>
 
-            <Footer />
-
-
+            <div style={{height: 100}}/>
         </Stack>
     )
 }

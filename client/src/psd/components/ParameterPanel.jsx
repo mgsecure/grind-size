@@ -3,12 +3,19 @@ import {Paper, Stack, Typography, Slider, FormControl, InputLabel, Select, MenuI
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import ToggleButton from '@mui/material/ToggleButton'
 import Button from '@mui/material/Button'
+import Switch from '@mui/material/Switch'
 import {PSD_PRESETS} from '@starter/shared'
+import Collapse from '@mui/material/Collapse'
+import SettingsIcon from '@mui/icons-material/Settings'
+import useWindowSize from '../../util/useWindowSize.jsx'
 
-export default function ParameterPanel({settings, setSettings, resetToggle, setResetToggle}) {
-    const [viewMode, setViewMode] = useState('standard') // 'standard' | 'advanced'
+export default function ParameterPanel({queue, settings, setSettings, resetToggle, setResetToggle}) {
+    const [showDetails, setShowDetails] = useState(false)
+    const [preset, setPreset] = useState('default') // 'default' | 'coarse' | 'fines' | 'custom'
+    const [settingsChanged, setSettingsChanged] = useState(false)
 
     const handlePresetChange = (presetKey) => {
+        setPreset(presetKey)
         const preset = PSD_PRESETS[presetKey]
         if (preset) {
             setSettings(prev => ({
@@ -16,60 +23,185 @@ export default function ParameterPanel({settings, setSettings, resetToggle, setR
                 ...preset.params
             }))
         }
+        if (presetKey === 'custom') {
+            setShowDetails(true)
+        } else {
+            setSettingsChanged(true)
+        }
     }
 
+    const handleParameterChange = (param, value) => {
+        setSettings(prev => ({
+            ...prev,
+            [param]: value
+        }))
+        handlePresetChange('custom')
+        setSettingsChanged(true)
+    }
+
+    const handleRecalculate = () => {
+        setResetToggle(true)
+        setSettingsChanged(false)
+    }
+
+    const {isMobile} = useWindowSize()
+    const sliderWidth = isMobile ? 170 : 230
+
     return (
-        <Paper sx={{p: 2}}>
-            <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{mb: 1}}>
-                <Typography variant='h6'>Parameters</Typography>
-                <ToggleButtonGroup
-                    size='small'
-                    value={viewMode}
-                    exclusive
-                    onChange={(_, v) => v && setViewMode(v)}
-                >
-                    <ToggleButton value='standard'>Standard</ToggleButton>
-                    <ToggleButton value='advanced'>Advanced</ToggleButton>
-                </ToggleButtonGroup>
+        <Paper sx={{p: 1}}>
+            <Stack direction='row' flexWrap='wrap' alignItems='center' sx={{mb: 0}}>
+                {isMobile &&
+                    <Typography variant='h6'>Settings</Typography>
+                }
+
+                <Stack direction='row' flexWrap='wrap' alignItems='center'>
+                    {!isMobile &&
+                        <SettingsIcon sx={{mr: 2}} fontSize='large'/>
+                    }
+                    <ToggleButtonGroup
+                        size='small'
+                        value={preset}
+                        exclusive
+                        onChange={(_, v) => v && handlePresetChange(v)}
+                        style={{margin: '10px 10px 10px 0'}}
+                    >
+                        {Object.entries(PSD_PRESETS).map(([key, preset]) => (
+                            <ToggleButton key={key} value={key}>{preset.name}</ToggleButton>
+                        ))}
+                    </ToggleButtonGroup>
+                    <ToggleButtonGroup
+                        size='small'
+                        value={showDetails}
+                        exclusive
+                        onChange={() => setShowDetails(!showDetails)}
+                        style={{margin: '10px 0px 10px 0'}}
+                    >
+                        <ToggleButton style={{width: 120}} selected={showDetails}
+                                      value='advanced'>{showDetails ? 'Hide' : 'Show'} Details</ToggleButton>
+                    </ToggleButtonGroup>
+
+                    <Button variant='contained'
+                            disabled={!settingsChanged || queue.length === 0}
+                            onClick={handleRecalculate}
+                            style={{margin: 10}}>
+                        Recalculate
+                    </Button>
+                </Stack>
             </Stack>
 
-            <Stack spacing={2}>
-                <Typography variant='body2'>Preset</Typography>
-                <ToggleButtonGroup
-                    size='small'
-                    value={Object.keys(PSD_PRESETS).find(key => 
-                        Object.entries(PSD_PRESETS[key].params).every(([p, val]) => settings[p] === val)
-                    ) || 'custom'}
-                    exclusive
-                    onChange={(_, v) => v && v !== 'custom' && handlePresetChange(v)}
-                >
-                    {Object.entries(PSD_PRESETS).map(([key, preset]) => (
-                        <ToggleButton key={key} value={key}>{preset.name}</ToggleButton>
-                    ))}
-                    <ToggleButton value='custom' disabled>Custom</ToggleButton>
-                </ToggleButtonGroup>
+            <Collapse in={showDetails} sx={{ml: !isMobile ? 3 : 0}}>
+                <Divider sx={{mt: 2, mb: 2}}/>
+                <Stack direction='row' alignItems='center' sx={{mb: 3, alignContent: 'center'}}>
+                    <Stack sx={{mr: 2}}>
+                        <ToggleButtonGroup
+                            size='small'
+                            value={settings.binsType}
+                            exclusive
+                            onChange={(e, v) => v && setSettings(prev => ({...prev, binsType: v}))}
+                        >
+                            <ToggleButton value='default'>Default Bins</ToggleButton>
+                            <ToggleButton value='dynamic'>Dynamic</ToggleButton>
+                        </ToggleButtonGroup>
+                    </Stack>
 
-                <Divider />
+                    <Stack sx={{}}>
+                        <Typography variant='body2'>
+                            Bin Count: {settings.bins}
+                        </Typography>
+                        <Slider
+                            value={settings.bins}
+                            min={10}
+                            max={50}
+                            step={1}
+                            onChange={(_, v) => setSettings(prev => ({...prev, bins: v}))}
+                            style={{marginTop: 0, width: 180}}
+                        />
+                    </Stack>
+                </Stack>
 
-                {viewMode === 'advanced' ? (
-                    <>
+                <Stack direction='row' alignItems='top' sx={{mb: 2, alignContent: 'top', flexWrap: 'wrap' }}>
+                    <Stack direction='row' style={{width: 350}}>
+                        <Stack style={{width: sliderWidth, marginRight: 24}}>
+                            <Typography variant='body2'>Min Area (px): {settings.minAreaPx}</Typography>
+                            <Slider
+                                value={settings.minAreaPx}
+                                min={1}
+                                max={100}
+                                step={1}
+                                onChange={(_, v) => handleParameterChange('minAreaPx', v)}
+                                style={{marginTop: 4}}
+                            />
+                        </Stack>
+                        <Stack style={{width: sliderWidth, marginRight: 24}}>
+                            <Typography variant='body2' style={{whiteSpace: 'nowrap'}}>Max Surface (mm²): {settings.maxAreaMm2}</Typography>
+                            <Slider
+                                value={settings.maxAreaMm2}
+                                min={1}
+                                max={100}
+                                step={1}
+                                onChange={(_, v) => handleParameterChange('maxAreaMm2', v)}
+                                style={{marginTop: 4}}
+                            />
+                        </Stack>
+                    </Stack>
+
+                    <Stack direction='row' style={{width: 350}}>
+
+                        <Stack direction='row'>
+                            <Stack sx={{mr: 2}}>
+                                <Typography variant='body2' style={{whiteSpace: 'nowrap'}}>Overlap
+                                    Separation</Typography>
+                                <Switch
+                                    onChange={(_, v) => handleParameterChange('splitOverlaps', v)}
+                                    checked={settings.splitOverlaps}
+                                    color='primary'
+                                    name='checkedB'
+                                />
+                            </Stack>
+                            <Stack style={{width: sliderWidth, marginRight: 24}}>
+                                {settings.splitOverlaps && (
+                                    <>
+                                        <Typography variant='body2'>Separation
+                                            Sensitivity: {settings.splitSensitivity}</Typography>
+                                        <Slider
+                                            value={settings.splitSensitivity}
+                                            min={0.0}
+                                            max={1.0}
+                                            step={0.1}
+                                            onChange={(_, v) => handleParameterChange('splitSensitivity', v)}
+                                            style={{marginTop: 4}}
+                                        />
+                                    </>
+                                )}
+                            </Stack>
+                        </Stack>
+                    </Stack>
+                </Stack>
+
+                <Stack direction='row' alignItems='top' sx={{mb: 2, alignContent: 'top'}}>
+                    <Stack style={{width: sliderWidth, marginRight: 24}}>
                         <Typography variant='body2'>Background Sigma: {settings.bgSigma}</Typography>
                         <Slider
                             value={settings.bgSigma}
                             min={5}
                             max={80}
                             step={1}
-                            onChange={(_, v) => setSettings(prev => ({...prev, bgSigma: v}))}
+                            onChange={(_, v) => handleParameterChange('bgSigma', v)}
                         />
+                    </Stack>
 
+                    <Stack style={{width: sliderWidth, marginRight: 24}}>
                         <Typography variant='body2'>Adaptive Block Size: {settings.adaptiveBlockSize}</Typography>
                         <Slider
                             value={settings.adaptiveBlockSize}
                             min={21}
                             max={301}
                             step={2}
-                            onChange={(_, v) => setSettings(prev => ({...prev, adaptiveBlockSize: v}))}
+                            onChange={(_, v) => handleParameterChange('adaptiveBlockSize', v)}
                         />
+                    </Stack>
+
+                    <Stack style={{width: sliderWidth, marginRight: 24}}>
 
                         <Typography variant='body2'>Adaptive C: {settings.adaptiveC}</Typography>
                         <Slider
@@ -77,87 +209,12 @@ export default function ParameterPanel({settings, setSettings, resetToggle, setR
                             min={0}
                             max={15}
                             step={1}
-                            onChange={(_, v) => setSettings(prev => ({...prev, adaptiveC: v}))}
+                            onChange={(_, v) => handleParameterChange('adaptiveC', v)}
                         />
+                    </Stack>
+                </Stack>
 
-                        <Typography variant='body2'>Min Area (px): {settings.minAreaPx}</Typography>
-                        <Slider
-                            value={settings.minAreaPx}
-                            min={1}
-                            max={100}
-                            step={1}
-                            onChange={(_, v) => setSettings(prev => ({...prev, minAreaPx: v}))}
-                        />
-
-                        <Typography variant='body2'>Max Surface (mm²): {settings.maxAreaMm2}</Typography>
-                        <Slider
-                            value={settings.maxAreaMm2}
-                            min={1}
-                            max={100}
-                            step={1}
-                            onChange={(_, v) => setSettings(prev => ({...prev, maxAreaMm2: v}))}
-                        />
-
-                        <Typography variant='body2'>Overlap Separation</Typography>
-                        <ToggleButtonGroup
-                            size='small'
-                            value={settings.splitOverlaps ? 'on' : 'off'}
-                            exclusive
-                            onChange={(e, v) => setSettings(prev => ({...prev, splitOverlaps: v === 'on'}))}
-                        >
-                            <ToggleButton value='on'>On</ToggleButton>
-                            <ToggleButton value='off'>Off</ToggleButton>
-                        </ToggleButtonGroup>
-
-                        {settings.splitOverlaps && (
-                            <>
-                                <Typography variant='body2'>Separation Sensitivity: {settings.splitSensitivity}</Typography>
-                                <Slider
-                                    value={settings.splitSensitivity}
-                                    min={0.0}
-                                    max={1.0}
-                                    step={0.1}
-                                    onChange={(_, v) => setSettings(prev => ({...prev, splitSensitivity: v}))}
-                                />
-                            </>
-                        )}
-                    </>
-                ) : (
-                    <Box sx={{py: 1}}>
-                        <Typography variant='body2' color='text.secondary'>
-                            Switch to Advanced mode to manually tune image processing parameters.
-                        </Typography>
-                    </Box>
-                )}
-
-                <Divider />
-
-                <Typography variant='body2'>Binning</Typography>
-                <ToggleButtonGroup
-                    size='small'
-                    value={settings.binsType}
-                    exclusive
-                    onChange={(e, v) => v && setSettings(prev => ({...prev, binsType: v}))}
-                >
-                    <ToggleButton value='default'>Default</ToggleButton>
-                    <ToggleButton value='dynamic'>Dynamic</ToggleButton>
-                </ToggleButtonGroup>
-
-                <Typography variant='body2'>
-                    Bin Count: {settings.bins}
-                </Typography>
-
-                <Slider
-                    value={settings.bins}
-                    min={10}
-                    max={100}
-                    step={1}
-                    disabled={settings.binsType === 'default'}
-                    onChange={(_, v) => setSettings(prev => ({...prev, bins: v}))}
-                />
-
-                <Button variant="contained" onClick={() => setResetToggle(true)}>Analyze All</Button>
-            </Stack>
+            </Collapse>
         </Paper>
     )
 }

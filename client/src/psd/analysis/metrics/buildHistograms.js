@@ -61,8 +61,8 @@ function buildHistogram(particles,
     let numBins
     let bins
     if (binsType === 'default' && metric === 'diameter') {
-        // customBins is expected to be an array of [start, end, center]
-        bins = spacing === 'log' ? getLogBins({...BIN_DEFAULTS, binCount}) : getLinearBins({...BIN_DEFAULTS, binCount})
+        // Use default range (150-2000um) but respect binCount from UI
+        bins = spacing === 'log' ? getLogBins({min: 150, max: 2000, binCount}) : getLinearBins({min: 150, max: 2000, binCount})
         numBins = bins.length
         edges = new Array(numBins + 1)
         for (let i = 0; i < numBins; i++) {
@@ -111,7 +111,8 @@ function buildHistogram(particles,
         weighting,
         spacing,
         metric,
-        customBinsUsed: binsType !== 'default'
+        binCount: numBins,
+        customBinsUsed: binsType === 'default'
     }
 }
 

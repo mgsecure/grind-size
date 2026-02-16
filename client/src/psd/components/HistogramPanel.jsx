@@ -1,5 +1,5 @@
 import React, {useMemo, useState} from 'react'
-import {Paper, Stack, Typography, ToggleButtonGroup, ToggleButton, Box} from '@mui/material'
+import {Paper, Stack, Typography, ToggleButtonGroup, ToggleButton, Box, Slider} from '@mui/material'
 import {ResponsiveBar} from '@nivo/bar'
 import {ResponsiveLine} from '@nivo/line'
 import BarChartIcon from '@mui/icons-material/BarChart'
@@ -19,6 +19,8 @@ export default function HistogramPanel({
                                            setXAxis,
                                            yAxis,
                                            setYAxis,
+                                           settings,
+                                           setSettings,
                                            binSpacing,
                                            setBinSpacing,
                                            seriesId = 'Distribution',
@@ -32,7 +34,7 @@ export default function HistogramPanel({
     const tickLegendColor = theme.palette.text.primary
 
     function formatXTick(value) {
-        if (xAxis === 'diameter') return Math.floor(value/10 + 0.5) * 10
+        if (xAxis === 'diameter') return Math.floor(value / 10 + 0.5) * 10
         if (xAxis === 'surface') return value
         return fmtNumber(value)
     }
@@ -45,11 +47,11 @@ export default function HistogramPanel({
         }
 
         const xLab = `${xAxis.charAt(0).toUpperCase() + xAxis.slice(1)} (${xUnits[xAxis]})`
-        
+
         const yLabels = {
             count: '% of Particles',
-            surface: '% by Surface Area',
-            mass: '% by Mass'
+            surface: '% Surface Area',
+            mass: '% Mass'
         }
         const yLab = yLabels[yAxis] || '% of Particles'
 
@@ -86,7 +88,7 @@ export default function HistogramPanel({
     const keys = useMemo(() => [seriesId], [seriesId])
 
     const commonProps = {
-        margin: {top: 20, right: 20, bottom: 150, left: 60},
+        margin: {top: 20, right: 20, bottom: 160, left: 50},
         enableLabel: false,
         theme: {
             axis: {
@@ -120,7 +122,7 @@ export default function HistogramPanel({
             tickRotation: -45,
             legend: xLabel,
             legendPosition: 'middle',
-            legendOffset: 55
+            legendOffset: 50
         },
         axisLeft: {
             tickSize: 5,
@@ -128,7 +130,7 @@ export default function HistogramPanel({
             tickRotation: 0,
             legend: yLabel,
             legendPosition: 'middle',
-            legendOffset: -50
+            legendOffset: -40
         },
         legends: [
             {
@@ -203,24 +205,43 @@ export default function HistogramPanel({
                     <ToggleButton value='count'>Count</ToggleButton>
                 </ToggleButtonGroup>
 
-                <ToggleButtonGroup
-                    size='small'
-                    value={chartMode}
-                    exclusive
-                    onChange={(_, v) => v && setChartMode(v)}
-                >
-                    <ToggleButton value='bar'><BarChartIcon/></ToggleButton>
-                    <ToggleButton value='line'><ShowChartIcon/></ToggleButton>
-                </ToggleButtonGroup>
-                <ToggleButtonGroup
-                    size='small'
-                    value={binSpacing}
-                    exclusive
-                    onChange={(_, v) => v && setBinSpacing(v)}
-                >
-                    <ToggleButton value='log'><ScaleLogIcon width={20} height={20}/></ToggleButton>
-                    <ToggleButton value='linear'><ScaleLinearIcon width={20} height={20}/></ToggleButton>
-                </ToggleButtonGroup>
+                <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{mb: 1}}>
+
+                    <Stack sx={{mr:2, mt:1}}>
+                        <Typography variant='body2'>
+                            Bin Count: {settings.bins}
+                        </Typography>
+                        <Slider
+                            value={settings.bins}
+                            min={10}
+                            max={50}
+                            step={1}
+                            onChange={(_, v) => setSettings(prev => ({...prev, bins: v}))}
+                            style={{marginTop: 0, width: 120}}
+                        />
+                    </Stack>
+
+
+                    <ToggleButtonGroup
+                        size='small'
+                        value={chartMode}
+                        exclusive
+                        onChange={(_, v) => v && setChartMode(v)}
+                        style={{marginRight: 20}}
+                    >
+                        <ToggleButton value='bar'><BarChartIcon/></ToggleButton>
+                        <ToggleButton value='line'><ShowChartIcon/></ToggleButton>
+                    </ToggleButtonGroup>
+                    <ToggleButtonGroup
+                        size='small'
+                        value={binSpacing}
+                        exclusive
+                        onChange={(_, v) => v && setBinSpacing(v)}
+                    >
+                        <ToggleButton value='log' style={{padding: 8}}><ScaleLogIcon width={20} height={20}/></ToggleButton>
+                        <ToggleButton value='linear' style={{padding: 8}}><ScaleLinearIcon width={20} height={20}/></ToggleButton>
+                    </ToggleButtonGroup>
+                </Stack>
             </Stack>
 
             {!chartData.length && (

@@ -3,6 +3,7 @@ import {useDropzone} from 'react-dropzone'
 import Link from '@mui/material/Link'
 import CancelIcon from '@mui/icons-material/Cancel'
 import IconButton from '@mui/material/IconButton'
+import {useTheme} from '@mui/material/styles'
 
 export default function Dropzone({
                                      files,
@@ -12,10 +13,11 @@ export default function Dropzone({
                                      maxMBperFile = 10,
                                      maxTotalMB = 50,
                                      zoneId = 'dropzone',
-                                     backgroundColor = '#333'
+                                     zoneStyle = {},
+                                     showThumbs = false
                                  }) {
 
-
+    const theme = useTheme()
     const maxFilesHit = files.length >= maxFiles
     const maxSize = maxMBperFile * 1024 * 1024
 
@@ -94,11 +96,12 @@ export default function Dropzone({
         borderRadius: 1,
         borderColor: '#777',
         borderStyle: 'dashed',
-        backgroundColor: backgroundColor,
         color: '#eee',
         outline: 'none',
         transition: 'border .24s ease-in-out',
-        minWidth: 150
+        minWidth: 150,
+        backgroundColor: theme.palette.background.paper,
+        ...zoneStyle
     }
 
     const focusedStyle = {borderColor: '#2196f3'}
@@ -209,8 +212,9 @@ export default function Dropzone({
             <div {...getRootProps({style})}>
                 <input {...getInputProps()} />
                 {maxFilesHit
-                    ? <p style={{textAlign: 'center'}}>Maximum Number of<br/> Files Added</p>
-                    : <p style={{textAlign: 'center'}}>Drag Files Here or<br/> Click to Browse</p>
+                    ? <span style={{textAlign: 'center'}}>Maximum Number of<br/> Files Added</span>
+                    : <div style={{textAlign: 'center', height: '100%', alignContent: 'center'}}>Drag Files Here
+                        or<br/> Click to Browse</div>
                 }
                 {errorMessage.length > 0 &&
                     <div style={errorMessageStyle}>{errorMessage}</div>
@@ -218,15 +222,18 @@ export default function Dropzone({
                 {warning.length > 0 &&
                     <div style={warningStyle}>{warning}</div>
                 }
-                {files.length > 0 &&
+                {(files.length > 0 && showThumbs) &&
                     <div style={{...baseStyle, borderWidth: 0, padding: 10}}>
                         <div style={thumbsContainer}>
                             {thumbs}
                         </div>
+                    </div>
+                }
+                {files.length > 0 &&
+                    <div style={{...baseStyle, borderWidth: 0, paddingTop: 10}}>
                         <Link onClick={clearAll} name='all' style={{color: '#eee', marginTop: 6}}>Clear all</Link>
                     </div>
                 }
-
             </div>
 
 

@@ -4,7 +4,7 @@ import {Paper, Table, TableBody, TableCell, TableRow, Typography} from '@mui/mat
 export default function StatsTable({result}) {
     if (!result?.stats) return null
 
-    const {stats={}, scale={}} = result
+    const {stats = {}, scale = {}} = result
     const metric = stats.metric || 'diameter'
     const unit = metric === 'diameter' ? 'μm' : (metric === 'surface' ? 'μm²' : 'μm³')
 
@@ -16,8 +16,6 @@ export default function StatsTable({result}) {
         ['D10', stats?.D10?.toFixed(0), unit],
         ['D50 (Median)', stats?.D50?.toFixed(0), unit],
         ['D90', stats?.D90?.toFixed(0), unit],
-        ['Efficiency', stats?.efficiency?.toFixed(2), ''],
-        ['Span', stats?.span?.toFixed(2), ''],
         ['Mode', stats?.mode?.toFixed(0), unit],
         ['Mean', stats?.mean?.toFixed(0), unit],
         ['Std Dev', stats?.stdDev?.toFixed(0), unit],
@@ -25,7 +23,9 @@ export default function StatsTable({result}) {
         ['Max', stats?.max?.toFixed(0), unit],
         ['Avg Short Axis', stats.avgShortAxis, 'μm'],
         ['Avg Long Axis', stats.avgLongAxis, 'μm'],
-        ['Avg Roundness', stats.avgRoundness, '']
+        ['Avg Roundness', stats.avgRoundness, ''],
+        ['Efficiency', stats?.efficiency?.toFixed(2), ''],
+        ['Span', stats?.span?.toFixed(2), '']
     ]
 
     return (
