@@ -25,72 +25,79 @@ const compat = new FlatCompat({
     allConfig: js.configs.all
 })
 
-module.exports = defineConfig([{
-    languageOptions: {
-        globals: {
-            ...globals.browser,
-            ...globals.node,
-        },
-
-        ecmaVersion: 'latest',
-        sourceType: 'module',
-
-        parserOptions: {
-            ecmaFeatures: ['jsx'],
-        },
-    },
-
-    plugins: {
-        react: fixupPluginRules(react),
-        'react-hooks': fixupPluginRules(reactHooks),
-        import: fixupPluginRules(_import),
-    },
-
-    extends: fixupConfigRules(compat.extends(
+module.exports = defineConfig([
+    ...fixupConfigRules(compat.extends(
         'eslint:recommended',
         'plugin:react/recommended',
         'plugin:import/recommended',
-    )),
+    )).map(config => ({
+        ...config,
+        files: ['**/*.js', '**/*.jsx'],
+    })),
+    {
+        files: ['**/*.js', '**/*.jsx'],
+        languageOptions: {
+            globals: {
+                ...globals.browser,
+                ...globals.node,
+            },
 
-    settings: {
-        react: {
-            version: 'detect',
+            ecmaVersion: 'latest',
+            sourceType: 'module',
+
+            parserOptions: {
+                ecmaFeatures: {
+                    jsx: true,
+                },
+            },
+        },
+
+        plugins: {
+            react: fixupPluginRules(react),
+            'react-hooks': fixupPluginRules(reactHooks),
+            import: fixupPluginRules(_import),
+        },
+
+        settings: {
+            react: {
+                version: 'detect',
+            },
+        },
+
+        rules: {
+            'react/prop-types': 'off',
+
+            'no-unused-vars': ['warn', {
+                'ignoreRestSiblings': true,
+                'args': 'all',
+                'argsIgnorePattern': '^_',
+                'varsIgnorePattern': '^_',
+                'destructuredArrayIgnorePattern': '^_',
+                'caughtErrors': 'all',
+                'caughtErrorsIgnorePattern': '^_'
+            }],
+
+            'react-hooks/exhaustive-deps': 'warn',
+
+            'quotes': ['warn', 'single', {
+                'avoidEscape': true,
+            }],
+
+            'eqeqeq': ['warn', 'always'],
+            'semi': ['warn', 'never'],
+
+            'import/extensions': ['warn', 'never', {
+                jsx: 'never',
+                json: 'always',
+                js: 'ignorePackages'
+
+            }],
+
+            'import/no-unresolved': 'off',
+            'import/namespace': 'off',
         },
     },
-
-    rules: {
-        'react/prop-types': 'off',
-
-        'no-unused-vars': ['warn', {
-            'ignoreRestSiblings': true,
-            'args': 'all',
-            'argsIgnorePattern': '^_',
-            'varsIgnorePattern': '^_',
-            'destructuredArrayIgnorePattern': '^_',
-            'caughtErrors': 'all',
-            'caughtErrorsIgnorePattern': '^_'
-        }],
-
-        'react-hooks/exhaustive-deps': 'warn',
-
-        'quotes': ['warn', 'single', {
-            'avoidEscape': true,
-        }],
-
-        'eqeqeq': ['warn', 'always'],
-        'semi': ['warn', 'never'],
-
-        'import/extensions': ['warn', 'never', {
-            jsx: 'never',
-            json: 'always',
-            js: 'ignorePackages'
-
-        }],
-
-        'import/no-unresolved': 'off',
-        'import/namespace': 'off',
-    },
-}, globalIgnores([
+    globalIgnores([
     '**/dist',
     '**/client-dist',
     '**/build',

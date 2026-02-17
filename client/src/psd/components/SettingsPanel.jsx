@@ -9,7 +9,7 @@ import Collapse from '@mui/material/Collapse'
 import SettingsIcon from '@mui/icons-material/Settings'
 import useWindowSize from '../../util/useWindowSize.jsx'
 
-export default function ParameterPanel({queue, settings, setSettings, resetToggle, setResetToggle}) {
+export default function SettingsPanel({queue, settings, setSettings, resetToggle, setResetToggle}) {
     const [showDetails, setShowDetails] = useState(false)
     const [preset, setPreset] = useState('default') // 'default' | 'coarse' | 'fines' | 'custom'
     const [settingsChanged, setSettingsChanged] = useState(false)
@@ -48,16 +48,10 @@ export default function ParameterPanel({queue, settings, setSettings, resetToggl
     const sliderWidth = isMobile ? 170 : 230
 
     return (
-        <Paper sx={{p: 1}}>
+        <Paper sx={{p: 2}}>
+            <Typography style={{fontSize:'1.1rem', fontWeight: 500}}>SETTINGS</Typography>
             <Stack direction='row' flexWrap='wrap' alignItems='center' sx={{mb: 0}}>
-                {isMobile &&
-                    <Typography variant='h6'>Settings</Typography>
-                }
-
                 <Stack direction='row' flexWrap='wrap' alignItems='center'>
-                    {!isMobile &&
-                        <SettingsIcon sx={{mr: 2}} fontSize='large'/>
-                    }
                     <ToggleButtonGroup
                         size='small'
                         value={preset}

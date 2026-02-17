@@ -1,6 +1,11 @@
 import React from 'react'
 import {Outlet} from 'react-router-dom'
+import DataProvider from './PsdDataProvider.jsx'
 
 export default function PsdParentRoute() {
-    return <Outlet/>
+    return (
+        <DataProvider>
+            <Outlet/>
+        </DataProvider>
+    )
 }

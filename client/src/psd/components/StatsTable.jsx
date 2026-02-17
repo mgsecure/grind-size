@@ -1,46 +1,178 @@
 import React from 'react'
-import {Paper, Table, TableBody, TableCell, TableRow, Typography} from '@mui/material'
+import {alpha, Box, lighten, Paper, Table, TableBody, TableCell, TableRow, Typography} from '@mui/material'
+import {useTheme} from '@mui/material/styles'
+import {getFileNameWithoutExtension} from '../../util/stringUtils.js'
+import Stack from '@mui/material/Stack'
+import Divider from '@mui/material/Divider'
 
-export default function StatsTable({result}) {
-    if (!result?.stats) return null
+export default function StatsTable({activeItems}) {
+    const theme = useTheme()
+    const disabledStyle = {opacity: 0.5, pointerEvents: 'none'}
 
-    const {stats = {}, scale = {}} = result
+    if (!activeItems.length) return (
+        <Paper sx={{p: 2}}>
+            <Typography style={{...disabledStyle, fontSize: '1.1rem', fontWeight: 500}}>STATISTICS</Typography>
+            <Box color={alpha(theme.palette.text.secondary, 0.4)}
+                 sx={{
+                     display: 'flex',
+                     placeContent: 'center',
+                     padding: '10px 0px 16px 0px',
+                     width: '100%',
+                     height: 100
+                 }}>
+                <Box style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '100%', height: '100%',
+                    fontSize: '0.9rem',
+                    backgroundColor: lighten(theme.palette.background.paper, 0.08),
+                    borderRadius: 5
+                }}>
+                    No data to display.
+                </Box>
+            </Box>
+        </Paper>
+    )
+    const {stats = {}} = activeItems[0]
     const metric = stats.metric || 'diameter'
     const unit = metric === 'diameter' ? 'μm' : (metric === 'surface' ? 'μm²' : 'μm³')
 
-    const rows = [
-        ['File', result.filename, ''],
-        ['Template', scale?.detectedTemplate ? `${scale?.detectedTemplate}mm` : 'None', ''],
-        ['Pixel Scale', `${scale?.pxPerMm?.toFixed(2)} px/mm`, ''],
-        ['Particle Count', stats.count.toFixed(0), ''],
-        ['D10', stats?.D10?.toFixed(0), unit],
-        ['D50 (Median)', stats?.D50?.toFixed(0), unit],
-        ['D90', stats?.D90?.toFixed(0), unit],
-        ['Mode', stats?.mode?.toFixed(0), unit],
-        ['Mean', stats?.mean?.toFixed(0), unit],
-        ['Std Dev', stats?.stdDev?.toFixed(0), unit],
-        ['Min', stats?.min?.toFixed(0), unit],
-        ['Max', stats?.max?.toFixed(0), unit],
-        ['Avg Short Axis', stats.avgShortAxis, 'μm'],
-        ['Avg Long Axis', stats.avgLongAxis, 'μm'],
-        ['Avg Roundness', stats.avgRoundness, ''],
-        ['Efficiency', stats?.efficiency?.toFixed(2), ''],
-        ['Span', stats?.span?.toFixed(2), '']
+    const metricData = [
+        {key: 'template', label: 'Template', unit: ''},
+        {key: 'particleCount', label: 'Particle Count', unit: ''},
+        {key: 'D10', label: 'D10', unit: unit},
+        {key: 'D50', label: 'D50 (Median)', unit: unit},
+        {key: 'D90', label: 'D90', unit: unit},
+        {key: 'mode', label: 'Mode', unit: unit},
+        {key: 'mean', label: 'Mean', unit: unit},
+        {key: 'stdDev', label: 'Std Dev', unit: unit},
+        {key: 'min', label: 'Min', unit: unit},
+        {key: 'max', label: 'Max', unit: unit},
+        {key: 'avgShortAxis', label: 'Avg Short Axis', unit: 'μm'},
+        {key: 'avgLongAxis', label: 'Avg Long Axis', unit: 'μm'},
+        {key: 'avgRoundness', label: 'Avg Roundness', unit: ''},
+        {key: 'efficiency', label: 'Efficiency', unit: '%'},
+        {key: 'span', label: 'Span', unit: '%'},
+        {key: 'pixelScale', label: 'Pixel Scale', unit: ''}
     ]
+
+    const metricDataOne = [
+        {key: 'template', label: 'Template', unit: ''},
+        {key: 'particleCount', label: 'Particle Count', unit: ''},
+        {key: 'D10', label: 'D10', unit: unit},
+        {key: 'D50', label: 'D50 (Median)', unit: unit},
+        {key: 'D90', label: 'D90', unit: unit},
+        {key: 'mode', label: 'Mode', unit: unit},
+        {key: 'mean', label: 'Mean', unit: unit},
+        {key: 'stdDev', label: 'Std Dev', unit: unit}
+    ]
+
+    const metricDataTwo = [
+        {key: 'min', label: 'Min', unit: unit},
+        {key: 'max', label: 'Max', unit: unit},
+        {key: 'avgShortAxis', label: 'Avg Short Axis', unit: 'μm'},
+        {key: 'avgLongAxis', label: 'Avg Long Axis', unit: 'μm'},
+        {key: 'avgRoundness', label: 'Avg Roundness', unit: ''},
+        {key: 'efficiency', label: 'Efficiency', unit: '%'},
+        {key: 'span', label: 'Span', unit: '%'},
+        {key: 'pixelScale', label: 'Pixel Scale', unit: ''}
+    ]
+
+    const tableData = activeItems.reduce((acc, item) => {
+        acc[item.id] = {
+            filename: getFileNameWithoutExtension(item.filename),
+            template: item.scale.detectedTemplate
+                ? `${item.scale.detectedTemplate}${item.scale.detectedTemplate === 'Multiple' ? '' : 'mm'}`
+                : 'None',
+            particleCount: item.stats.count?.toFixed(0),
+            D10: item.stats.D10?.toFixed(0),
+            D50: item.stats.D50?.toFixed(0),
+            D90: item.stats.D90?.toFixed(0),
+            mode: item.stats.mode?.toFixed(0),
+            mean: item.stats.mean?.toFixed(0),
+            stdDev: item.stats.stdDev?.toFixed(0),
+            min: item.stats.min?.toFixed(0),
+            max: item.stats.max?.toFixed(0),
+            avgShortAxis: item.stats.avgShortAxis?.toFixed(0),
+            avgLongAxis: item.stats.avgLongAxis?.toFixed(0),
+            pixelScale: item.scale.detectedTemplate !== 'Multiple' ? `${item.scale.pxPerMm?.toFixed(2)} px/mm` : 'N/A',
+            avgRoundness: item.stats.avgRoundness?.toFixed(1),
+            efficiency: item.stats.efficiency?.toFixed(2),
+            span: item.stats.span?.toFixed(2)
+        }
+        return acc
+    }, {})
+
+    const breakTables = activeItems.length < 2
+    const dataOne = !breakTables ? metricData : metricDataOne
 
     return (
         <Paper sx={{p: 2}}>
-            <Typography variant='h6' sx={{mb: 1}}>Statistics</Typography>
-            <Table size='small'>
-                <TableBody>
-                    {rows.map(([k, v, u]) => (
-                        <TableRow key={k}>
-                            <TableCell sx={{width: 200}}>{k}</TableCell>
-                            <TableCell>{v == null ? '—' : (typeof v === 'number' ? v.toFixed(metric === 'diameter' || u === 'μm' ? 1 : 3) : v)} {u}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+            <Typography style={{fontSize: '1.1rem', fontWeight: 600}}>STATISTICS</Typography>
+            <Stack direction={breakTables ? 'row' : 'column'} spacing={3} sx={{my: 2}}>
+                <Table size='small' sx={{borderTop: '1px solid', borderColor: theme.palette.divider}}>
+                    <TableBody>
+                        {!breakTables &&
+                            <TableRow key={'filename'}>
+                                <TableCell sx={{p: '0px 12px 0px 0px'}}></TableCell>
+                                {activeItems.map(item => {
+                                    const data = tableData[item.id]?.filename
+                                    return <TableCell sx={{p: '6px 8px', fontWeight: 'bold'}}
+                                                      key={item.id}>{data !== undefined ? data : 'N/A'}</TableCell>
+                                })}
+                                <TableCell sx={{p: '6px 8px', width: 'auto'}}/>
+                            </TableRow>
+                        }
+                        {dataOne.map(({key, label, unit}) => (
+                            <TableRow key={key} sx={{
+                                '&:hover': {backgroundColor: theme.palette.action.hover}
+                            }}
+                            >
+                                <TableCell sx={{p: '0px 12px 0px 0px', width: '200px'}}>{label}</TableCell>
+                                {activeItems.map((item, index) => {
+                                    return <TableCell sx={{p: '6px 8px'}} key={item.id}>
+                                        {tableData[item.id]?.[key] !== undefined ? tableData[item.id]?.[key] : 'N/A'} {(index === activeItems.length - 1 && unit) ? unit : ''}
+                                    </TableCell>
+                                })}
+                                <TableCell sx={{p: '6px 8px', width: 'auto'}}/>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+
+                {breakTables &&
+                    <Table size='small' sx={{borderTop: '1px solid', borderColor: theme.palette.divider}}>
+                        <TableBody>
+                            {!breakTables &&
+                                <TableRow key={'filename'}>
+                                    <TableCell sx={{p: '0px 12px 0px 0px'}}></TableCell>
+                                    {activeItems.map(item => {
+                                        const data = tableData[item.id]?.filename
+                                        return <TableCell sx={{p: '6px 8px', fontWeight: 'bold'}}
+                                                          key={item.id}>{data !== undefined ? data : 'N/A'}</TableCell>
+                                    })}
+                                    <TableCell sx={{p: '6px 8px', width: 'auto'}}/>
+                                </TableRow>
+                            }
+                            {metricDataTwo.map(({key, label, unit}) => (
+                                <TableRow key={key} sx={{
+                                    '&:hover': {backgroundColor: theme.palette.action.hover}
+                                }}
+                                >
+                                    <TableCell sx={{p: '0px 12px 0px 0px', width: '200px'}}>{label}</TableCell>
+                                    {activeItems.map((item, index) => {
+                                        return <TableCell sx={{p: '6px 8px'}} key={item.id}>
+                                            {tableData[item.id]?.[key] !== undefined ? tableData[item.id]?.[key] : 'N/A'} {(index === activeItems.length - 1 && unit) ? unit : ''}
+                                        </TableCell>
+                                    })}
+                                    <TableCell sx={{p: '6px 8px', width: 'auto'}}/>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                }
+            </Stack>
         </Paper>
     )
 }

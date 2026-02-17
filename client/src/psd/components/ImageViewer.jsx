@@ -1,32 +1,12 @@
 import React, {useMemo, useState} from 'react'
-import {Paper, ToggleButton, ToggleButtonGroup, Stack, Typography} from '@mui/material'
-import CropFreeIcon from '@mui/icons-material/CropFree'
+import {Paper, ToggleButton, ToggleButtonGroup, Stack, Typography, alpha, Box, lighten} from '@mui/material'
 import {useTheme} from '@mui/material/styles'
 
-export default function ImageViewer({result, overlayOptions = {}, setOverlayOptions}) {
+export default function ImageViewer({result}) {
     const theme = useTheme()
     const [mode, setMode] = useState('overlay') // original | mask | overlay
-    const [showBoundaries, setShowBoundaries] = useState(true)
 
-    const toggleBoundaries = () => {
-        if (showBoundaries) {
-            setOverlayOptions({
-                showParticles: true,
-                showMarkers: false,
-                showScale: false,
-                showRoi: false
-            })
-        } else {
-            setOverlayOptions({
-                showParticles: true,
-                showMarkers: true,
-                showScale: true,
-                showRoi: true
-            })
-        }
-
-        setShowBoundaries(!showBoundaries)
-    }
+    console.log('ImageViewer', result)
 
     const src = useMemo(() => {
         if (!result) return null
@@ -35,47 +15,50 @@ export default function ImageViewer({result, overlayOptions = {}, setOverlayOpti
         return result.previews?.overlayPngDataUrl
     }, [result, mode])
 
-    return (
-        <Paper sx={{p: 2}}>
-            <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{mb: 1}}>
-                    <ToggleButtonGroup
-                        size='small'
-                        value={mode}
-                        exclusive
-                        onChange={(_, v) => v && setMode(v)}
-                    >
-                        <ToggleButton value='overlay'>Overlay</ToggleButton>
-                        <ToggleButton value='mask'>Threshold</ToggleButton>
-                    </ToggleButtonGroup>
+    const disabledStyle = !result ? {opacity: 0.5, pointerEvents: 'none'} : undefined
 
-                    <ToggleButtonGroup
-                        size='small'
-                        value={showBoundaries}
-                        onChange={() => toggleBoundaries()}
-                        exclusive
-                        style={{marginLeft: 8}}
-                    >
-                        <ToggleButton value='boundaries' selected={showBoundaries} style={{padding: 4}}>
-                            <CropFreeIcon fontSize='small'/>
-                        </ToggleButton>
-                    </ToggleButtonGroup>
+    return (
+        <Paper sx={{p: 2, width: '50%'}}>
+            <Typography style={{...disabledStyle, fontSize: '1.1rem', fontWeight: 500}}>PARTICLE DETECTION</Typography>
+            <Stack direction='row' spacing={1} sx={{mt: 2, mb: 2}}  style={disabledStyle}>
+                <ToggleButtonGroup
+                    size='small'
+                    value={mode}
+                    exclusive
+                    onChange={(_, v) => v && setMode(v)}
+                >
+                    <ToggleButton value='overlay'>Overlay View</ToggleButton>
+                    <ToggleButton value='mask'>Threshold Image</ToggleButton>
+                </ToggleButtonGroup>
             </Stack>
 
-            {!result && (
-                <Typography variant='body2' color='text.secondary'>
-                    Upload images to see previews
-                </Typography>
-            )}
-
             {(result && src)
-                ? <img
+                 ? <img
                     src={src}
                     alt='analysis preview'
                     style={{width: '100%', borderRadius: 8}}
                 />
-                : <div style={{backgroundColor: theme.palette.divider , height: 250}}/>
+                : <Box color={alpha(theme.palette.text.secondary, 0.4)}
+                       sx={{
+                           display: 'flex',
+                           placeContent: 'center',
+                           padding: '10px 0px 16px 0px',
+                           width: '100%',
+                           height: 100
+                       }}>
+                    <Box style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '100%', height: '100%',
+                        fontSize: '0.9rem',
+                        backgroundColor: lighten(theme.palette.background.paper, 0.08),
+                        borderRadius: 5
+                    }}>
+                        No data to display.
+                    </Box>
+                </Box>
             }
-
 
 
             {result && mode === 'original' && (

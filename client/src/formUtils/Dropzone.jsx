@@ -14,6 +14,7 @@ export default function Dropzone({
                                      maxTotalMB = 50,
                                      zoneId = 'dropzone',
                                      zoneStyle = {},
+                                     messgageStyle = {},
                                      showThumbs = false
                                  }) {
 
@@ -100,7 +101,7 @@ export default function Dropzone({
         outline: 'none',
         transition: 'border .24s ease-in-out',
         minWidth: 150,
-        backgroundColor: theme.palette.background.paper,
+        backgroundColor: theme.palette.divider,
         ...zoneStyle
     }
 
@@ -213,8 +214,10 @@ export default function Dropzone({
                 <input {...getInputProps()} />
                 {maxFilesHit
                     ? <span style={{textAlign: 'center'}}>Maximum Number of<br/> Files Added</span>
-                    : <div style={{textAlign: 'center', height: '100%', alignContent: 'center'}}>Drag Files Here
-                        or<br/> Click to Browse</div>
+                    : <div style={{textAlign: 'center', height: '100%', alignContent: 'center', ...messgageStyle}}>
+                        Drag Files Here
+                        or<br/> Click to Browse
+                    </div>
                 }
                 {errorMessage.length > 0 &&
                     <div style={errorMessageStyle}>{errorMessage}</div>
@@ -229,7 +232,7 @@ export default function Dropzone({
                         </div>
                     </div>
                 }
-                {files.length > 0 &&
+                {(files.length > 0 && showThumbs) &&
                     <div style={{...baseStyle, borderWidth: 0, paddingTop: 10}}>
                         <Link onClick={clearAll} name='all' style={{color: '#eee', marginTop: 6}}>Clear all</Link>
                     </div>

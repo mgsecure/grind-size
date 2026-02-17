@@ -1,105 +1,157 @@
-import React, {useEffect, useState} from 'react'
-import {List, ListItemButton, ListItemText, Paper, Typography, Chip, Stack, ListItem} from '@mui/material'
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
-import ToggleButton from '@mui/material/ToggleButton'
+import React, {useCallback, useContext, useEffect, useState} from 'react'
+import {
+    List,
+    Paper,
+    Typography,
+    Stack,
+    ListItem,
+    alpha,
+    lighten
+} from '@mui/material'
 import Box from '@mui/material/Box'
 import DeleteIcon from '@mui/icons-material/Delete'
 import IconButton from '@mui/material/IconButton'
 import {useTheme} from '@mui/material/styles'
 import {getFileNameWithoutExtension} from '../../util/stringUtils.js'
+import CheckBoxIcon from '@mui/icons-material/CheckBox'
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank'
+import Button from '@mui/material/Button'
+import Dropzone from '../../formUtils/Dropzone.jsx'
+import DataContext from '../../context/DataContext.jsx'
 
-export default function UploadQueue({queue, setQueue, handleQueueRemove, activeId, onSelect, activeIdList, setActiveIdList, viewMode, setViewMode}) {
+export default function UploadQueue({
+                                        droppedFiles = [],
+                                        handleDroppedFiles,
+                                        queueItems = [],
+                                        handleQueueRemove,
+                                        activeIdList,
+                                        setActiveIdList,
+                                        onSelect,
+                                        viewMode,
+                                        setViewMode,
+                                        aggregateItem
+                                    }) {
     const theme = useTheme()
 
-    const doneCount = queue.filter(i => i.status === 'done').length
-    const [selected, setSelected] = useState(activeId || queue[0]?.id)
+    const {allColors, swappedColors, aggregateColor, reverseColors} = useContext(DataContext)
 
-    console.log('activeIdList', activeIdList)
+    console.log('allColors', allColors)
+
+    const selectEnabled = queueItems.length > 1 || activeIdList.length === 0
+
+    const handleSelect = useCallback((id) => {
+        if (!selectEnabled) return
+        setActiveIdList(activeIdList.includes(id) ? activeIdList.filter(i => i !== id) : [...activeIdList, id])
+    },[activeIdList, selectEnabled, setActiveIdList])
+
     useEffect(() => {
-        const validActiveId = queue.find(i => i.id === activeId)?.id
-        setSelected(validActiveId || queue[0]?.id)
-        onSelect(validActiveId || queue[0]?.id)
-    }, [activeId, queue])
-
-    const handleSelect = (id) => {
-        if (id === 'aggregate') {
-            setSelected(id)
-            setViewMode('aggregate')
-        } else {
-            setSelected(id)
-            setActiveIdList(activeIdList.includes(id) ? activeIdList.filter(i => i !== id) : [...activeIdList, id])
-            setViewMode('single')
-            onSelect(id)
+        if (queueItems.length > 0
+            && activeIdList.length === 0
+            && queueItems[0]?.id !== 'aggregateResults' ) {
+            console.log('no active items, selecting first item')
+            handleSelect(queueItems[0]?.id)
         }
-    }
+    }, [activeIdList, handleSelect, queueItems])
+
 
     const handleDelete = (id) => {
-        setSelected(null)
         handleQueueRemove(id)
         setActiveIdList(activeIdList.filter(i => i !== id))
-        setViewMode('single')
     }
 
     return (
-        <Paper sx={{p: 2, width:'100%'}} width={'100%'}>
-            <Stack direction='row' justifyContent='space-between' alignItems='center' sx={{mb: 1}}>
-                <Typography variant='h6'>Images</Typography>
-            </Stack>
-            <List dense sx={{
-            }}>
-                {queue.map(item => (
-                    <ListItem
-                        key={item.id} selected={item.id === selected}
-                        style={{cursor: 'pointer', padding: 10}}
-                        sx={{
-                            backgroundColor: item.id === selected ? theme.palette.divider : 'inherit',
-                            '&:hover': {backgroundColor: theme.palette.action.hover}
-                        }}
-                        onClick={() => handleSelect(item.id)}
-                        secondaryAction={
-                            <IconButton edge='end' aria-label='delete' size='small'
-                                        onClick={() => handleDelete(item.id)}>
-                                <DeleteIcon/>
-                            </IconButton>
-                        }>
-                        <Box style={{
-                            color: item.status === 'error' ? theme.palette.error.main : theme.palette.text.primary,
-                            fontWeight: item.status === 'done' ? 500 : 400
-                        }}>
-                            {getFileNameWithoutExtension(item.file.name)}
-                        </Box>
-                        <span style={{
-                            color: item.status === 'error' ? theme.palette.error.main : theme.palette.text.secondary,
-                            fontSize: '0.9rem', marginLeft: 8
-                        }}>
+        <Paper sx={{p: 2, width: '100%'}} width={'100%'}>
+            <Typography style={{fontSize: '1.1rem', fontWeight: 500}}>IMAGES</Typography>
+            <Stack direction={{xs: 'column', md: 'row'}} spacing={1} sx={{width: '100%'}}>
+                <Box sx={{display: 'flex', padding: '10px 8px 16px 0px'}}>
+                    <Dropzone
+                        files={droppedFiles}
+                        handleDroppedFiles={handleDroppedFiles}
+                        accept={{'image/*': []}}
+                        multiple
+                        maxFiles={15}
+                        maxMBperFile={15}
+                        label='Drop grind photos here (max 6)'
+                        zoneStyle={{fontSize: '0.9rem', height: '100%', borderRadius: 5}}
+                        messgageStyle={{fontSize: '0.9rem', height: '100%', margin: '8px 0px'}}
+                    />
+                </Box>
+                {queueItems.length > 0 &&
+                    <List dense sx={{}} style={{width: '100%'}}>
+                        {queueItems.map(item => (
+                            <ListItem
+                                key={item.id} selected={activeIdList.includes(item.id)}
+                                style={{cursor: selectEnabled ? 'pointer' : 'default', padding: 10}}
+                                sx={{
+                                    backgroundColor: activeIdList.includes(item.id) ? theme.palette.divider : 'inherit',
+                                    '&:hover': selectEnabled ? {backgroundColor: theme.palette.action.hover} : {}
+                                }}
+                                onClick={() => handleSelect(item.id)}
+                                secondaryAction={
+                                    item.id !== 'aggregateResults' &&
+                                    <IconButton edge='end' aria-label='delete' size='small'
+                                                onClick={() => handleDelete(item.id)}>
+                                        <DeleteIcon fontSize='small'/>
+                                    </IconButton>
+                                }>
+                                {activeIdList.includes(item.id)
+                                    ? <CheckBoxIcon fontSize='small'
+                                                    style={{
+                                                        marginRight: 12,
+                                                        color: allColors?.[queueItems.indexOf(item)]
+                                                    }}/>
+                                    : <CheckBoxOutlineBlankIcon fontSize='small'
+                                                                style={{
+                                                                    marginRight: 12,
+                                                                    color: theme.palette.divider
+                                                                }}/>
+                                }
+                                {getFileNameWithoutExtension(item.filename)}
+
+                                <Box style={{
+                                    color: item.status === 'error' ? theme.palette.error.main : theme.palette.text.primary,
+                                    fontWeight: item.status === 'done' ? 500 : 400
+                                }}>
+                                </Box>
+                                <span style={{
+                                    color: item.status === 'error' ? theme.palette.error.main : theme.palette.text.secondary,
+                                    fontSize: '0.9rem', marginLeft: 8
+                                }}>
                             ({item.status === 'error' ? item.error : item.status})
                         </span>
-                    </ListItem>
-                ))}
+                            </ListItem>
+                        ))}
 
-                {(doneCount > 1 && doneCount === queue.length) &&
-                <ListItem
-                    key='aggregate'
-                    selected={viewMode === 'aggregate'}
-                    style={{cursor: 'pointer', padding: 10}}
-                    sx={{
-                        backgroundColor: viewMode === 'aggregate' ? theme.palette.divider : 'inherit',
-                        '&:hover': {backgroundColor: theme.palette.action.hover}
-                    }}
-                    onClick={() => handleSelect('aggregate')}
-                    disabled={doneCount < 2 || doneCount < queue.length}
-                >
-                    <Box style={{}}>
-                        Aggregate View
-                    </Box>
-                </ListItem>
+                        {queueItems.length > 2 &&
+                            <div style={{textAlign: 'right', marginTop: 8}}>
+                                <Button onClick={() => handleDelete('all')}>Clear All</Button>
+                            </div>
+                        }
+                    </List>
                 }
-                {!queue.length && (
-                    <Typography variant='body2' color='text.secondary'>
-                        No files yet
-                    </Typography>
+                {!queueItems.length && (
+                    <Box color={alpha(theme.palette.text.secondary, 0.4)}
+                         sx={{
+                             display: 'flex',
+                             placeContent: 'center',
+                             padding: '10px 0px 16px 0px',
+                             width: '100%',
+                         }}>
+                        <Box style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '100%', height: '100%',
+                            fontSize: '0.9rem',
+                            backgroundColor: lighten(theme.palette.background.paper, 0.08),
+                            borderRadius: 5,
+                        }}>
+                            Add photos to begin analysis
+                        </Box>
+                    </Box>
                 )}
-            </List>
+
+            </Stack>
         </Paper>
     )
 }

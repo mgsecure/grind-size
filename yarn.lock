@@ -2592,6 +2592,7 @@ __metadata:
     axios: "npm:^1.12.2"
     babel-plugin-styled-components: "npm:^2.1.4"
     canvas: "npm:^3.2.1"
+    d3-shape: "npm:^3.2.0"
     dayjs: "npm:^1.11.18"
     dompurify: "npm:^3.2.7"
     dotenv: "npm:^17.3.0"

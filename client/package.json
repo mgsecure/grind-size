@@ -33,6 +33,7 @@
     "add": "^2.0.6",
     "axios": "^1.12.2",
     "babel-plugin-styled-components": "^2.1.4",
+    "d3-shape": "^3.2.0",
     "dayjs": "^1.11.18",
     "dompurify": "^3.2.7",
     "dotenv": "^17.3.0",
