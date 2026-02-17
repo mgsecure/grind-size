@@ -1,12 +1,12 @@
-import React, {useMemo, useState} from 'react'
+import React, {useContext, useMemo, useState} from 'react'
 import {Paper, ToggleButton, ToggleButtonGroup, Stack, Typography, alpha, Box, lighten} from '@mui/material'
 import {useTheme} from '@mui/material/styles'
+import DataContext from '../../context/DataContext.jsx'
 
-export default function ImageViewer({result}) {
+export default function ImageViewer() {
+    const {processedActive: result} = useContext(DataContext)
     const theme = useTheme()
     const [mode, setMode] = useState('overlay') // original | mask | overlay
-
-    console.log('ImageViewer', result)
 
     const src = useMemo(() => {
         if (!result) return null
@@ -55,7 +55,7 @@ export default function ImageViewer({result}) {
                         backgroundColor: lighten(theme.palette.background.paper, 0.08),
                         borderRadius: 5
                     }}>
-                        No data to display.
+                        No image to display.
                     </Box>
                 </Box>
             }

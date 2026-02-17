@@ -15,18 +15,21 @@ function fmtNumber(n, digits = 2) {
     if (!Number.isFinite(n)) return '—'
     return n.toFixed(digits)}
 
-export default function HistogramPanel({
-                                           activeItems,
-                                           xAxis,
-                                           yAxis,
-                                           setYAxis,
-                                           settings,
-                                           setSettings,
-                                           binSpacing,
-                                           setBinSpacing,
-                                           maxY
-                                       }) {
-    const {allColors, swappedColors, aggregateColor, reverseColors, swapColors} = useContext(DataContext)
+export default function HistogramPanel() {
+    const {
+        allColors, swappedColors, aggregateColor, reverseColors, swapColors,
+        activeItems,
+        xAxis,
+        yAxis, setYAxis,
+        settings, setSettings,
+        binSpacing, setBinSpacing,
+        globalMaxY
+    } = useContext(DataContext)
+
+
+    //TODO: add aggregate to bar chart legeng if displayed
+
+    const maxY = binSpacing === 'log' ? globalMaxY.logMax : globalMaxY.linearMax
 
     const [chartMode, setChartMode] = useState('bar')
     const aggregateItem = activeItems.find(item => item.filename === 'Aggregate')
@@ -109,7 +112,7 @@ export default function HistogramPanel({
         })
 
         // Add Aggregate line data
-        lData.push({
+        aggregateItem && lData.push({
             id: 'Aggregate',
             data: cData.map(d => ({
                 x: d.bin,
@@ -122,16 +125,10 @@ export default function HistogramPanel({
         return {chartData: cData, lineData: lData, xLabel: xLab, yLabel: yLab, keys: seriesKeys}
     }, [xAxis, yAxis, activeItems, binSpacing, aggregateItem])
 
-    const aggregateLineLayer = ({bars, xScale, yScale}) => {
-        // lineGenerator maps data points to SVG coordinates
+    const aggregateBarLineLayer = ({bars, xScale, yScale}) => {
         const lineGenerator = line()
             .x(d => xScale(d.data.data.bin) + d.width / 2) // Center point on the bar
             .y(d => yScale(d.data.data.Aggregate))       // 'Aggregate' is calculated in chartData
-
-        // Filter the bars to only include one bar per bin. In grouped mode, there's one bar per bin for each series.
-        // If we don't filter, lineGenerator will visit the same bin multiple times, causing redundant points
-        // and potentially an extra line segment if the bars are sorted such that it goes through all bins
-        // for Series A, then all bins for Series B, etc.
         const uniqueBins = []
         const seenBins = new Set()
         bars.forEach(bar => {
@@ -141,18 +138,35 @@ export default function HistogramPanel({
                 uniqueBins.push(bar)
             }
         })
-
-        // Sort uniqueBins by their X-coordinate to ensure a continuous line from left to right.
         uniqueBins.sort((a, b) => xScale(a.data.data.bin) - xScale(b.data.data.bin))
+        return (aggregateItem
+                ? <path
+                    d={lineGenerator(uniqueBins)}
+                    fill='none'
+                    stroke={aggregateColor}
+                    strokeWidth={3}
+                    style={{pointerEvents: 'none'}}
+                />
+                : null
+        )
+    }
 
-        return (
-            <path
-                d={lineGenerator(uniqueBins)}
-                fill='none'
-                stroke={aggregateColor}
-                strokeWidth={3}
-                style={{pointerEvents: 'none'}}
-            />
+    const aggregateLineLayer = ({series, xScale, yScale}) => {
+        const lineGenerator = line()
+            .x(d => xScale(d.data.x))
+            .y(d => yScale(d.data.y))
+        return (<g>
+                    {series
+                        .map(({id, data, color}) => (
+                        <path
+                            key={id}
+                            d={lineGenerator(data)}
+                            fill='none'
+                            stroke={color}
+                            strokeWidth={id === 'Aggregate' ? 3 : 2}
+                        />
+                    ))}
+                </g>
         )
     }
 
@@ -267,8 +281,8 @@ export default function HistogramPanel({
                     }}>
                         <Box sx={{
                             width: 12,
-                            height: point.seriesId === 'Aggregate' ? 2 : 12,
-                            backgroundColor: point.seriesId === 'Aggregate' ? '#ff5733' : point.seriesColor
+                            height: point.seriesId === 'Aggregate' ? 12 : 12,
+                            backgroundColor: point.seriesId === 'Aggregate' ? aggregateColor : point.seriesColor
                         }}/>
                         <Typography variant='body2'>
                             <strong>{point.seriesId}:</strong> {fmtNumber(point.data.y, 2)}%
@@ -358,7 +372,7 @@ export default function HistogramPanel({
                         justifyContent: 'center',
                         width: '100%', height: '100%',
                         fontSize: '0.9rem',
-                        backgroundColor: lighten(theme.palette.background.paper, 0.08),
+                        backgroundColor: lighten(theme.palette.background.paper, 0.1),
                         borderRadius: 5
                     }}>
                         No data to display.
@@ -375,7 +389,6 @@ export default function HistogramPanel({
                         padding={0.1}
                         groupMode='grouped'
                         maxValue={maxY}
-                        {...commonProps}
                         layers={[
                             'grid',
                             'axes',
@@ -383,8 +396,9 @@ export default function HistogramPanel({
                             'markers',
                             'legends',
                             'annotations',
-                            aggregateLineLayer
+                            aggregateBarLineLayer
                         ]}
+                        {...commonProps}
                     />
                 </Box>
             )}
@@ -398,6 +412,18 @@ export default function HistogramPanel({
                         xScale={{type: 'point'}}
                         yScale={{type: 'linear', min: 0, max: maxY}}
                         enablePoints={false}
+                        layers={[
+                            'grid',
+                            'markers',
+                            'axes',
+                            'areas',
+                            'crosshair',
+                            aggregateLineLayer, // Replaces 'lines'
+                            'points',
+                            'slices',
+                            'mesh',
+                            'legends'
+                        ]}
                         {...commonProps}
                     />
                 </Box>

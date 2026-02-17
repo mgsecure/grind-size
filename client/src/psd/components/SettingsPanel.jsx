@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useContext, useState} from 'react'
 import {Paper, Stack, Typography, Slider, FormControl, InputLabel, Select, MenuItem, Divider, Box} from '@mui/material'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import ToggleButton from '@mui/material/ToggleButton'
@@ -8,8 +8,14 @@ import {PSD_PRESETS} from '@starter/shared'
 import Collapse from '@mui/material/Collapse'
 import SettingsIcon from '@mui/icons-material/Settings'
 import useWindowSize from '../../util/useWindowSize.jsx'
+import DataContext from '../../context/DataContext.jsx'
 
-export default function SettingsPanel({queue, settings, setSettings, resetToggle, setResetToggle}) {
+export default function SettingsPanel() {
+    const {
+        queue,
+        settings, setSettings,
+        resetToggle, setResetToggle
+    } = useContext(DataContext)
     const [showDetails, setShowDetails] = useState(false)
     const [preset, setPreset] = useState('default') // 'default' | 'coarse' | 'fines' | 'custom'
     const [settingsChanged, setSettingsChanged] = useState(false)

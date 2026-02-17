@@ -1,11 +1,12 @@
-import React from 'react'
+import React, {useContext} from 'react'
 import {alpha, Box, lighten, Paper, Table, TableBody, TableCell, TableRow, Typography} from '@mui/material'
 import {useTheme} from '@mui/material/styles'
 import {getFileNameWithoutExtension} from '../../util/stringUtils.js'
 import Stack from '@mui/material/Stack'
-import Divider from '@mui/material/Divider'
+import DataContext from '../../context/DataContext.jsx'
 
-export default function StatsTable({activeItems}) {
+export default function StatsTable() {
+    const {activeItems} = useContext(DataContext)
     const theme = useTheme()
     const disabledStyle = {opacity: 0.5, pointerEvents: 'none'}
 
@@ -26,7 +27,7 @@ export default function StatsTable({activeItems}) {
                     justifyContent: 'center',
                     width: '100%', height: '100%',
                     fontSize: '0.9rem',
-                    backgroundColor: lighten(theme.palette.background.paper, 0.08),
+                    backgroundColor: lighten(theme.palette.background.paper, 0.1),
                     borderRadius: 5
                 }}>
                     No data to display.
