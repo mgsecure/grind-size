@@ -44,21 +44,21 @@ export async function renderMaskPng(maskObj, width, height, originalImageData, v
     const img = ctx.getImageData(0, 0, w, h)
     
     // If validParticleIds is provided, we only show those.
-    // Otherwise we show all labeled pixels.
+    // Otherwise, we show all labeled pixels.
     const validSet = validParticleIds ? new Set(validParticleIds) : null
 
     if (labels.length !== w * h) {
-        console.warn(`renderMaskPng: label buffer length (${labels.length}) does not match dimensions (${w}x${h}=${w*h})`);
+        console.warn(`renderMaskPng: label buffer length (${labels.length}) does not match dimensions (${w}x${h}=${w*h})`)
     }
 
     for (let y = 0; y < h; y++) {
-        const rowOffset = y * w;
+        const rowOffset = y * w
         for (let x = 0; x < w; x++) {
-            const i = rowOffset + x;
-            const label = labels[i];
+            const i = rowOffset + x
+            const label = labels[i]
             if (label !== 0 && label !== 0xFFFFFFFF) {
                 if (!validSet || validSet.has(label)) {
-                    const p = i * 4;
+                    const p = i * 4
                     img.data[p] = 255     // R
                     img.data[p + 1] = 0   // G
                     img.data[p + 2] = 0   // B
@@ -75,21 +75,21 @@ export async function renderMaskPng(maskObj, width, height, originalImageData, v
         const validSet = validParticleIds ? new Set(validParticleIds) : null
         
         if (labels.length !== w * h) {
-            console.warn(`renderMaskPng (fallback): label buffer length (${labels.length}) does not match dimensions (${w}x${h}=${w*h})`);
+            console.warn(`renderMaskPng (fallback): label buffer length (${labels.length}) does not match dimensions (${w}x${h}=${w*h})`)
         }
 
         for (let y = 0; y < h; y++) {
-            const rowOffset = y * w;
+            const rowOffset = y * w
             for (let x = 0; x < w; x++) {
-                const i = rowOffset + x;
-                const label = labels[i];
+                const i = rowOffset + x
+                const label = labels[i]
                 let v = 0
                 if (label !== 0 && label !== 0xFFFFFFFF) {
                     if (!validSet || validSet.has(label)) {
                         v = 255
                     }
                 }
-                const p = i * 4;
+                const p = i * 4
                 img.data[p] = v
                 img.data[p + 1] = v
                 img.data[p + 2] = v
@@ -189,7 +189,79 @@ export async function renderOverlayPng(imageData, particles, meta = {}, options 
     // 4. Draw detected particles (green ellipses based on moments)
     if (options.showParticles) {
         ctx.lineWidth = 1
-        ctx.strokeStyle = 'rgba(0, 255, 0, 0.9)'
+        ctx.strokeStyle = '#0000ffaa'
+        for (const p of particles) {
+            const radiusX = (p.longAxisPx || p.eqDiameterPx) / 2
+            const radiusY = (p.shortAxisPx || p.eqDiameterPx) / 2
+            const rotation = p.angleRad || 0
+            
+            ctx.beginPath()
+            ctx.ellipse(p.cxPx, p.cyPx, radiusX, radiusY, rotation, 0, Math.PI * 2)
+            ctx.stroke()
+        }
+    }
+    
+    return canvas.toDataURL('image/png')
+}
+
+export async function renderDiagnosticPng(imageData, particles, maskObj, validParticleIds = null, meta = {}, options = {showParticles: true, showMarkers: true, showScale: true, showRoi: true}) {
+    const {width, height} = imageData
+    const canvas = document.createElement('canvas')
+    canvas.width = width
+    canvas.height = height
+    const ctx = canvas.getContext('2d')
+    
+    // 1. Draw original uncorrected image
+    const tempImageData = new ImageData(
+        new Uint8ClampedArray(imageData.data),
+        width,
+        height
+    )
+    ctx.putImageData(tempImageData, 0, 0)
+
+    // 2. Overlay threshold mask (red pixels)
+    const labels = maskObj.labels
+    const w = maskObj.width || width
+    const h = maskObj.height || height
+    const validSet = validParticleIds ? new Set(validParticleIds) : null
+
+    // We only overlay if dimensions match, or we'd need more complex scaling
+    if (w === width && h === height) {
+        const img = ctx.getImageData(0, 0, width, height)
+        for (let i = 0; i < labels.length; i++) {
+            const label = labels[i]
+            if (label !== 0 && label !== 0xFFFFFFFF) {
+                if (!validSet || validSet.has(label)) {
+                    const p = i * 4
+                    img.data[p] = 255     // R
+                    img.data[p + 1] = 0   // G
+                    img.data[p + 2] = 0   // B
+                    img.data[p + 3] = 255
+                }
+            }
+        }
+        ctx.putImageData(img, 0, 0)
+    }
+
+    // 3. Draw ArUco markers (magenta #ff3399, 3px wide)
+    if (meta.markers && options.showMarkers) {
+        ctx.lineWidth = 3
+        ctx.strokeStyle = '#ff3399'
+        for (const m of meta.markers) {
+            ctx.beginPath()
+            ctx.moveTo(m.corners[0].x, m.corners[0].y)
+            ctx.lineTo(m.corners[1].x, m.corners[1].y)
+            ctx.lineTo(m.corners[2].x, m.corners[2].y)
+            ctx.lineTo(m.corners[3].x, m.corners[3].y)
+            ctx.closePath()
+            ctx.stroke()
+        }
+    }
+
+    // 4. Draw detected particles (green ellipses)
+    if (options.showParticles) {
+        ctx.lineWidth = 1
+        ctx.strokeStyle = '#0000ffaa'
         for (const p of particles) {
             const radiusX = (p.longAxisPx || p.eqDiameterPx) / 2
             const radiusY = (p.shortAxisPx || p.eqDiameterPx) / 2

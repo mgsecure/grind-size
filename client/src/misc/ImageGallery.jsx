@@ -55,7 +55,7 @@ function ImageGallery(props) {
         return () => removeEventListener('hashchange', handler)
     })
 
-    const cols = columns ?? (isMobile ? 2 : 3)
+    const cols = columns ?? (isMobile ? 2 : 4)
 
     return (
         <React.Fragment>
@@ -98,16 +98,22 @@ function ImageGallery(props) {
                             title={title}
                             subtitle={
                                 subtitle &&
-                                <a href={subtitleUrl || licenses[subtitle]} target='_blank' rel='noopener noreferrer'>
-                                    {subtitle}
-                                </a>
+                                <>
+                                    {(subtitleUrl || licenses[subtitle])
+                                        ? <a href={subtitleUrl || licenses[subtitle]} target='_blank'
+                                             rel='noopener noreferrer'>
+                                            {subtitle}
+                                        </a>
+                                        : <span style={{color: 'rgba(255, 255, 255, 0.5)'}}>{subtitle}</span>
+                                    }
+                                </>
                             }
                             actionIcon={
                                 fullUrl &&
                                 <Tooltip title='View Full Size' arrow disableFocusListener>
                                     <IconButton
                                         href={fullUrl}
-                                        style={{color: 'rgba(255, 255, 255, 0.5)'}}
+                                        style={{color: '#ccc'}}
                                         target='_blank'
                                         rel='noopener noreferrer'
                                     >

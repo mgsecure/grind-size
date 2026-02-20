@@ -5,19 +5,18 @@ import {
     Typography,
     Stack,
     ListItem,
-    alpha,
-    lighten
 } from '@mui/material'
 import Box from '@mui/material/Box'
 import DeleteIcon from '@mui/icons-material/Delete'
 import IconButton from '@mui/material/IconButton'
 import {useTheme} from '@mui/material/styles'
-import {getFileNameWithoutExtension} from '../../util/stringUtils.js'
 import CheckBoxIcon from '@mui/icons-material/CheckBox'
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank'
 import Button from '@mui/material/Button'
 import Dropzone from '../../formUtils/Dropzone.jsx'
 import DataContext from '../../context/DataContext.jsx'
+import TroubleshootIcon from '@mui/icons-material/Troubleshoot'
+import {PSD_PRESETS} from '@starter/shared'
 
 export default function UploadQueue() {
     const theme = useTheme()
@@ -29,10 +28,10 @@ export default function UploadQueue() {
         allItems,
         handleQueueRemove,
         activeIdList,
-        setActiveIdList
+        setActiveIdList,
+        processMultipleSettings,
+        isDesktop
     } = useContext(DataContext)
-
-    console.log('q', {activeIdList, allItems})
 
     const selectEnabled = allItems.length > 1 || activeIdList.length === 0
 
@@ -60,7 +59,6 @@ export default function UploadQueue() {
         }
     }, [activeIdList, handleSelect, allItems, setActiveIdList])
 
-
     const handleDelete = (id) => {
         handleQueueRemove(id)
         const newActiveIdList = activeIdList.filter(i => (i !== id && allItems.find(q => q.id === i)))
@@ -70,8 +68,8 @@ export default function UploadQueue() {
     return (
         <Paper sx={{p: 2, width: '100%'}} width={'100%'}>
             <Typography style={{fontSize: '1.1rem', fontWeight: 500}}>IMAGES</Typography>
-            <Stack direction={{xs: 'column', md: 'row'}} spacing={1} sx={{width: '100%'}}>
-                <Box sx={{display: 'flex', padding: '10px 8px 16px 0px'}}>
+            <Stack direction={isDesktop ? 'row' : 'column'} spacing={1} sx={{width: '100%'}}>
+                <Box sx={{display: 'flex', flexGrow: 1, padding: isDesktop ? '10px 8px 16px 0px' : '10px 0px 0px'}}>
                     <Dropzone
                         files={droppedFiles}
                         handleDroppedFiles={handleDroppedFiles}
@@ -80,8 +78,12 @@ export default function UploadQueue() {
                         maxFiles={15}
                         maxMBperFile={15}
                         label='Drop grind photos here (max 6)'
-                        zoneStyle={{fontSize: '0.9rem', height: '100%', borderRadius: 5}}
-                        messgageStyle={{fontSize: '0.9rem', height: '100%', margin: '8px 0px'}}
+                        zoneStyle={{
+                            fontSize: '0.9rem', height: '100%', width: '100%',
+                            borderRadius: 5,
+                            padding: isDesktop ? '20px' : '5px'
+                        }}
+                        messgageStyle={{fontSize: '0.9rem', height: '100%', margin: '4px 0px'}}
                     />
                 </Box>
                 {allItems.length > 0 &&
@@ -97,63 +99,55 @@ export default function UploadQueue() {
                                 onClick={() => handleSelect(item.id)}
                                 secondaryAction={
                                     item.id !== 'aggregateResults' &&
-                                    <IconButton edge='end' aria-label='delete' size='small'
-                                                onClick={() => handleDelete(item.id)}>
-                                        <DeleteIcon fontSize='small'/>
-                                    </IconButton>
-                                }>
-                                {activeIdList.includes(item.id)
-                                    ? <CheckBoxIcon fontSize='small'
-                                                    style={{
-                                                        marginRight: 12,
-                                                        color: chartColors?.[activeIdList.indexOf(item.id)]
-                                                    }}/>
-                                    : <CheckBoxOutlineBlankIcon fontSize='small'
-                                                                style={{
-                                                                    marginRight: 12,
-                                                                    color: theme.palette.divider
-                                                                }}/>
-                                }
-                                {getFileNameWithoutExtension(item.filename)}
+                                    <>
 
-                                <Box style={{
-                                    color: item.status === 'error' ? theme.palette.error.main : theme.palette.text.primary,
-                                    fontWeight: item.status === 'done' ? 500 : 400
-                                }}>
-                                </Box>
-                                <span style={{
-                                    color: item.status === 'error' ? theme.palette.error.main : theme.palette.text.secondary,
-                                    fontSize: '0.9rem', marginLeft: 8
-                                }}>
-                            ({item.status === 'error' ? item.error : item.status})
-                        </span>
+                                        {!Object.keys(PSD_PRESETS).some(s => item.filename.includes(`-${s}`)) &&
+                                            <IconButton onClick={() => processMultipleSettings(item.id)}>
+                                                <TroubleshootIcon fontSize='small'
+                                                                  style={{color: theme.palette.text.secondary}}/>
+                                            </IconButton>
+                                        }
+                                        <IconButton edge='end' aria-label='delete' size='small'
+                                                    onClick={() => handleDelete(item.id)}>
+                                            <DeleteIcon fontSize='small'/>
+                                        </IconButton>
+                                    </>
+                                }>
+
+                                <Stack direction='row' alignItems='center'>
+                                    {activeIdList.includes(item.id)
+                                        ? <CheckBoxIcon fontSize='small'
+                                                        style={{
+                                                            marginRight: 12,
+                                                            color: chartColors?.[activeIdList.indexOf(item.id)]
+                                                        }}/>
+                                        : <CheckBoxOutlineBlankIcon fontSize='small'
+                                                                    style={{
+                                                                        marginRight: 12,
+                                                                        color: theme.palette.divider
+                                                                    }}/>
+                                    }
+
+                                    <span style={{
+                                        color: item.status === 'done' ? theme.palette.text.primary : theme.palette.text.secondary,
+                                        fontSize: '0.9rem', marginLeft: 8
+                                    }}>
+                                            {item.filename}
+                                        </span>
+
+                                    <span style={{
+                                        color: item.status === 'error' ? theme.palette.error.main : theme.palette.text.secondary,
+                                        fontSize: '0.9rem', marginLeft: 8
+                                    }}>
+                                            ({item.status === 'error' ? item.error : item.status})
+                                        </span>
+                                </Stack>
+
                             </ListItem>
                         ))}
 
                     </List>
                 }
-                {!allItems.length && (
-                    <Box color={alpha(theme.palette.text.secondary, 0.4)}
-                         sx={{
-                             display: 'flex',
-                             placeContent: 'center',
-                             padding: '10px 0px 16px 0px',
-                             width: '100%'
-                         }}>
-                        <Box style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            width: '100%', height: '100%',
-                            fontSize: '0.9rem',
-                            backgroundColor: lighten(theme.palette.background.paper, 0.1),
-                            borderRadius: 5
-                        }}>
-                            Add photos to begin analysis
-                        </Box>
-                    </Box>
-                )}
-
             </Stack>
 
             {allItems.length > 2 &&

@@ -8,32 +8,35 @@ import {useTheme} from '@mui/material/styles'
 import ScaleLinearIcon from '../resources/ScaleLinearIcon.jsx'
 import ScaleLogIcon from '../resources/ScaleLogIcon.jsx'
 import {line} from 'd3-shape'
-import {getFileNameWithoutExtension} from '../../util/stringUtils.js'
 import DataContext from '../../context/DataContext.jsx'
+import ScreenshotElementButton from './ScreenshotElementButton.jsx'
 
 function fmtNumber(n, digits = 2) {
     if (!Number.isFinite(n)) return '—'
-    return n.toFixed(digits)}
+    return n.toFixed(digits)
+}
 
-export default function HistogramPanel() {
+export default function HistogramPanel({domEl}) {
     const {
-        allColors, swappedColors, aggregateColor, reverseColors, swapColors,
+        aggregateColor, swapColors,
+        chartColors,
         activeItems,
         xAxis,
         yAxis, setYAxis,
         settings, setSettings,
         binSpacing, setBinSpacing,
-        globalMaxY
+        globalMaxY,
+        isDesktop
     } = useContext(DataContext)
 
-
-    //TODO: add aggregate to bar chart legeng if displayed
-
-    const maxY = binSpacing === 'log' ? globalMaxY.logMax : globalMaxY.linearMax
+    //TODO: Skip every other tick on mobile
+    //TODO: add aggregate to bar chart legend if displayed
 
     const [chartMode, setChartMode] = useState('bar')
     const aggregateItem = activeItems.find(item => item.filename === 'Aggregate')
     const nonAggregateItems = activeItems.filter(item => item.filename !== 'Aggregate')
+    const maxY = binSpacing === 'log' ? globalMaxY.logMax : globalMaxY.linearMax
+    const showAggregate = aggregateItem && activeItems.length === 1
 
     const theme = useTheme()
     const tickLegendColor = theme.palette.text.primary
@@ -64,7 +67,7 @@ export default function HistogramPanel() {
         }
 
         const itemsWithHist = activeItems && activeItems
-            .filter(item => item.filename !== 'Aggregate')
+            .filter(item => (showAggregate || item.filename !== 'Aggregate'))
             .filter(item => {
                 const hist = binSpacing === 'log' ? item.histograms?.log : item.histograms?.linear
                 return hist?.bins?.length && hist?.values?.length
@@ -74,7 +77,7 @@ export default function HistogramPanel() {
             return {chartData: [], lineData: [], xLabel: xLab, yLabel: yLab, keys: []}
         }
 
-        const seriesKeys = itemsWithHist.map(item => getFileNameWithoutExtension(item.filename))
+        const seriesKeys = itemsWithHist.map(item => item.filename)
 
         // Use the first item's bins as the master set of bins for the X-axis
         const firstHist = binSpacing === 'log' ? itemsWithHist[0].histograms.log : itemsWithHist[0].histograms.linear
@@ -88,7 +91,7 @@ export default function HistogramPanel() {
             itemsWithHist.forEach(item => {
                 const h = binSpacing === 'log' ? item.histograms.log : item.histograms.linear
                 // We assume all items have the same bins if they were analyzed with the same settings
-                entry[getFileNameWithoutExtension(item.filename)] = h.values[i]?.percent ?? 0
+                entry[item.filename] = h.values[i]?.percent ?? 0
             })
 
             if (aggregateItem) {
@@ -101,7 +104,7 @@ export default function HistogramPanel() {
         const lData = itemsWithHist.map(item => {
             const h = binSpacing === 'log' ? item.histograms.log : item.histograms.linear
             return {
-                id: getFileNameWithoutExtension(item.filename),
+                id: item.filename,
                 data: h.bins.map((b, i) => ({
                     x: fmtNumber(b.center, xAxis === 'diameter' ? 1 : 0),
                     y: h.values[i]?.percent ?? 0,
@@ -112,7 +115,7 @@ export default function HistogramPanel() {
         })
 
         // Add Aggregate line data
-        aggregateItem && lData.push({
+        !showAggregate && aggregateItem && lData.push({
             id: 'Aggregate',
             data: cData.map(d => ({
                 x: d.bin,
@@ -123,7 +126,7 @@ export default function HistogramPanel() {
         })
 
         return {chartData: cData, lineData: lData, xLabel: xLab, yLabel: yLab, keys: seriesKeys}
-    }, [xAxis, yAxis, activeItems, binSpacing, aggregateItem])
+    }, [xAxis, yAxis, activeItems, binSpacing, aggregateItem, showAggregate])
 
     const aggregateBarLineLayer = ({bars, xScale, yScale}) => {
         const lineGenerator = line()
@@ -139,7 +142,7 @@ export default function HistogramPanel() {
             }
         })
         uniqueBins.sort((a, b) => xScale(a.data.data.bin) - xScale(b.data.data.bin))
-        return (aggregateItem
+        return (aggregateItem && !showAggregate
                 ? <path
                     d={lineGenerator(uniqueBins)}
                     fill='none'
@@ -156,8 +159,8 @@ export default function HistogramPanel() {
             .x(d => xScale(d.data.x))
             .y(d => yScale(d.data.y))
         return (<g>
-                    {series
-                        .map(({id, data, color}) => (
+                {series
+                    .map(({id, data, color}) => (
                         <path
                             key={id}
                             d={lineGenerator(data)}
@@ -166,43 +169,30 @@ export default function HistogramPanel() {
                             strokeWidth={id === 'Aggregate' ? 3 : 2}
                         />
                     ))}
-                </g>
+            </g>
         )
     }
 
-    const baseColors = reverseColors
-        ? swappedColors.slice(0, nonAggregateItems.length)
-        : allColors.slice(0, nonAggregateItems.length)
-
-    const chartColors = [...baseColors, aggregateColor]
+    const chartHeight = isDesktop ? 450 : 280
 
     const commonProps = {
-        margin: {top: 20, right: 20, bottom: 95, left: 50},
+        margin: {top: 20, right: 10, bottom: 95, left: 40},
         colors: chartColors,
         enableLabel: false,
         theme: {
             axis: {
                 ticks: {
-                    text: {
-                        fill: tickLegendColor
-                    }
+                    text: {fill: tickLegendColor}
                 },
                 legend: {
-                    text: {
-                        fill: tickLegendColor
-                    }
+                    text: {fill: tickLegendColor}
                 }
             },
             legends: {
-                text: {
-                    fill: tickLegendColor
-                }
+                text: {fill: tickLegendColor}
             },
             grid: {
-                line: {
-                    stroke: theme.palette.divider,
-                    strokeWidth: 1
-                }
+                line: {stroke: theme.palette.divider, strokeWidth: 1}
             }
         },
         axisBottom: {
@@ -220,7 +210,7 @@ export default function HistogramPanel() {
             tickRotation: 0,
             legend: yLabel,
             legendPosition: 'middle',
-            legendOffset: -40
+            legendOffset: -35
         },
         legends: [
             {
@@ -295,13 +285,17 @@ export default function HistogramPanel() {
 
     const disabledStyle = {opacity: 0.5, pointerEvents: 'none'}
 
+    const activeFilename = activeItems.length === 1 ? activeItems[0].filename.replace('Aggregate', 'aggregate') : 'multiple'
+
     return (
         <Paper sx={{p: 2}}>
-            <Typography sx={{fontSize: '1.1rem', fontWeight: 500}}
+            <Stack direction='row' alignItems='flex-end' justifyContent='space-between'
+                   sx={{fontSize: '1.1rem', fontWeight: 500}}
                         style={!chartData.length ? disabledStyle : undefined}>
                 HISTOGRAM
-            </Typography>
-            <Stack direction='row' alignItems='center' justifyContent='space-between'
+                <ScreenshotElementButton domEl={domEl} filename={`psd-results_${activeFilename}`} />
+            </Stack>
+            <Stack direction='row' alignItems='center' flexWrap='wrap' justifyContent='space-between'
                    sx={{mb: 0}} style={!chartData.length ? disabledStyle : undefined}>
                 <ToggleButtonGroup
                     size='small'
@@ -318,9 +312,8 @@ export default function HistogramPanel() {
                     <ToggleButton value='count'>Count</ToggleButton>
                 </ToggleButtonGroup>
 
-                <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{mb: 1}}>
-
-                    <Stack sx={{mr: 2, mt: 1}}>
+                <Stack direction='row' alignContent='center' justifyContent='flex-end' sx={{mb: 1, flexGrow: 1}}>
+                    <Stack sx={{mr: isDesktop ? 2 : 0, mt: 1}}>
                         <Typography variant='body2'>
                             Bin Count: {settings.bins}
                         </Typography>
@@ -331,8 +324,14 @@ export default function HistogramPanel() {
                             step={1}
                             onChange={(_, v) => setSettings(prev => ({...prev, bins: v}))}
                             style={{marginTop: 0, width: 120}}
+                            size='medium'
                         />
                     </Stack>
+                </Stack>
+
+
+                <Stack direction='row' alignItems='center' justifyContent={isDesktop ? 'flex-end' : 'center'}
+                       sx={{mb: 1, flexGrow: 1}}>
 
                     <ToggleButtonGroup
                         size='small'
@@ -344,6 +343,7 @@ export default function HistogramPanel() {
                         <ToggleButton value='bar'><BarChartIcon/></ToggleButton>
                         <ToggleButton value='line'><ShowChartIcon/></ToggleButton>
                     </ToggleButtonGroup>
+
                     <ToggleButtonGroup
                         size='small'
                         value={binSpacing}
@@ -355,6 +355,7 @@ export default function HistogramPanel() {
                         <ToggleButton value='linear' style={{padding: 8}}><ScaleLinearIcon width={20}
                                                                                            height={20}/></ToggleButton>
                     </ToggleButtonGroup>
+
                 </Stack>
             </Stack>
 
@@ -381,7 +382,7 @@ export default function HistogramPanel() {
             )}
 
             {!!chartData.length && chartMode === 'bar' && (
-                <Box sx={{height: chartData.length ? 450 : 175}}>
+                <Box sx={{height: chartData.length ? chartHeight : 175}}>
                     <ResponsiveBar
                         data={chartData}
                         keys={keys}
@@ -404,7 +405,7 @@ export default function HistogramPanel() {
             )}
 
             {!!chartData.length && chartMode === 'line' && (
-                <Box sx={{height: chartData.length ? 450 : 175}}>
+                <Box sx={{height: chartData.length ? chartHeight : 175}}>
                     <ResponsiveLine
                         data={lineData}
                         enableSlices='x'

@@ -1,25 +1,35 @@
-import {useMemo} from 'react'
+import {useState, useEffect, useMemo} from 'react'
 
 export default function useWindowSize() {
-    let width = undefined,
-        timeout = false,
-        delay = 250
+    const [width, setWidth] = useState(window.innerWidth)
 
-    function getDimensions() {
-        width = window.innerWidth
-    }
+    useEffect(() => {
+        let timeoutId = null
+        const delay = 250
 
-    window.addEventListener('resize', function () {
-        clearTimeout(timeout)
-        timeout = setTimeout(getDimensions, delay)
-    })
+        function handleResize() {
+            setWidth(window.innerWidth)
+        }
 
-    getDimensions()
+        function debouncedResize() {
+            clearTimeout(timeoutId)
+            timeoutId = setTimeout(handleResize, delay)
+        }
+
+        window.addEventListener('resize', debouncedResize)
+
+        return () => {
+            window.removeEventListener('resize', debouncedResize)
+            clearTimeout(timeoutId)
+        }
+    }, [])
 
     const isMobile = width < 650
+    const isDesktop = width > 649
 
     return useMemo(() => ({
         width,
+        isDesktop,
         isMobile,
         flexStyle: !isMobile ? 'flex' : 'block',
         columnStyle: !isMobile
@@ -28,5 +38,5 @@ export default function useWindowSize() {
         rowStyle: !isMobile
             ? {display: 'flex', flexDirection: 'row'}
             : {display: 'flex', flexDirection: 'column'}
-    }), [isMobile, width])
+    }), [isDesktop, isMobile, width])
 }

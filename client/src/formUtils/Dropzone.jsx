@@ -91,6 +91,7 @@ export default function Dropzone({
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
+        flexGrow: 1,
         alignItems: 'center',
         padding: '20px',
         borderWidth: 1,
@@ -209,7 +210,7 @@ export default function Dropzone({
 
     return (
 
-        <section className='container'>
+        <section className='container' style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
             <div {...getRootProps({style})}>
                 <input {...getInputProps()} />
                 {maxFilesHit

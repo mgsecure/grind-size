@@ -1,18 +1,21 @@
-import React, {useContext} from 'react'
-import {alpha, Box, lighten, Paper, Table, TableBody, TableCell, TableRow, Typography} from '@mui/material'
+import React, {useContext, useRef} from 'react'
+import {alpha, Box, lighten, Paper, Table, TableBody, TableCell, TableRow} from '@mui/material'
 import {useTheme} from '@mui/material/styles'
-import {getFileNameWithoutExtension} from '../../util/stringUtils.js'
 import Stack from '@mui/material/Stack'
 import DataContext from '../../context/DataContext.jsx'
 
 export default function StatsTable() {
-    const {activeItems} = useContext(DataContext)
+    const {activeItems, isDesktop} = useContext(DataContext)
+    const domEl = useRef(null)
     const theme = useTheme()
     const disabledStyle = {opacity: 0.5, pointerEvents: 'none'}
 
-    if (!activeItems.length) return (
+    if (!activeItems.length || activeItems[0].status !== 'done') return (
         <Paper sx={{p: 2}}>
-            <Typography style={{...disabledStyle, fontSize: '1.1rem', fontWeight: 500}}>STATISTICS</Typography>
+            <Stack direction='row' alignItems='flex-end' justifyContent='space-between'
+                   sx={{fontSize: '1.1rem', fontWeight: 500}} style={disabledStyle}>
+                STATISTICS
+            </Stack>
             <Box color={alpha(theme.palette.text.secondary, 0.4)}
                  sx={{
                      display: 'flex',
@@ -82,7 +85,7 @@ export default function StatsTable() {
 
     const tableData = activeItems.reduce((acc, item) => {
         acc[item.id] = {
-            filename: getFileNameWithoutExtension(item.filename),
+            filename: item.filename,
             template: item.scale.detectedTemplate
                 ? `${item.scale.detectedTemplate}${item.scale.detectedTemplate === 'Multiple' ? '' : 'mm'}`
                 : 'None',
@@ -105,12 +108,15 @@ export default function StatsTable() {
         return acc
     }, {})
 
-    const breakTables = activeItems.length < 2
+    const breakTables = activeItems.length < 2 && isDesktop
     const dataOne = !breakTables ? metricData : metricDataOne
 
     return (
-        <Paper sx={{p: 2}}>
-            <Typography style={{fontSize: '1.1rem', fontWeight: 600}}>STATISTICS</Typography>
+        <Paper sx={{p: 2}} ref={domEl}>
+            <Stack direction='row' alignItems='flex-end' justifyContent='space-between'
+                   sx={{fontSize: '1.1rem', fontWeight: 500}} >
+                STATISTICS
+            </Stack>
             <Stack direction={breakTables ? 'row' : 'column'} spacing={3} sx={{my: 2}}>
                 <Table size='small' sx={{borderTop: '1px solid', borderColor: theme.palette.divider}}>
                     <TableBody>

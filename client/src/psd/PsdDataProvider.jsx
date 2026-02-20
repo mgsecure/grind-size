@@ -1,17 +1,22 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react'
 import DataContext from '../context/DataContext.jsx'
 import {useTheme} from '@mui/material/styles'
-import {PSD_DEFAULTS} from '@starter/shared'
+import {PSD_DEFAULTS, PSD_PRESETS} from '@starter/shared'
 import {analyzeImageFiles} from './analysis/analyzeImage.js'
 import {buildHistograms} from './analysis/metrics/buildHistograms.js'
 import {calculateStatistics} from './analysis/metrics/calculateStatistics.js'
 import {getFileNameWithoutExtension} from '../util/stringUtils.js'
+import { v4 as uuidv4 } from 'uuid'
+import useWindowSize from '../util/useWindowSize.jsx'
 
 export function PsdDataProvider({children}) {
     const theme = useTheme()
+    const {isDesktop} = useWindowSize()
+    const defaultBins = isDesktop ? 30 : 20
 
     // State from PsdPage
-    const [settings, setSettings] = useState(PSD_DEFAULTS)
+    const [settings, setSettings] = useState({...PSD_DEFAULTS, bins: defaultBins})
+    const [isCustomSettings, setIsCustomSettings] = useState(false)
     const [queue, setQueue] = useState([]) // {id, file, status, error, result}
     const [droppedFiles, setDroppedFiles] = useState([])
     const [activeId, setActiveId] = useState(null)
@@ -36,7 +41,7 @@ export function PsdDataProvider({children}) {
 
     const aggregateItem = useMemo(() => {
         const allDone = queue.filter(q => q.status === 'done' && q.result)
-        if (allDone.length === 0) return null
+        if (allDone.length !== queue.length) return null
 
         const normalizedParticles = allDone.flatMap(item => {
             const mmPerPx = item.result.scale.mmPerPx
@@ -118,7 +123,7 @@ export function PsdDataProvider({children}) {
 
                 return {
                     id: q.id,
-                    filename: q.file?.name || '',
+                    filename: result.filename || q.file?.name || '',
                     stats: stats,
                     histograms: hists,
                     scale: result.scale || {},
@@ -128,7 +133,7 @@ export function PsdDataProvider({children}) {
 
             return {
                 id: q.id,
-                filename: getFileNameWithoutExtension(q.file?.name) || '',
+                filename: q.result.filename || getFileNameWithoutExtension(q.file?.name) || '',
                 stats: q.result.stats || {},
                 histograms: q.result.histograms || {},
                 scale: q.result.scale || {},
@@ -143,6 +148,11 @@ export function PsdDataProvider({children}) {
 
     const activeItems = useMemo(() => allItems.filter(q => activeIdList.includes(q.id)), [allItems, activeIdList])
     const nonAggregateItems = useMemo(() => activeItems.filter(item => item.filename !== 'Aggregate'), [activeItems])
+
+    const onlyActiveImage = useMemo(() => {
+        if (activeItems.length === 1) return queue.find(q => q.id === activeItems[0].id)
+        return null
+    }, [activeItems, queue])
 
     const activeResult = useMemo(() => {
         if (activeId === 'aggregateResults') return aggregateItem
@@ -222,7 +232,7 @@ export function PsdDataProvider({children}) {
             .filter(file => !queue.find(q => (q.file.relativePath === file.path && q.status === 'done')))
 
         const next = unprocessedFiles.map(file => ({
-            id: crypto.randomUUID(),
+            id: uuidv4(),
             file,
             status: 'queued',
             error: null,
@@ -244,10 +254,11 @@ export function PsdDataProvider({children}) {
 
     useEffect(() => {
         if (resetToggle) {
+            console.log('Resetting queue', {settings})
             analyzeAll()
             setResetToggle(false)
         }
-    }, [resetToggle, analyzeAll])
+    }, [resetToggle, analyzeAll, settings])
 
     useEffect(() => {
         const startAnalysis = async () => {
@@ -311,6 +322,32 @@ export function PsdDataProvider({children}) {
         }
     }, [queue])
 
+    // Process selected image with multiple settings
+    const processMultipleSettings = useCallback(async (id, settingsList = {...PSD_PRESETS}) => {
+        const item = queue.find(q => q.id === id)
+        if (!item) return
+
+        if (isCustomSettings) {
+            settingsList.custom.params = {...PSD_DEFAULTS, ...settings}
+        } else {
+            delete settingsList.custom
+        }
+        for (const [key, value] of Object.entries(settingsList)) {
+            try {
+                const result = await analyzeImageFiles(item.file, {...PSD_DEFAULTS, ...value.params, binSpacing}, null, overlayOptions, `${item.result.filename}-${key}`)
+                console.log('Processed', {result})
+                const newItem = {...item, id: uuidv4(), status: 'done', result}
+                setQueue(prev => prev.concat(newItem))
+            } catch (err) {
+                console.error('err', {err})
+            }
+        }
+        setQueue(prev => prev.filter(p => p.id !== id))
+        setActiveIdList([])
+
+    }, [binSpacing, isCustomSettings, overlayOptions, queue, settings])
+
+    // Manual corner selection
     const handleManualCorners = useCallback(async (corners) => {
         const id = manualSelectionId
         setManualSelectionId(null)
@@ -340,11 +377,14 @@ export function PsdDataProvider({children}) {
             : ['#1f78b4', '#a6cee3', '#f47560', '#e8c1a0', '#33a02c', '#b2df8a']
         , [theme.palette.mode])
     const aggregateColor = theme.palette.mode === 'dark' ? '#eeee33' : '#eeee33'
-    const baseColors = reverseColors
+    const baseColors = useMemo(() => reverseColors
         ? swappedColors.slice(0, nonAggregateItems.length)
         : allColors.slice(0, nonAggregateItems.length)
+    , [reverseColors, nonAggregateItems, allColors, swappedColors])
     const chartColors = useMemo(() => [...baseColors, aggregateColor], [baseColors, aggregateColor])
     const swapColors = useCallback(() => setReverseColors(!reverseColors), [reverseColors])
+
+
 
     const value = useMemo(() => ({
         allColors,
@@ -354,10 +394,12 @@ export function PsdDataProvider({children}) {
         chartColors,
         swapColors,
         settings, setSettings,
+        isCustomSettings, setIsCustomSettings,
         queue, setQueue,
         droppedFiles, setDroppedFiles,
         activeId, setActiveId,
         activeIdList, setActiveIdList,
+        onlyActiveImage,
         viewMode, setViewMode,
         xAxis, setXAxis,
         yAxis, setYAxis,
@@ -375,11 +417,13 @@ export function PsdDataProvider({children}) {
         activeResult,
         processedActive,
         globalMaxY,
+        isDesktop,
         onFiles,
         analyzeAll,
+        handleQueueRemove,
+        processMultipleSettings,
         handleManualCorners,
         cancelManual,
-        handleQueueRemove
     }), [
         allColors,
         swappedColors,
@@ -388,10 +432,12 @@ export function PsdDataProvider({children}) {
         chartColors,
         swapColors,
         settings, setSettings,
+        isCustomSettings, setIsCustomSettings,
         queue, setQueue,
         droppedFiles, setDroppedFiles,
         activeId, setActiveId,
         activeIdList, setActiveIdList,
+        onlyActiveImage,
         viewMode, setViewMode,
         xAxis, setXAxis,
         yAxis, setYAxis,
@@ -409,11 +455,13 @@ export function PsdDataProvider({children}) {
         activeResult,
         processedActive,
         globalMaxY,
+        isDesktop,
         onFiles,
         analyzeAll,
+        handleQueueRemove,
+        processMultipleSettings,
         handleManualCorners,
         cancelManual,
-        handleQueueRemove
     ])
 
     return (

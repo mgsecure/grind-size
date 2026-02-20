@@ -1,20 +1,20 @@
 import React, {useContext, useState} from 'react'
-import {Paper, Stack, Typography, Slider, FormControl, InputLabel, Select, MenuItem, Divider, Box} from '@mui/material'
+import {Paper, Stack, Typography, Slider, Divider} from '@mui/material'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import ToggleButton from '@mui/material/ToggleButton'
 import Button from '@mui/material/Button'
 import Switch from '@mui/material/Switch'
 import {PSD_PRESETS} from '@starter/shared'
 import Collapse from '@mui/material/Collapse'
-import SettingsIcon from '@mui/icons-material/Settings'
 import useWindowSize from '../../util/useWindowSize.jsx'
 import DataContext from '../../context/DataContext.jsx'
 
 export default function SettingsPanel() {
     const {
-        queue,
+        queueItems,
         settings, setSettings,
-        resetToggle, setResetToggle
+        setResetToggle,
+        setIsCustomSettings
     } = useContext(DataContext)
     const [showDetails, setShowDetails] = useState(false)
     const [preset, setPreset] = useState('default') // 'default' | 'coarse' | 'fines' | 'custom'
@@ -33,6 +33,7 @@ export default function SettingsPanel() {
             setShowDetails(true)
         } else {
             setSettingsChanged(true)
+            setIsCustomSettings(false)
         }
     }
 
@@ -43,6 +44,7 @@ export default function SettingsPanel() {
         }))
         handlePresetChange('custom')
         setSettingsChanged(true)
+        setIsCustomSettings(true)
     }
 
     const handleRecalculate = () => {
@@ -81,7 +83,7 @@ export default function SettingsPanel() {
                     </ToggleButtonGroup>
 
                     <Button variant='contained'
-                            disabled={!settingsChanged || queue.length === 0}
+                            disabled={!settingsChanged || queueItems.length === 0}
                             onClick={handleRecalculate}
                             style={{margin: 10}}>
                         Recalculate
@@ -97,7 +99,7 @@ export default function SettingsPanel() {
                             size='small'
                             value={settings.binsType}
                             exclusive
-                            onChange={(e, v) => v && setSettings(prev => ({...prev, binsType: v}))}
+                            onChange={(_e, v) => v && setSettings(prev => ({...prev, binsType: v}))}
                         >
                             <ToggleButton value='default'>Default Bins</ToggleButton>
                             <ToggleButton value='dynamic'>Dynamic</ToggleButton>

@@ -9,10 +9,10 @@ import {detectParticles} from './pipeline/detectParticles.js'
 import {distanceTransform, watershed} from './pipeline/overlapSeparation.js'
 import {buildHistograms} from './metrics/buildHistograms.js'
 import {calculateStatistics} from './metrics/calculateStatistics.js'
-import {renderMaskPng, renderOverlayPng} from './render/renderOutputs.js'
+import {renderMaskPng, renderOverlayPng, renderDiagnosticPng} from './render/renderOutputs.js'
 import {getFileNameWithoutExtension} from '../../util/stringUtils.js'
 
-export async function analyzeImageFiles(file, settings, manualCorners = null, overlayOptions = null) {
+export async function analyzeImageFiles(file, settings, manualCorners = null, overlayOptions = null, altFilename= null) {
     const startedAt = new Date().toISOString()
     const imageData = await decodeImageToImageData(file)
     const {width, height} = imageData
@@ -141,7 +141,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
             if (markerMap[ids[3]]) innerPoints.push(markerMap[ids[3]].corners[1])
 
             if (innerPoints.length >= 3) {
-                const validPoints = innerPoints.filter(p => p != null)
+                const validPoints = innerPoints.filter(p => p !== null)
                 if (validPoints.length >= 3) {
                     const minX = Math.round(Math.min(...validPoints.map(p => p.x)) + (settings.insetPx || 20))
                     const maxX = Math.round(Math.max(...validPoints.map(p => p.x)) - (settings.insetPx || 20))
@@ -173,11 +173,19 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
     
     let particles = detectResult.particles
     
+    if (particles.length === 0) {
+        throw new Error('No particles detected. Check your threshold settings or image quality.')
+    }
+    
     // Size filter (Max Surface)
     const maxAreaMm2 = settings.maxAreaMm2 || 10
     const maxAreaPx = maxAreaMm2 * (scaleInfo.pxPerMm ** 2)
 
     particles = particles.filter(p => p.areaPx <= maxAreaPx)
+
+    if (particles.length === 0) {
+        throw new Error('All detected particles were filtered out (too large). Adjust Max Surface setting.')
+    }
 
     if (roi && roi.actualBounds) {
         const {minX, maxX, minY, maxY} = roi.actualBounds
@@ -186,18 +194,22 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         )
     }
 
+    if (particles.length === 0) {
+        throw new Error('All particles were filtered out (outside analysis region).')
+    }
+
     // Explicitly exclude ArUco markers if not warped
     if (!scaleInfo.isWarped && uniqueMarkers.length > 0) {
         const markerBboxes = uniqueMarkers.map(m => {
             if (!m.corners) return null
-            const validCorners = m.corners.filter(c => c != null)
+            const validCorners = m.corners.filter(c => c !== null)
             if (validCorners.length === 0) return null
             const bx1 = Math.min(...validCorners.map(c => c.x)) - 10
             const bx2 = Math.max(...validCorners.map(c => c.x)) + 10
             const by1 = Math.min(...validCorners.map(c => c.y)) - 10
             const by2 = Math.max(...validCorners.map(c => c.y)) + 10
             return {minX: bx1, maxX: bx2, minY: by1, maxY: by2}
-        }).filter(b => b != null)
+        }).filter(b => b !== null)
 
         const prevCount = particles.length
         particles = particles.filter(p => {
@@ -207,8 +219,12 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
             return !isMarker
         })
         if (particles.length !== prevCount) {
-            console.log(`Excluded ${prevCount - particles.length} particles overlapping markers`);
+            console.log(`Excluded ${prevCount - particles.length} particles overlapping markers`)
         }
+    }
+
+    if (particles.length === 0) {
+        throw new Error('No valid particles remaining after filtering.')
     }
 
     const filteredValidIds = particles.map(p => p.id)
@@ -301,9 +317,111 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         console.error('Overlay rendering failed', e)
     }
 
+    let diagnosticPngDataUrl = null
+    try {
+        // For the diagnostic view, we also want the threshold pixels in original coordinates.
+        // If the main analysis was warped, detectResult.labels is in warped space.
+        // We'd need to run a separate thresholding on the original image to show those pixels correctly.
+        
+        let diagnosticLabels = detectResult.labels
+        let diagnosticW = analysisImageData.width
+        let diagnosticH = analysisImageData.height
+        let diagnosticValidIds = filteredValidIds
+
+        if (scaleInfo.isWarped) {
+            console.log('Diagnostic View: Image was warped. Re-running thresholding on original image for diagnostic overlay.')
+            // Run thresholding on original image for diagnostic view overlay
+            const grayOrig = normalizeLighting(imageData, {bgSigma: settings.bgSigma})
+            const maskOrig = adaptiveThreshold(grayOrig, {blockSize: settings.adaptiveBlockSize, C: settings.adaptiveC})
+            const cleanedOrig = morphologyOpen(maskOrig)
+            const detectOrig = detectParticles(cleanedOrig, {minAreaPx: settings.minAreaPx})
+            
+            diagnosticLabels = detectOrig.labels
+            diagnosticW = width
+            diagnosticH = height
+
+            // Filter diagnostic labels to only include those in the original image ROI
+            // Note: we can't easily use filteredValidIds here because the IDs in detectOrig 
+            // correspond to components in the original image, not the warped one.
+            // We'll re-apply the ROI and size filters to detectOrig.particles
+            let diagnosticParticles = detectOrig.particles
+            const maxAreaPxOrig = maxAreaMm2 * (pxPerMm ** 2)
+            diagnosticParticles = diagnosticParticles.filter(p => p.areaPx <= maxAreaPxOrig)
+
+            if (roi) {
+                // If we have template markers, roi was calculated based on them.
+                // For non-warped image, it's already in original coords or estimated.
+                // We need the original image ROI bounds.
+                // If it was warped, the original ROI is defined by the corners of the inner template.
+                
+                const ids = template.config.cornerIds
+                const markerMap = {}
+                template.markers.forEach(m => { markerMap[m.id] = m })
+                const innerPoints = []
+                if (markerMap[ids[0]]) innerPoints.push(markerMap[ids[0]].corners[2])
+                if (markerMap[ids[1]]) innerPoints.push(markerMap[ids[1]].corners[3])
+                if (markerMap[ids[2]]) innerPoints.push(markerMap[ids[2]].corners[0])
+                if (markerMap[ids[3]]) innerPoints.push(markerMap[ids[3]].corners[1])
+
+                if (innerPoints.length >= 3) {
+                    const validPoints = innerPoints.filter(p => p !== null)
+                    const minX = Math.min(...validPoints.map(p => p.x)) + (settings.insetPx || 8)
+                    const maxX = Math.max(...validPoints.map(p => p.x)) - (settings.insetPx || 8)
+                    const minY = Math.min(...validPoints.map(p => p.y)) + (settings.insetPx || 8)
+                    const maxY = Math.max(...validPoints.map(p => p.y)) - (settings.insetPx || 8)
+                    
+                    diagnosticParticles = diagnosticParticles.filter(p => 
+                        p.cxPx >= minX && p.cxPx <= maxX && p.cyPx >= minY && p.cyPx <= maxY
+                    )
+                }
+            }
+
+            if (!scaleInfo.isWarped && uniqueMarkers.length > 0) {
+                const markerBboxes = uniqueMarkers.map(m => {
+                    if (!m.corners) return null
+                    const validCorners = m.corners.filter(c => c !== null)
+                    if (validCorners.length === 0) return null
+                    const bx1 = Math.min(...validCorners.map(c => c.x)) - 10
+                    const bx2 = Math.max(...validCorners.map(c => c.x)) + 10
+                    const by1 = Math.min(...validCorners.map(c => c.y)) - 10
+                    const by2 = Math.max(...validCorners.map(c => c.y)) + 10
+                    return {minX: bx1, maxX: bx2, minY: by1, maxY: by2}
+                }).filter(b => b !== null)
+
+                diagnosticParticles = diagnosticParticles.filter(p => {
+                    const isMarker = markerBboxes.some(b => 
+                        p.cxPx >= b.minX && p.cxPx <= b.maxX && p.cyPx >= b.minY && p.cyPx <= b.maxY
+                    )
+                    return !isMarker
+                })
+            }
+
+            diagnosticValidIds = diagnosticParticles.map(p => p.id)
+        }
+
+        diagnosticPngDataUrl = await renderDiagnosticPng({
+            width,
+            height,
+            data: imageData.data.slice()
+        }, overlayParticles, {
+            width: diagnosticW,
+            height: diagnosticH,
+            labels: diagnosticLabels
+        }, diagnosticValidIds, {
+            markers: uniqueMarkers,
+            template,
+            roi,
+            scaleInfo,
+            warpCorners
+        }, overlayOptions || undefined)
+    } catch (e) {
+        console.error('Diagnostic rendering failed', e)
+    }
+
     return {
-        filename: getFileNameWithoutExtension(file.name),
+        filename: altFilename || getFileNameWithoutExtension(file.name),
         analysisVersion: PSD_ANALYSIS_VERSION,
+        settings,
         startedAt,
         image: {width, height},
         scale: scaleInfo,
@@ -317,7 +435,8 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         warnings,
         previews: {
             maskPngDataUrl,
-            overlayPngDataUrl
+            overlayPngDataUrl,
+            diagnosticPngDataUrl
         }
     }
 }

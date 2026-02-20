@@ -8,6 +8,7 @@ export const PSD_TEMPLATES = {
 
 // Defaults
 export const PSD_DEFAULTS = {
+    name: 'default',
     warpSizePx: 2000,
     insetPx: 8,
     bgSigma: 35,
@@ -21,7 +22,7 @@ export const PSD_DEFAULTS = {
     weighting: 'count', // 'count' | 'surface' | 'volume' | 'mass'
     metric: 'diameter', // 'diameter' | 'surface' | 'volume'
     chartMode: 'bar', // 'bar' | 'line'
-    splitOverlaps: true,
+    splitOverlaps: false,
     splitSensitivity: 0.4,
     value: 'mass',
     templateSize: 100,
@@ -31,42 +32,47 @@ export const PSD_PRESETS = {
     default: {
         name: 'Default/Phone',
         params: {
+            name: 'default',
             bgSigma: 35,
             adaptiveBlockSize: 201,
             adaptiveC: 4,
             minAreaPx: 8,
             maxAreaMm2: 10,
-            splitOverlaps: true,
+            splitOverlaps: false,
             splitSensitivity: 0.4
         }
     },
     coarse: {
         name: 'Coarse',
         params: {
+            name: 'coarse',
             bgSigma: 45,
             adaptiveBlockSize: 301,
             adaptiveC: 5,
             minAreaPx: 12,
             maxAreaMm2: 20,
-            splitOverlaps: true,
+            splitOverlaps: false,
             splitSensitivity: 0.3
         }
     },
     fines: {
         name: 'Fines/Macro',
         params: {
+            name: 'fines',
             bgSigma: 25,
             adaptiveBlockSize: 101,
             adaptiveC: 3,
             minAreaPx: 4,
             maxAreaMm2: 5,
-            splitOverlaps: true,
+            splitOverlaps: false,
             splitSensitivity: 0.6
         }
     },
     custom: {
         name: 'Custom',
-        params: {}
+        params: {
+            name: 'custom',
+        }
     }
 
 }

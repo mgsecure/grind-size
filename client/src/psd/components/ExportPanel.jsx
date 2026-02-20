@@ -1,12 +1,11 @@
-import React from 'react'
+import React, {useContext} from 'react'
 import {Stack, Paper, Typography, Button} from '@mui/material'
-import StatsTable from './StatsTable.jsx'
 import DownloadIcon from '@mui/icons-material/Download'
 import {convertHistogramToCsv, convertParticlesToCsv, convertStatsToCsv, downloadCsv} from '../analysis/exportCsv.js'
-import {useTheme} from '@mui/material/styles'
+import DataContext from '../../context/DataContext.jsx'
 
 export default function ExportPanel({result, binSpacing}) {
-    const theme = useTheme()
+    const {isDesktop} = useContext(DataContext)
 
     const handleExportParticles = () => {
         const csv = convertParticlesToCsv(result.particles, result.scale.pxPerMm)
@@ -29,7 +28,7 @@ export default function ExportPanel({result, binSpacing}) {
     const disabledStyle = !result ? {opacity: 0.5, pointerEvents: 'none'} : undefined
 
     return (
-            <Paper sx={{p: 2, width: '50%'}}>
+            <Paper sx={{p: 2}}>
                 <Typography style={{...disabledStyle, fontSize: '1.1rem', fontWeight: 500}}>EXPORT</Typography>
                 <Stack direction='row' spacing={1} sx={{mt: 2}} style={disabledStyle}>
                     <Button
