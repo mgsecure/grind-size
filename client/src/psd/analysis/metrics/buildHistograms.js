@@ -1,5 +1,3 @@
-import {BIN_DEFAULTS} from '@starter/shared'
-
 export function buildHistograms(particles, {
     binCount = 30,
     spacing = 'log',
@@ -76,7 +74,7 @@ function buildHistogram(particles,
         edges = buildEdges(min, max, numBins, spacing)
     }
 
-    const values = new Array(numBins).fill(0)
+    const values = new Array(numBins).fill(0.01)
 
     const weights = particles.map(p => {
         if (weighting === 'surface') return (p.surfaceAreaPx || 0) * (factor ** 2)

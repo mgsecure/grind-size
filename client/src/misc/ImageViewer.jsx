@@ -52,8 +52,8 @@ function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}})
     const handlers = useClickOrDrag({
         onClick: e => handleClick(e),
         onDragStart: e => handleMoveStart(e),
-        onDragMove: (e, { dx, dy }) => handleMoveDuring(e, { dx, dy }),
-        onDragEnd: (e, { wasDragging }) => handleMoveEnd(e, { wasDragging })
+        onDragMove: (e, {dx, dy}) => handleMoveDuring(e, {dx, dy}),
+        onDragEnd: (e, {wasDragging}) => handleMoveEnd(e, {wasDragging})
     })
 
     const getClickCoords = useCallback((e) => {
@@ -64,7 +64,7 @@ function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}})
         const centerY = rect.height / 2
         const relativeX = x - centerX
         const relativeY = y - centerY
-        return { relativeX, relativeY }
+        return {relativeX, relativeY}
     }, [])
 
     const handleZoomIn = useCallback(() => setZoom(zoom + zoomIncrement), [zoom])
@@ -77,7 +77,6 @@ function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}})
     }, [])
 
     const handleClick = useCallback((e) => {
-        console.log('handleClick', e)
         const {relativeX, relativeY} = getClickCoords(e)
         if (e.shiftKey) {
             handleZoomOut()
@@ -89,8 +88,6 @@ function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}})
             handleZoomIn()
         }
     }, [getClickCoords, handleReset, handleZoomIn, handleZoomOut])
-
-
 
     const handleNavigatePrevious = useCallback(() => {
         const nextIndex = currentMediaIndex === 0 ? media.length - 1 : currentMediaIndex - 1
@@ -171,22 +168,27 @@ function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}})
                         <Typography variant='subtitle1' component='div'>
                             {imageTitle}
                         </Typography>
-                        <Typography variant='subtitle2' component='div' style={{color: '#777'}}>
-                            <a href={subtitleUrl || licenses[subtitle]} target='_blank' rel='noopener noreferrer'>
-                                {subtitle}
-                            </a>
+                        <Typography variant='subtitle2' component='div' style={{color: '#aaa'}}>
+                            {(subtitleUrl || licenses[subtitle])
+                                ? <a href={subtitleUrl || licenses[subtitle]} target='_blank' rel='noopener noreferrer'>
+                                    {subtitle}
+                                </a>
+                                : <span>{subtitle}</span>
+                            }
                         </Typography>
                     </Stack>
-                    <Tooltip title='View Full Size' arrow disableFocusListener>
-                        <IconButton
-                            href={fullUrl}
-                            style={{color: 'rgba(255, 255, 255, 0.5)'}}
-                            target='_blank'
-                            rel='noopener noreferrer'
-                        >
-                            <LaunchIcon/>
-                        </IconButton>
-                    </Tooltip>
+                    {fullUrl &&
+                        <Tooltip title='View Full Size' arrow disableFocusListener>
+                            <IconButton
+                                href={fullUrl}
+                                style={{color: 'rgba(255, 255, 255, 0.5)'}}
+                                target='_blank'
+                                rel='noopener noreferrer'
+                            >
+                                <LaunchIcon/>
+                            </IconButton>
+                        </Tooltip>
+                    }
                 </Toolbar>
             </AppBar>
 

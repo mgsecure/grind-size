@@ -8,6 +8,7 @@ import {calculateStatistics} from './analysis/metrics/calculateStatistics.js'
 import {getFileNameWithoutExtension} from '../util/stringUtils.js'
 import { v4 as uuidv4 } from 'uuid'
 import useWindowSize from '../util/useWindowSize.jsx'
+import {useLocalStorage} from 'usehooks-ts'
 
 export function PsdDataProvider({children}) {
     const theme = useTheme()
@@ -16,6 +17,8 @@ export function PsdDataProvider({children}) {
 
     // State from PsdPage
     const [settings, setSettings] = useState({...PSD_DEFAULTS, bins: defaultBins})
+    const [customSettings, setCustomSettings] = useLocalStorage('psd-custom', {})
+
     const [isCustomSettings, setIsCustomSettings] = useState(false)
     const [queue, setQueue] = useState([]) // {id, file, status, error, result}
     const [droppedFiles, setDroppedFiles] = useState([])
@@ -37,13 +40,11 @@ export function PsdDataProvider({children}) {
         showRoi: true
     })
 
+    const allDone = useMemo(() => queue.filter(q => q.status === 'done' && q.result), [queue])
     const activeItem = useMemo(() => queue.find(q => q.id === activeId) ?? null, [queue, activeId])
 
-    const aggregateItem = useMemo(() => {
-        const allDone = queue.filter(q => q.status === 'done' && q.result)
-        if (allDone.length !== queue.length) return null
-
-        const normalizedParticles = allDone.flatMap(item => {
+    const normalizedParticles = useMemo(() => {
+        return allDone.flatMap(item => {
             const mmPerPx = item.result.scale.mmPerPx
             const factor = mmPerPx * 1000
             return item.result.particles.map(p => ({
@@ -56,7 +57,11 @@ export function PsdDataProvider({children}) {
                 eqDiameterPx: p.eqDiameterPx * factor
             }))
         })
+    }, [allDone])
 
+    const aggregateItem = useMemo(() => {
+        if (allDone.length < 2) return null
+        
         const activeData = {
             id: 'aggregateResults',
             filename: 'Aggregate',
@@ -65,31 +70,21 @@ export function PsdDataProvider({children}) {
             histograms: null
         }
 
-        const currentBinsType = activeData.histograms?.[binSpacing]?.customBinsUsed ? 'default' : 'dynamic'
-
-        if (activeData.histograms?.[binSpacing]?.metric !== xAxis ||
-            activeData.histograms?.[binSpacing]?.weighting !== yAxis ||
-            currentBinsType !== settings.binsType ||
-            activeData.histograms?.[binSpacing]?.spacing !== binSpacing ||
-            activeData.histograms?.[binSpacing]?.binCount !== settings.bins) {
-
-            const hists = buildHistograms(normalizedParticles, {
-                binCount: settings.bins,
-                spacing: binSpacing,
-                weighting: yAxis,
-                mmPerPx: activeData.scale.mmPerPx,
-                metric: xAxis,
-                binsType: settings.binsType
-            })
-            const stats = calculateStatistics(normalizedParticles, {
-                weighting: yAxis,
-                mmPerPx: activeData.scale.mmPerPx,
-                metric: xAxis
-            })
-            return {...activeData, histograms: hists, stats}
-        }
-        return activeData
-    }, [queue, xAxis, yAxis, settings.bins, binSpacing, settings.binsType])
+        const hists = buildHistograms(normalizedParticles, {
+            binCount: settings.bins,
+            spacing: binSpacing,
+            weighting: yAxis,
+            mmPerPx: activeData.scale.mmPerPx,
+            metric: xAxis,
+            binsType: settings.binsType
+        })
+        const stats = calculateStatistics(normalizedParticles, {
+            weighting: yAxis,
+            mmPerPx: activeData.scale.mmPerPx,
+            metric: xAxis
+        })
+        return {...activeData, histograms: hists, stats}
+    }, [allDone.length, queue, normalizedParticles, settings.bins, settings.binsType, binSpacing, yAxis, xAxis])
 
     const queueItems = useMemo(() => {
         if (queue.length === 0) return []
@@ -127,6 +122,7 @@ export function PsdDataProvider({children}) {
                     stats: stats,
                     histograms: hists,
                     scale: result.scale || {},
+                    settings: result.settings || {},
                     status: q.status || 'queued'
                 }
             }
@@ -275,7 +271,11 @@ export function PsdDataProvider({children}) {
                 })
 
                 try {
-                    const result = await analyzeImageFiles(item.file, {...settings, binSpacing}, null, overlayOptions)
+                    console.log(`Starting analysis for ${item.file?.name}`)
+                    const result = await analyzeImageFiles(item.file, {...settings, binSpacing}, null, overlayOptions, null)
+
+
+                    console.log('Analysis result:', result)
                     if (!result.template && !result.scale?.detectedTemplate) {
                         setManualSelectionId(item.id)
                         setQueue(prev => prev.map(p => p.id === item.id ? {...p, status: 'manual_needed'} : p))
@@ -284,10 +284,15 @@ export function PsdDataProvider({children}) {
                     }
                     setQueue(prev => prev.map(p => p.id === item.id ? {...p, status: 'done', result} : p))
                 } catch (err) {
+                    console.error('Analysis failed:', err)
+                    // Log the full error object and stack trace
+                    if (err instanceof Error) {
+                        console.error(err.stack)
+                    }
                     setQueue(prev => prev.map(p => p.id === item.id ? {
                         ...p,
                         status: 'error',
-                        error: String(err),
+                        error: err.message || String(err),
                         result: null
                     } : p))
                 }
@@ -355,7 +360,7 @@ export function PsdDataProvider({children}) {
 
         try {
             const item = queue.find(q => q.id === id)
-            const result = await analyzeImageFiles(item.file, {...settings, binSpacing}, corners, overlayOptions)
+            const result = await analyzeImageFiles(item.file, {...settings, binSpacing}, corners, overlayOptions, null)
             setQueue(prev => prev.map(p => p.id === id ? {...p, status: 'done', result} : p))
         } catch (err) {
             setQueue(prev => prev.map(p => p.id === id ? {...p, status: 'error', error: String(err)} : p))
@@ -384,8 +389,6 @@ export function PsdDataProvider({children}) {
     const chartColors = useMemo(() => [...baseColors, aggregateColor], [baseColors, aggregateColor])
     const swapColors = useCallback(() => setReverseColors(!reverseColors), [reverseColors])
 
-
-
     const value = useMemo(() => ({
         allColors,
         swappedColors,
@@ -394,6 +397,7 @@ export function PsdDataProvider({children}) {
         chartColors,
         swapColors,
         settings, setSettings,
+        customSettings, setCustomSettings,
         isCustomSettings, setIsCustomSettings,
         queue, setQueue,
         droppedFiles, setDroppedFiles,
@@ -432,6 +436,7 @@ export function PsdDataProvider({children}) {
         chartColors,
         swapColors,
         settings, setSettings,
+        customSettings, setCustomSettings,
         isCustomSettings, setIsCustomSettings,
         queue, setQueue,
         droppedFiles, setDroppedFiles,

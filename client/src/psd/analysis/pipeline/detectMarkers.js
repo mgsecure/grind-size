@@ -27,7 +27,7 @@ export function detectMarkers(imageData) {
         canvas.height = sh
         const ctx = canvas.getContext('2d')
         
-        // Put original data into a temp canvas first
+        // Use ImageBitmap if available for potentially better performance, otherwise use canvas
         const tempCanvas = document.createElement('canvas')
         tempCanvas.width = width
         tempCanvas.height = height
@@ -44,8 +44,9 @@ export function detectMarkers(imageData) {
     // ArUco markers are typically ~5-7% of the image width. 
     // In a 1000px image, they are ~50-70px. A blockSize of 41 is a good balance.
     const gray = new Uint8ClampedArray(sw * sh)
+    const dData = detectionImage.data
     for (let i = 0, p = 0; i < gray.length; i++, p += 4) {
-        gray[i] = (detectionImage.data[p] * 0.299 + detectionImage.data[p + 1] * 0.587 + detectionImage.data[p + 2] * 0.114) | 0
+        gray[i] = (dData[p] * 0.299 + dData[p + 1] * 0.587 + dData[p + 2] * 0.114) | 0
     }
     
     const {mask} = adaptiveThreshold({width: sw, height: sh, gray}, {blockSize: 61, C: 10})

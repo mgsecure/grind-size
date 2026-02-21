@@ -186,18 +186,31 @@ export async function renderOverlayPng(imageData, particles, meta = {}, options 
         }
     }
 
-    // 4. Draw detected particles (green ellipses based on moments)
+    // 4. Draw detected particles (green ellipses AND/OR contours)
     if (options.showParticles) {
         ctx.lineWidth = 1
-        ctx.strokeStyle = '#0000ffaa'
         for (const p of particles) {
+            // Draw ellipse (oval)
             const radiusX = (p.longAxisPx || p.eqDiameterPx) / 2
             const radiusY = (p.shortAxisPx || p.eqDiameterPx) / 2
             const rotation = p.angleRad || 0
             
+            ctx.strokeStyle = '#00ff00'
             ctx.beginPath()
             ctx.ellipse(p.cxPx, p.cyPx, radiusX, radiusY, rotation, 0, Math.PI * 2)
             ctx.stroke()
+
+            // Draw exact contour if available (slightly dimmer or different color)
+            if (p.contour && p.contour.length > 0) {
+                ctx.strokeStyle = '#00ff0066' // Semi-transparent
+                ctx.beginPath()
+                ctx.moveTo(p.contour[0].x, p.contour[0].y)
+                for (let i = 1; i < p.contour.length; i++) {
+                    ctx.lineTo(p.contour[i].x, p.contour[i].y)
+                }
+                ctx.closePath()
+                ctx.stroke()
+            }
         }
     }
     
@@ -258,18 +271,31 @@ export async function renderDiagnosticPng(imageData, particles, maskObj, validPa
         }
     }
 
-    // 4. Draw detected particles (green ellipses)
+    // 4. Draw detected particles (BLUE ellipses AND/OR contours)
     if (options.showParticles) {
         ctx.lineWidth = 1
-        ctx.strokeStyle = '#0000ffaa'
         for (const p of particles) {
+            // Draw ellipse
             const radiusX = (p.longAxisPx || p.eqDiameterPx) / 2
             const radiusY = (p.shortAxisPx || p.eqDiameterPx) / 2
             const rotation = p.angleRad || 0
             
+            ctx.strokeStyle = '#0000ffcc'
             ctx.beginPath()
             ctx.ellipse(p.cxPx, p.cyPx, radiusX, radiusY, rotation, 0, Math.PI * 2)
             ctx.stroke()
+
+            // Draw contour
+            if (p.contour && p.contour.length > 0) {
+                ctx.strokeStyle = '#0000ff44'
+                ctx.beginPath()
+                ctx.moveTo(p.contour[0].x, p.contour[0].y)
+                for (let i = 1; i < p.contour.length; i++) {
+                    ctx.lineTo(p.contour[i].x, p.contour[i].y)
+                }
+                ctx.closePath()
+                ctx.stroke()
+            }
         }
     }
     

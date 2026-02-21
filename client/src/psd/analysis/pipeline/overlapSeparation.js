@@ -107,7 +107,14 @@ export function watershed(distObj, labels, minPeakDist = 5) {
     }
 
     // 4. Watershed region growing
+    let swivel = 0;
+    const maxSwivel = width * height * 4; // Use a more conservative multiplier
     while (!pq.isEmpty()) {
+        swivel++;
+        if (swivel > maxSwivel) { 
+            console.error('Watershed: Possible infinite loop detected in region growing.');
+            break;
+        }
         const idx = pq.pop();
         const x = idx % width;
         const y = Math.floor(idx / width);
@@ -139,7 +146,14 @@ export function watershed(distObj, labels, minPeakDist = 5) {
             // Simple flood fill for the lost component
             const stack = [i];
             seedLabels[i] = nextId;
+            let safetyCount = 0;
+            const maxSafety = width * height;
             while (stack.length > 0) {
+                safetyCount++;
+                if (safetyCount > maxSafety) {
+                    console.error('Watershed: Possible infinite loop in lost particle restoration.');
+                    break;
+                }
                 const currIdx = stack.pop();
                 const cx = currIdx % width;
                 const cy = Math.floor(currIdx / width);

@@ -34,7 +34,7 @@ export default function PsdPage() {
             )}
             <Paper sx={{p: 2, width: '100%'}}>
                 <Typography style={{fontSize: '1.5rem', fontWeight: 700}}>
-                    Coffee Grinds <span style={{fontWeight: 300}}> Particle Size Distribution</span>
+                    COFFEE GRINDS <span style={{fontWeight: 300}}> PARTICLE SIZE DISTRIBUTION</span>
                 </Typography>
                 <Typography variant='body2' color='text.secondary'>
                     Upload up to 6 images.
@@ -59,6 +59,7 @@ export default function PsdPage() {
             <Stack direction='column' spacing={1} sx={{width: '100%'}} ref={domEl}>
 
                 <HistogramPanel domEl={domEl}/>
+
                 <StatsTable/>
 
             </Stack>

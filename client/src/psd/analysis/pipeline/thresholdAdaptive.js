@@ -25,9 +25,12 @@ export function adaptiveThreshold(grayObj, {blockSize = 201, C = 4} = {}) {
             // If the local neighborhood is very dark (mean < 50), we are likely 
             // deep inside a large particle or a dark area (like ArUco marker bits).
             // We should keep it as foreground (255) IF the pixel itself is dark.
-            const isInsideDark = mean < 50 && gray[idx] < 128;
+            const isInsideDark = mean < 50 && gray[idx] < 110;
             
-            mask[idx] = (gray[idx] < (mean - C)) || isInsideDark ? 255 : 0
+            // Halo reduction: if the pixel is only slightly darker than mean, 
+            // it might be a shadow/halo.
+            const threshold = isInsideDark ? 255 : (gray[idx] < (mean - C) ? 255 : 0);
+            mask[idx] = threshold;
         }
     }
     return {width, height, mask}

@@ -2,9 +2,9 @@
 export function normalizeLighting(imageData, {bgSigma = 35} = {}) {
     const {width, height, data} = imageData
     const gray = new Uint8ClampedArray(width * height)
-
+    const iData = imageData.data
     for (let i = 0, p = 0; i < gray.length; i++, p += 4) {
-        gray[i] = (data[p] * 0.299 + data[p + 1] * 0.587 + data[p + 2] * 0.114) | 0
+        gray[i] = (iData[p] * 0.299 + iData[p + 1] * 0.587 + iData[p + 2] * 0.114) | 0
     }
 
     // crude blur radius derived from sigma

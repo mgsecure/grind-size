@@ -6,15 +6,18 @@ import {normalizeLighting} from './pipeline/normalizeLighting.js'
 import {adaptiveThreshold} from './pipeline/thresholdAdaptive.js'
 import {morphologyOpen} from './pipeline/morphology.js'
 import {detectParticles} from './pipeline/detectParticles.js'
+import {detectParticlesTest} from './pipeline/detectParticlesTest.js'
 import {distanceTransform, watershed} from './pipeline/overlapSeparation.js'
 import {buildHistograms} from './metrics/buildHistograms.js'
 import {calculateStatistics} from './metrics/calculateStatistics.js'
 import {renderMaskPng, renderOverlayPng, renderDiagnosticPng} from './render/renderOutputs.js'
 import {getFileNameWithoutExtension} from '../../util/stringUtils.js'
 
-export async function analyzeImageFiles(file, settings, manualCorners = null, overlayOptions = null, altFilename= null) {
+export async function analyzeImageFiles(file, settings, manualCorners = null, overlayOptions = null, altFilename=null,) {
     const startedAt = new Date().toISOString()
     const imageData = await decodeImageToImageData(file)
+    const {testPipeline=false, correctPerspective=true, useMorphology=true} = settings
+
     const {width, height} = imageData
 
     // detectMarkers might modify imageData.data (grayscale/threshold in js-aruco2)
@@ -24,6 +27,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         height,
         data: imageData.data.slice()
     })
+
     // Filter duplicate markers (keep lowest hammingDistance)
     const uniqueMarkers = []
     const markerById = {}
@@ -73,39 +77,42 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
 
         const presentCorners = warpCorners.filter(c => c !== null)
         
+        // Always estimate pxPerMm from markers if available, 
+        // regardless of whether we warp or not.
+        const getDist = (p1, p2) => Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)
+        const getP = (i) => markerMap[ids[i]] ? markerMap[ids[i]].corners[i] : null
+        const pairs = [[0, 1], [1, 2], [2, 3], [3, 0]]
+        
+        let distSum = 0
+        let count = 0
+        pairs.forEach(([i1, i2]) => {
+            const p1 = getP(i1)
+            const p2 = getP(i2)
+            if (p1 && p2) {
+                distSum += getDist(p1, p2)
+                count++
+            }
+        })
+        
+        if (count > 0) {
+            pxPerMm = distSum / (count * template.outerMm)
+            if (Math.abs(pxPerMm - 20) < 0.02) pxPerMm = 20
+        }
+
         if (presentCorners.length === 4) {
             const warpSize = settings.warpSizePx || 2000
-            try {
+
+            analysisImageData = imageData
+
+            if (correctPerspective) try {
                 analysisImageData = warpPerspective(imageData, warpCorners, warpSize)
                 pxPerMm = warpSize / template.outerMm
             } catch (e) {
                 console.error('Perspective warp failed', e)
                 // Fallback to original image if warp fails
                 analysisImageData = imageData
-                pxPerMm = width / template.outerMm
             }
             // No snapping needed here as it's a fixed geometric warp
-        } else {
-            // Fallback: estimate scale from available markers
-            const getDist = (p1, p2) => Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)
-            const getP = (i) => markerMap[ids[i]] ? markerMap[ids[i]].corners[i] : null
-            const pairs = [[0, 1], [1, 2], [2, 3], [3, 0]]
-            
-            let distSum = 0
-            let count = 0
-            pairs.forEach(([i1, i2]) => {
-                const p1 = getP(i1)
-                const p2 = getP(i2)
-                if (p1 && p2) {
-                    distSum += getDist(p1, p2)
-                    count++
-                }
-            })
-            
-            if (count > 0) {
-                pxPerMm = distSum / (count * template.outerMm)
-                if (Math.abs(pxPerMm - 20) < 0.02) pxPerMm = 20
-            }
         }
 
         scaleInfo = {
@@ -114,11 +121,13 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
             templateSize: template.sizeMm,
             detectedTemplate: template.sizeMm,
             markerCount: template.markers.length,
-            isWarped: presentCorners.length === 4
+            isWarped: correctPerspective && presentCorners.length === 4
         }
 
+        console.log('Scale info:', scaleInfo)
+
         // Define ROI
-        if (presentCorners.length === 4) {
+        if (presentCorners.length === 4 && correctPerspective) {
             const outerMm = template.outerMm
             const innerMm = template.innerMm
             const marginMm = (outerMm - innerMm) / 2
@@ -142,36 +151,52 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
 
             if (innerPoints.length >= 3) {
                 const validPoints = innerPoints.filter(p => p !== null)
-                if (validPoints.length >= 3) {
-                    const minX = Math.round(Math.min(...validPoints.map(p => p.x)) + (settings.insetPx || 20))
-                    const maxX = Math.round(Math.max(...validPoints.map(p => p.x)) - (settings.insetPx || 20))
-                    const minY = Math.round(Math.min(...validPoints.map(p => p.y)) + (settings.insetPx || 20))
-                    const maxY = Math.round(Math.max(...validPoints.map(p => p.y)) - (settings.insetPx || 20))
-                    roi = { points: validPoints, actualBounds: {minX, maxX, minY, maxY} }
-                }
+                const minX = Math.round(Math.min(...validPoints.map(p => p.x)) + (settings.insetPx || 20))
+                const maxX = Math.round(Math.max(...validPoints.map(p => p.x)) - (settings.insetPx || 20))
+                const minY = Math.round(Math.min(...validPoints.map(p => p.y)) + (settings.insetPx || 20))
+                const maxY = Math.round(Math.max(...validPoints.map(p => p.y)) - (settings.insetPx || 20))
+                roi = { points: validPoints, actualBounds: {minX, maxX, minY, maxY} }
             }
         }
     }
 
+
+
     const gray = normalizeLighting(analysisImageData, {bgSigma: settings.bgSigma})
     const mask = adaptiveThreshold(gray, {blockSize: settings.adaptiveBlockSize, C: settings.adaptiveC})
-    const cleaned = morphologyOpen(mask)
+    const cleaned = useMorphology ? morphologyOpen(mask) : mask
 
     // Filter particles by ROI and size if present
-    let detectResult = detectParticles(cleaned, {minAreaPx: settings.minAreaPx})
+    const detectFn = testPipeline ? detectParticlesTest : detectParticles
+    console.log(`Using detection function: ${testPipeline ? 'detectParticlesTest' : 'detectParticles'}`)
+    let detectResult
+    try {
+        detectResult = detectFn(mask, {minAreaPx: settings.minAreaPx})
+    } catch (e) {
+        console.error('Initial particle detection failed', e)
+        throw e
+    }
     
     // Optional Overlap Separation (Watershed)
     if (settings.splitOverlaps) {
-        const dt = distanceTransform(cleaned)
-        const minPeakDist = 3 + (settings.splitSensitivity || 0.5) * 20
-        const watershedLabels = watershed(dt, detectResult.labels, minPeakDist)
-        detectResult = detectParticles(cleaned, {
-            minAreaPx: settings.minAreaPx,
-            externalLabels: watershedLabels
-        })
+        try {
+            const dt = distanceTransform(cleaned)
+            const minPeakDist = 3 + (settings.splitSensitivity || 0.5) * 20
+            const watershedLabels = watershed(dt, detectResult.labels, minPeakDist)
+            detectResult = detectFn(cleaned, {
+                minAreaPx: settings.minAreaPx,
+                externalLabels: watershedLabels
+            })
+        } catch (e) {
+            console.error('Overlap separation failed', e)
+            // Continue with non-split results if watershed fails? 
+            // For now, let it throw to surface the error.
+            throw e
+        }
     }
     
     let particles = detectResult.particles
+    console.log(`Initial detection: ${particles.length} particles`)
     
     if (particles.length === 0) {
         throw new Error('No particles detected. Check your threshold settings or image quality.')
@@ -182,6 +207,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
     const maxAreaPx = maxAreaMm2 * (scaleInfo.pxPerMm ** 2)
 
     particles = particles.filter(p => p.areaPx <= maxAreaPx)
+    console.log(`After size filtering (maxAreaPx: ${maxAreaPx}): ${particles.length} particles`)
 
     if (particles.length === 0) {
         throw new Error('All detected particles were filtered out (too large). Adjust Max Surface setting.')
@@ -192,6 +218,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         particles = particles.filter(p => 
             p.cxPx >= minX && p.cxPx <= maxX && p.cyPx >= minY && p.cyPx <= maxY
         )
+        console.log(`After ROI filtering: ${particles.length} particles`)
     }
 
     if (particles.length === 0) {
@@ -227,6 +254,8 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         throw new Error('No valid particles remaining after filtering.')
     }
 
+    console.log(`Final analysis: ${particles.length} particles`, particles)
+
     const filteredValidIds = particles.map(p => p.id)
 
     // Calculate confidence / warnings (Section 14)
@@ -252,16 +281,24 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
     // Map particles back to original coordinates for the overlay if warped
     let overlayParticles = particles
     try {
-        if (scaleInfo.isWarped && warpCorners) {
+        if (scaleInfo.isWarped && warpCorners && correctPerspective) {
+            const warpSize = settings.warpSizePx || 2000
             overlayParticles = particles.map(p => {
-                const center = getUnwarpedPoint({x: p.cxPx, y: p.cyPx}, warpCorners, settings.warpSizePx || 2000)
-                const rawScale = (settings.warpSizePx || 2000) / imageData.width // approximate
+                const center = getUnwarpedPoint({x: p.cxPx, y: p.cyPx}, warpCorners, warpSize)
+                const rawScale = (warpSize - 1) / Math.max(imageData.width, imageData.height)
+                
+                let unwarpedContour = null
+                if (p.contour) {
+                    unwarpedContour = p.contour.map(pt => getUnwarpedPoint(pt, warpCorners, warpSize))
+                }
+                
                 return {
                     ...p,
                     cxPx: center.x,
                     cyPx: center.y,
                     longAxisPx: p.longAxisPx / rawScale,
                     shortAxisPx: p.shortAxisPx / rawScale,
+                    contour: unwarpedContour
                 }
             })
         }
@@ -333,8 +370,8 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
             // Run thresholding on original image for diagnostic view overlay
             const grayOrig = normalizeLighting(imageData, {bgSigma: settings.bgSigma})
             const maskOrig = adaptiveThreshold(grayOrig, {blockSize: settings.adaptiveBlockSize, C: settings.adaptiveC})
-            const cleanedOrig = morphologyOpen(maskOrig)
-            const detectOrig = detectParticles(cleanedOrig, {minAreaPx: settings.minAreaPx})
+            const cleanedOrig = useMorphology ? morphologyOpen(maskOrig) : maskOrig
+            const detectOrig = detectFn(cleanedOrig, {minAreaPx: settings.minAreaPx})
             
             diagnosticLabels = detectOrig.labels
             diagnosticW = width
@@ -354,9 +391,9 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
                 // We need the original image ROI bounds.
                 // If it was warped, the original ROI is defined by the corners of the inner template.
                 
-                const ids = template.config.cornerIds
+                const ids = template?.config.cornerIds
                 const markerMap = {}
-                template.markers.forEach(m => { markerMap[m.id] = m })
+                template?.markers.forEach(m => { markerMap[m.id] = m })
                 const innerPoints = []
                 if (markerMap[ids[0]]) innerPoints.push(markerMap[ids[0]].corners[2])
                 if (markerMap[ids[1]]) innerPoints.push(markerMap[ids[1]].corners[3])
@@ -421,6 +458,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
     return {
         filename: altFilename || getFileNameWithoutExtension(file.name),
         analysisVersion: PSD_ANALYSIS_VERSION,
+        testPipeline,
         settings,
         startedAt,
         image: {width, height},

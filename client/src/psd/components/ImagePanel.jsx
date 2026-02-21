@@ -7,22 +7,13 @@ import EntryImageGallery from '../../misc/EntryImageGallery.jsx'
 export default function ImagePanel() {
     const {
         queue,
-        onlyActiveImage = {result: {}},
         activeIdList
     } = useContext(DataContext)
 
     const theme = useTheme()
     const [mode, setMode] = useState('diagnostic') // original | mask | overlay
 
-    const src = useMemo(() => {
-        if (!onlyActiveImage || !onlyActiveImage?.result) return null
-        if (mode === 'mask') return onlyActiveImage.result?.previews?.maskPngDataUrl
-        if (mode === 'diagnostic') return onlyActiveImage.result?.previews?.diagnosticPngDataUrl
-        if (mode === 'original') return null
-        return onlyActiveImage?.result?.previews?.overlayPngDataUrl
-    }, [onlyActiveImage, mode])
-
-    const disabledStyle = !onlyActiveImage ? {opacity: 0.5, pointerEvents: 'none'} : undefined
+    const disabledStyle = !activeIdList.length ? {opacity: 0.5, pointerEvents: 'none'} : undefined
 
     const srcVar = useMemo(() => {
         if (mode === 'mask') return 'maskPngDataUrl'
@@ -30,24 +21,17 @@ export default function ImagePanel() {
         return 'overlayPngDataUrl'
     }, [mode])
 
-
-    const media = queue.map((item, index) => {
-        if (item.result) {
-            return {
-                'title': item.result?.filename || `Image ${index + 1}`,
-                'subtitle': item.result?.settings?.name || '',
-                'thumbnailUrl': item.result?.previews?.[srcVar],
-                'sequenceId': index + 1,
-                'fullSizeUrl': item.result?.previews?.[srcVar]
-            }
-        } else return {}
-    })
-
-    const entry = {
-        media
-    }
-
-    console.log('entry', entry)
+    const entry = { media: queue.map((item, index) => {
+            if (item.result) {
+                return {
+                    'title': item.result?.filename || `Image ${index + 1}`,
+                    'subtitle': item.result?.settings?.name || '',
+                    'thumbnailUrl': item.result?.previews?.[srcVar],
+                    'sequenceId': index + 1,
+                    'fullSizeUrl': item.result?.previews?.[srcVar]
+                }
+            } else return {}
+        }) }
 
     return (
         <Paper sx={{p: 2}}>

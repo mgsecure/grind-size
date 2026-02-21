@@ -4,7 +4,7 @@ import {
     Paper,
     Typography,
     Stack,
-    ListItem,
+    ListItem
 } from '@mui/material'
 import Box from '@mui/material/Box'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -17,6 +17,7 @@ import Dropzone from '../../formUtils/Dropzone.jsx'
 import DataContext from '../../context/DataContext.jsx'
 import TroubleshootIcon from '@mui/icons-material/Troubleshoot'
 import {PSD_PRESETS} from '@starter/shared'
+import RefreshSingleButton from './RefreshSingleButton.jsx'
 
 export default function UploadQueue() {
     const theme = useTheme()
@@ -26,6 +27,7 @@ export default function UploadQueue() {
         droppedFiles,
         onFiles: handleDroppedFiles,
         allItems,
+        settings,
         handleQueueRemove,
         activeIdList,
         setActiveIdList,
@@ -100,18 +102,26 @@ export default function UploadQueue() {
                                 secondaryAction={
                                     item.id !== 'aggregateResults' &&
                                     <>
-
-                                        {!Object.keys(PSD_PRESETS).some(s => item.filename.includes(`-${s}`)) &&
-                                            <IconButton onClick={() => processMultipleSettings(item.id)}>
-                                                <TroubleshootIcon fontSize='small'
-                                                                  style={{color: theme.palette.text.secondary}}/>
+                                        <Stack direction='row' alignItems='center' sx={{marginLeft: 10}}>
+                                            {!Object.keys(PSD_PRESETS).some(s => item.filename?.includes(`-${s}`)) &&
+                                                <IconButton onClick={() => processMultipleSettings(item.id)}>
+                                                    <TroubleshootIcon fontSize='small'
+                                                                      style={{
+                                                                          color: theme.palette.text.secondary,
+                                                                          marginRight: 10
+                                                                      }}/>
+                                                </IconButton>
+                                            }
+                                            <Box sx={{display: 'flex', alignItems: 'center'}}>
+                                                <RefreshSingleButton id={item.id}/>
+                                            </Box>
+                                            <IconButton edge='end' aria-label='delete' size='small'
+                                                        onClick={() => handleDelete(item.id)}>
+                                                <DeleteIcon fontSize='small'/>
                                             </IconButton>
-                                        }
-                                        <IconButton edge='end' aria-label='delete' size='small'
-                                                    onClick={() => handleDelete(item.id)}>
-                                            <DeleteIcon fontSize='small'/>
-                                        </IconButton>
+                                        </Stack>
                                     </>
+
                                 }>
 
                                 <Stack direction='row' alignItems='center'>
@@ -139,7 +149,12 @@ export default function UploadQueue() {
                                         color: item.status === 'error' ? theme.palette.error.main : theme.palette.text.secondary,
                                         fontSize: '0.9rem', marginLeft: 8
                                     }}>
-                                            ({item.status === 'error' ? item.error : item.status})
+                                        {item.status === 'error' &&
+                                            <>[{item.error}]</>
+                                        }
+                                        {item.id !== 'aggregateResults' &&
+                                            <>({item.status === 'done' ? item.settings?.name : item.status})</>
+                                        }
                                         </span>
                                 </Stack>
 

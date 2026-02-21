@@ -9,6 +9,9 @@ export const PSD_TEMPLATES = {
 // Defaults
 export const PSD_DEFAULTS = {
     name: 'default',
+    testPipeline: true,
+    useMorphology: true,
+    correctPerspective: true,
     warpSizePx: 2000,
     insetPx: 8,
     bgSigma: 35,
@@ -64,6 +67,19 @@ export const PSD_PRESETS = {
             adaptiveC: 3,
             minAreaPx: 4,
             maxAreaMm2: 5,
+            splitOverlaps: false,
+            splitSensitivity: 0.6
+        }
+    },
+    nb: {
+        name: 'NB',
+        params: {
+            name: 'nb',
+            bgSigma: 25,
+            adaptiveBlockSize: 101,
+            adaptiveC: 3,
+            minAreaPx: 2,
+            maxAreaMm2: 10,
             splitOverlaps: false,
             splitSensitivity: 0.6
         }

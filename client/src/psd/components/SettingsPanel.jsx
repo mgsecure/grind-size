@@ -1,5 +1,5 @@
-import React, {useContext, useState} from 'react'
-import {Paper, Stack, Typography, Slider, Divider} from '@mui/material'
+import React, {useContext, useMemo, useState} from 'react'
+import {Paper, Stack, Typography, Slider, Divider, FormControlLabel} from '@mui/material'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import ToggleButton from '@mui/material/ToggleButton'
 import Button from '@mui/material/Button'
@@ -8,6 +8,8 @@ import {PSD_PRESETS} from '@starter/shared'
 import Collapse from '@mui/material/Collapse'
 import useWindowSize from '../../util/useWindowSize.jsx'
 import DataContext from '../../context/DataContext.jsx'
+import Box from '@mui/material/Box'
+import isDeepEqual from '../../util/isDeepEqual.js'
 
 export default function SettingsPanel() {
     const {
@@ -16,9 +18,20 @@ export default function SettingsPanel() {
         setResetToggle,
         setIsCustomSettings
     } = useContext(DataContext)
+
+    // TODO: implement save/load custom settings from local storage
+    // console.log('customSettings', customSettings)
+
     const [showDetails, setShowDetails] = useState(false)
     const [preset, setPreset] = useState('default') // 'default' | 'coarse' | 'fines' | 'custom'
-    const [settingsChanged, setSettingsChanged] = useState(false)
+
+    const needsRefresh = useMemo(() => {
+        return queueItems
+            .filter(item => item.status === 'done')
+            .map(item => item.settings).some(
+                (itemSettings) => !isDeepEqual(itemSettings, settings, {ignore: ['name', 'bins', 'binSpacing']})
+            )
+    }, [queueItems, settings])
 
     const handlePresetChange = (presetKey) => {
         setPreset(presetKey)
@@ -32,7 +45,6 @@ export default function SettingsPanel() {
         if (presetKey === 'custom') {
             setShowDetails(true)
         } else {
-            setSettingsChanged(true)
             setIsCustomSettings(false)
         }
     }
@@ -42,14 +54,12 @@ export default function SettingsPanel() {
             ...prev,
             [param]: value
         }))
-        handlePresetChange('custom')
-        setSettingsChanged(true)
+        if (preset !== 'custom') handlePresetChange('custom')
         setIsCustomSettings(true)
     }
 
     const handleRecalculate = () => {
         setResetToggle(true)
-        setSettingsChanged(false)
     }
 
     const {isMobile} = useWindowSize()
@@ -57,7 +67,41 @@ export default function SettingsPanel() {
 
     return (
         <Paper sx={{p: 2}}>
-            <Typography style={{fontSize:'1.1rem', fontWeight: 500}}>SETTINGS</Typography>
+            <Stack direction='row' alignItems='flex-end' justifyContent='space-between'
+                   sx={{fontSize: '1.1rem', fontWeight: 500}}>
+                SETTINGS
+                <Box sx={{display: 'flex', alignItems: 'center'}}>
+                    <FormControlLabel
+                        control={
+                            <Switch size='small'
+                                    checked={settings.testPipeline}
+                                    onChange={(_, v) => handleParameterChange('testPipeline', v)}
+                                    name='testPipeline'
+                            />}
+                        label='Test Pipeline'
+                    />
+                    <FormControlLabel
+                        control={
+                            <Switch size='small'
+                                    checked={settings.correctPerspective}
+                                    onChange={(_, v) => handleParameterChange('correctPerspective', v)}
+                                    name='correctPerspective'
+                            />}
+                        label='Correct Perspective'
+                    />
+                    <FormControlLabel
+                        control={
+                            <Switch size='small'
+                                    checked={settings.useMorphology}
+                                    onChange={(_, v) => handleParameterChange('useMorphology', v)}
+                                    name='useMorphology'
+                            />}
+                        label='Use Morphology'
+                    />
+                </Box>
+            </Stack>
+
+
             <Stack direction='row' flexWrap='wrap' alignItems='center' sx={{mb: 0}}>
                 <Stack direction='row' flexWrap='wrap' alignItems='center'>
                     <ToggleButtonGroup
@@ -83,10 +127,10 @@ export default function SettingsPanel() {
                     </ToggleButtonGroup>
 
                     <Button variant='contained'
-                            disabled={!settingsChanged || queueItems.length === 0}
+                            disabled={!needsRefresh || queueItems.length === 0}
                             onClick={handleRecalculate}
                             style={{margin: 10}}>
-                        Recalculate
+                        Refresh All
                     </Button>
                 </Stack>
             </Stack>
@@ -121,7 +165,7 @@ export default function SettingsPanel() {
                     </Stack>
                 </Stack>
 
-                <Stack direction='row' alignItems='top' sx={{mb: 2, alignContent: 'top', flexWrap: 'wrap' }}>
+                <Stack direction='row' alignItems='top' sx={{mb: 2, alignContent: 'top', flexWrap: 'wrap'}}>
                     <Stack direction='row' style={{width: 350}}>
                         <Stack style={{width: sliderWidth, marginRight: 24}}>
                             <Typography variant='body2'>Min Area (px): {settings.minAreaPx}</Typography>
@@ -135,7 +179,8 @@ export default function SettingsPanel() {
                             />
                         </Stack>
                         <Stack style={{width: sliderWidth, marginRight: 24}}>
-                            <Typography variant='body2' style={{whiteSpace: 'nowrap'}}>Max Surface (mm²): {settings.maxAreaMm2}</Typography>
+                            <Typography variant='body2' style={{whiteSpace: 'nowrap'}}>Max Surface
+                                (mm²): {settings.maxAreaMm2}</Typography>
                             <Slider
                                 value={settings.maxAreaMm2}
                                 min={1}
@@ -157,7 +202,7 @@ export default function SettingsPanel() {
                                     onChange={(_, v) => handleParameterChange('splitOverlaps', v)}
                                     checked={settings.splitOverlaps}
                                     color='primary'
-                                    name='checkedB'
+                                    name='splitOverlaps'
                                 />
                             </Stack>
                             <Stack style={{width: sliderWidth, marginRight: 24}}>

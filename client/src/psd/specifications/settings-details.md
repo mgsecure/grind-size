@@ -71,10 +71,13 @@ The PSD module provides two primary ways to visualize detected particles, each s
 *   **What it represents:** This is the "ground truth" of the analysis. It shows the exact pixels that were identified as foreground (particle) by the thresholding and morphology algorithms.
 *   **Analyzed Data:** If a pixel is colored in this view, it was directly used to calculate the area and moments of that particle. This view accurately reflects irregular shapes, jagged edges, and any noise that might have survived filtering.
 *   **Use Case:** Use this to verify that the lighting and threshold settings are correctly capturing the particles without too much background noise or "ghost" detections.
+*   **Recent Improvements (2026-02-19):** Enhanced the adaptive thresholding logic to better distinguish between legitimate particles and shadow-induced "halos" by implementing stricter dark-region verification.
 
-#### 2. Overlay View
-*   **What it represents:** A geometric approximation of the detected particles. It draws ellipses (calculated from image moments) over the original image.
-*   **Analyzed Data:** While it looks like a simplification, the dimensions of these ellipses (Major Axis, Minor Axis, and Equivalent Diameter) are the actual values used to generate the histograms and statistics (D50, D90, etc.).
-*   **Use Case:** Use this for a quick visual check of the particle sizes relative to the original photo and to ensure the detection isn't being "warped" or misaligned by perspective correction.
+#### 2. Overlay View (Outlines)
+*   **What it represents:** A visual representation of the detected particles overlaid on the original image.
+*   **Baseline Pipeline:** Draws ellipses calculated from image moments. While mathematically useful for mass/volume estimation, these can sometimes "overshoot" the actual pixels.
+*   **Test Pipeline (Exact Boundaries):** Extracts the **exact pixel boundaries** (contours) for every particle and maps them back to the original photo. This ensures that the green outlines perfectly "hug" the red threshold pixels, eliminating any visual offset or abstraction error.
+*   **Analyzed Data:** In the **Baseline Pipeline**, the dimensions of the ellipses (Major Axis, Minor Axis, and Equivalent Diameter) are used for histograms. In the **Test Pipeline**, the statistics are based on the **actual pixel count** for superior accuracy with irregular coffee grounds.
+*   **Use Case:** Use this for a quick visual check of the particle sizes relative to the original photo and to ensure the detection is perfectly aligned.
 
 **Note on Differences:** You may notice that the "Threshold Image" looks more jagged while the "Overlay View" looks perfectly smooth. This is expected. The analysis calculates a "best-fit" ellipse for every detected blob; the statistics are based on that mathematical fit, not on the raw pixel count alone.
