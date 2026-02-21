@@ -1,8 +1,8 @@
-import * as AR_pkg from 'js-aruco2/src/aruco.js';
-import {adaptiveThreshold} from './thresholdAdaptive.js';
+import * as AR_pkg from 'js-aruco2/src/aruco.js'
+import {adaptiveThreshold} from './thresholdAdaptive.js'
 
 // Legacy library uses non-standard exports. We resolve AR based on environment.
-const _AR = AR_pkg.AR || AR_pkg.default?.AR || AR_pkg;
+const _AR = AR_pkg.AR || AR_pkg.default?.AR || AR_pkg
 
 export function detectMarkers(imageData) {
     const {width, height, data} = imageData
