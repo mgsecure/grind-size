@@ -33,7 +33,7 @@ export const PSD_DEFAULTS = {
 
 export const PSD_PRESETS = {
     default: {
-        name: 'Default/Phone',
+        name: 'Default',
         params: {
             name: 'default',
             bgSigma: 35,
@@ -84,13 +84,6 @@ export const PSD_PRESETS = {
             splitSensitivity: 0.6
         }
     },
-    custom: {
-        name: 'Custom',
-        params: {
-            name: 'custom',
-        }
-    }
-
 }
 
 

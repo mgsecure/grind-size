@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react'
+import React, {useCallback, useContext, useState} from 'react'
 import LinkIcon from '@mui/icons-material/Link'
 import {enqueueSnackbar} from 'notistack'
 import queryString from 'query-string'
@@ -26,6 +26,9 @@ import YoutubeSearchedForIcon from '@mui/icons-material/YoutubeSearchedFor'
 import useWindowSize from '../util/useWindowSize'
 import Tooltip from '@mui/material/Tooltip'
 import useClickOrDrag from '../util/useClickOrDrag'
+import DataContext from '../context/DataContext.jsx'
+import ItemInformationButton from '../psd/components/ItemInformationButton.jsx'
+
 
 function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}}) {
     const [open, setOpen] = useState(true)
@@ -36,6 +39,12 @@ function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}})
     const [zoom, setZoom] = useState(1)
     const [moving, setMoving] = useState(false)
     const {isMobile} = useWindowSize()
+
+    const {
+        queueItems
+    } = useContext(DataContext)
+
+    const mediaItem = queueItems.find(item => item.sequenceId === media.id)
 
     const currentMedia = media.find(m => m.sequenceId === openIndex)
     const currentMediaIndex = media.indexOf(currentMedia)
@@ -164,18 +173,24 @@ function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}})
                         <CloseIcon/>
                     </IconButton>
 
-                    <Stack direction='column' sx={{marginLeft: 2, width: '100%'}}>
-                        <Typography variant='subtitle1' component='div'>
-                            {imageTitle}
-                        </Typography>
-                        <Typography variant='subtitle2' component='div' style={{color: '#aaa'}}>
-                            {(subtitleUrl || licenses[subtitle])
-                                ? <a href={subtitleUrl || licenses[subtitle]} target='_blank' rel='noopener noreferrer'>
-                                    {subtitle}
-                                </a>
-                                : <span>{subtitle}</span>
-                            }
-                        </Typography>
+                    <Stack direction='row' sx={{marginLeft: 2, width: '100%'}}>
+                        <Stack direction='column' sx={{marginLeft: 2, width: '100%'}}>
+                            <Typography variant='subtitle1' component='div'>
+                                {imageTitle}
+                            </Typography>
+                            <Typography variant='subtitle2' component='div' style={{color: '#aaa'}}>
+                                {(subtitleUrl || licenses[subtitle])
+                                    ? <a href={subtitleUrl || licenses[subtitle]} target='_blank'
+                                         rel='noopener noreferrer'>
+                                        {subtitle}
+                                    </a>
+                                    : <span>{subtitle}</span>
+                                }
+                            </Typography>
+                        </Stack>
+
+                        <ItemInformationButton item={mediaItem} imageViewer={true}/>
+
                     </Stack>
                     {fullUrl &&
                         <Tooltip title='View Full Size' arrow disableFocusListener>

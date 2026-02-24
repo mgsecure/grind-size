@@ -1,12 +1,12 @@
 import React, {useContext, useRef} from 'react'
 import {Stack, Paper, Typography, Alert, AlertTitle} from '@mui/material'
-import UploadQueue from './components/UploadQueue.jsx'
+import UploadQueuePanel from './components/UploadQueuePanel.jsx'
 import ImagePanel from './components/ImagePanel.jsx'
 import ExportPanel from './components/ExportPanel.jsx'
 import SettingsPanel from './components/SettingsPanel.jsx'
 import HistogramPanel from './components/HistogramPanel.jsx'
 import ManualCornerSelector from './components/ManualCornerSelector.jsx'
-import StatsTable from './components/StatsTable.jsx'
+import StatsPanel from './components/StatsPanel.jsx'
 import DataContext from '../context/DataContext.jsx'
 
 export default function PsdPage() {
@@ -41,7 +41,7 @@ export default function PsdPage() {
                 </Typography>
             </Paper>
 
-            <UploadQueue/>
+            <UploadQueuePanel/>
 
             <SettingsPanel/>
 
@@ -60,7 +60,7 @@ export default function PsdPage() {
 
                 <HistogramPanel domEl={domEl}/>
 
-                <StatsTable/>
+                <StatsPanel/>
 
             </Stack>
 
@@ -69,6 +69,7 @@ export default function PsdPage() {
             <ExportPanel result={processedActive} binSpacing={binSpacing}/>
 
             <div style={{height: 100}}/>
+
         </Stack>
     )
 }

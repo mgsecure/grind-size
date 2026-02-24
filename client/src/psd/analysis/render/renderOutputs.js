@@ -1,6 +1,6 @@
 import {getUnwarpedPoint} from '../pipeline/warpPerspective.js'
 
-export async function renderMaskPng(maskObj, width, height, originalImageData, validParticleIds = null) {
+export async function renderMaskPng(maskObj, width, height, originalImageData, validParticleIds = null, particles = [], meta = {}, options = {showParticles: true, showMarkers: true, showScale: true, showRoi: true}) {
     const canvas = document.createElement('canvas')
     canvas.width = width
     canvas.height = height
@@ -17,7 +17,6 @@ export async function renderMaskPng(maskObj, width, height, originalImageData, v
 
     if (originalImageData) {
         // Draw original image first
-        // If the originalImageData has different dimensions than w/h, we need to scale it
         if (originalImageData.width !== w || originalImageData.height !== h) {
             const tempCanvas = document.createElement('canvas')
             tempCanvas.width = originalImageData.width
@@ -39,22 +38,12 @@ export async function renderMaskPng(maskObj, width, height, originalImageData, v
             ctx.putImageData(tempImageData, 0, 0)
         }
         
-    // Overlay red particles
-    const labels = maskObj.labels
-    const img = ctx.getImageData(0, 0, w, h)
-    
-    // If validParticleIds is provided, we only show those.
-    // Otherwise, we show all labeled pixels.
-    const validSet = validParticleIds ? new Set(validParticleIds) : null
+        // Overlay red particles
+        const labels = maskObj.labels
+        const img = ctx.getImageData(0, 0, w, h)
+        const validSet = validParticleIds ? new Set(validParticleIds) : null
 
-    if (labels.length !== w * h) {
-        console.warn(`renderMaskPng: label buffer length (${labels.length}) does not match dimensions (${w}x${h}=${w*h})`)
-    }
-
-    for (let y = 0; y < h; y++) {
-        const rowOffset = y * w
-        for (let x = 0; x < w; x++) {
-            const i = rowOffset + x
+        for (let i = 0; i < labels.length; i++) {
             const label = labels[i]
             if (label !== 0 && label !== 0xFFFFFFFF) {
                 if (!validSet || validSet.has(label)) {
@@ -66,37 +55,94 @@ export async function renderMaskPng(maskObj, width, height, originalImageData, v
                 }
             }
         }
-    }
-    ctx.putImageData(img, 0, 0)
+        ctx.putImageData(img, 0, 0)
     } else {
-        // Fallback to binary mask if original not provided (this path might need labels too if used)
+        // Fallback to binary mask
         const img = ctx.createImageData(w, h)
         const labels = maskObj.labels
         const validSet = validParticleIds ? new Set(validParticleIds) : null
         
-        if (labels.length !== w * h) {
-            console.warn(`renderMaskPng (fallback): label buffer length (${labels.length}) does not match dimensions (${w}x${h}=${w*h})`)
-        }
-
-        for (let y = 0; y < h; y++) {
-            const rowOffset = y * w
-            for (let x = 0; x < w; x++) {
-                const i = rowOffset + x
-                const label = labels[i]
-                let v = 0
-                if (label !== 0 && label !== 0xFFFFFFFF) {
-                    if (!validSet || validSet.has(label)) {
-                        v = 255
-                    }
+        for (let i = 0; i < labels.length; i++) {
+            const label = labels[i]
+            let v = 0
+            if (label !== 0 && label !== 0xFFFFFFFF) {
+                if (!validSet || validSet.has(label)) {
+                    v = 255
                 }
-                const p = i * 4
-                img.data[p] = v
-                img.data[p + 1] = v
-                img.data[p + 2] = v
-                img.data[p + 3] = 255
             }
+            const p = i * 4
+            img.data[p] = v
+            img.data[p + 1] = v
+            img.data[p + 2] = v
+            img.data[p + 3] = 255
         }
         ctx.putImageData(img, 0, 0)
+    }
+
+    // --- NEW OVERLAYS FOR MASK VIEW ---
+    
+    // 1. Draw ArUco markers (magenta #ff3399, 3px wide)
+    // eslint-disable-next-line no-constant-condition
+    if (meta.markers && options.showMarkers && false) {
+        ctx.lineWidth = 3
+        ctx.strokeStyle = '#ff3399'
+        for (const m of meta.markers) {
+            ctx.beginPath()
+            ctx.moveTo(m.corners[0].x, m.corners[0].y)
+            ctx.lineTo(m.corners[1].x, m.corners[1].y)
+            ctx.lineTo(m.corners[2].x, m.corners[2].y)
+            ctx.lineTo(m.corners[3].x, m.corners[3].y)
+            ctx.closePath()
+            ctx.stroke()
+        }
+    }
+
+    // 2. ROI Boundary (blue #0033ff, 3px wide)
+    if (meta.roi && options.showRoi) {
+        if (meta.roi.actualBounds) {
+            const {minX, maxX, minY, maxY} = meta.roi.actualBounds
+            ctx.lineWidth = 3
+            ctx.strokeStyle = '#0033ff'
+            ctx.strokeRect(minX, minY, maxX - minX, maxY - minY)
+        } else if (meta.roi.points && meta.roi.points.length >= 2) {
+            ctx.lineWidth = 3
+            ctx.strokeStyle = '#0033ff'
+            ctx.beginPath()
+            ctx.moveTo(meta.roi.points[0].x, meta.roi.points[0].y)
+            for (let i = 1; i < meta.roi.points.length; i++) {
+                ctx.lineTo(meta.roi.points[i].x, meta.roi.points[i].y)
+            }
+            if (meta.roi.points.length === 4) ctx.closePath()
+            ctx.stroke()
+        }
+    }
+
+    // 3. Draw detected particles (blue #0033ff ellipses AND/OR contours)
+    if (options.showParticles && particles && particles.length > 0) {
+        ctx.lineWidth = 1
+        for (const p of particles) {
+            // Draw ellipse (oval)
+            const radiusX = (p.longAxisPx || p.eqDiameterPx) / 2
+            const radiusY = (p.shortAxisPx || p.eqDiameterPx) / 2
+            const rotation = p.angleRad || 0
+            
+            ctx.strokeStyle = '#0033ff'
+            ctx.beginPath()
+            ctx.ellipse(p.cxPx, p.cyPx, radiusX, radiusY, rotation, 0, Math.PI * 2)
+            ctx.stroke()
+
+            // Draw exact contour if available
+            if (p.contour && p.contour.length > 0) {
+                ctx.strokeStyle = '#00ff0066'
+                ctx.beginPath()
+                ctx.moveTo(p.contour[0].x, p.contour[0].y)
+                for (let i = 1; i < p.contour.length; i++) {
+                    ctx.lineTo(p.contour[i].x, p.contour[i].y)
+                }
+                ctx.closePath()
+                ctx.stroke()
+            }
+        }
     }
     
     return canvas.toDataURL('image/png')

@@ -31,7 +31,7 @@ export function convertStatsToCsv(stats) {
         ['avgShortAxis', stats.avgShortAxis, 'um'],
         ['avgLongAxis', stats.avgLongAxis, 'um'],
         ['avgRoundness', stats.avgRoundness, '']
-    ].map(r => `${r[0]},${r[1] != null ? r[1].toFixed(3) : ''},${r[2]}`).join('\n')
+    ].map(r => `${r[0]},${r[1] !== null ? r[1].toFixed(3) : ''},${r[2]}`).join('\n')
     return header + rows
 }
 
@@ -44,7 +44,7 @@ export function convertHistogramToCsv(histogram) {
     return header + rows
 }
 
-export function downloadCsv(filename, content) {
+export function downloadFile(filename, content) {
     const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')

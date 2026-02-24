@@ -259,7 +259,13 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
             width: analysisImageData.width,
             height: analysisImageData.height,
             data: analysisImageData.data.slice()
-        }, filteredValidIds)
+        }, filteredValidIds, particles, {
+            markers: uniqueMarkers,
+            template,
+            roi,
+            scaleInfo,
+            templateCorners
+        }, overlayOptions || undefined)
     } catch (e) {
         console.error('Mask rendering failed', e)
     }

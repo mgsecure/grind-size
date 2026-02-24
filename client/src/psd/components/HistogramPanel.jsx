@@ -178,6 +178,7 @@ export default function HistogramPanel({domEl}) {
     const commonProps = {
         margin: {top: 20, right: 10, bottom: 95, left: 40},
         colors: chartColors,
+        curve: 'basis',
         enableLabel: false,
         theme: {
             axis: {
@@ -408,7 +409,8 @@ export default function HistogramPanel({domEl}) {
                 <Box sx={{height: chartData.length ? chartHeight : 175}}>
                     <ResponsiveLine
                         data={lineData}
-                        enableSlices='x'
+                        curve = 'natural'
+                    enableSlices='x'
                         enableGridX={false}
                         xScale={{type: 'point'}}
                         yScale={{type: 'linear', min: 0, max: maxY}}

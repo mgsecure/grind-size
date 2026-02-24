@@ -6,7 +6,7 @@ import {analyzeImageFiles} from './analysis/analyzeImage.js'
 import {buildHistograms} from './analysis/metrics/buildHistograms.js'
 import {calculateStatistics} from './analysis/metrics/calculateStatistics.js'
 import {getFileNameWithoutExtension} from '../util/stringUtils.js'
-import { v4 as uuidv4 } from 'uuid'
+import {v4 as uuidv4} from 'uuid'
 import useWindowSize from '../util/useWindowSize.jsx'
 import {useLocalStorage} from 'usehooks-ts'
 
@@ -17,7 +17,8 @@ export function PsdDataProvider({children}) {
 
     // State from PsdPage
     const [settings, setSettings] = useState({...PSD_DEFAULTS, bins: defaultBins})
-    const [customSettings, setCustomSettings] = useLocalStorage('psd-custom', {})
+    const [customSettings, setCustomSettings] = useLocalStorage('psd-custom', undefined)
+    const [retainCustomSettings, setRetainCustomSettings] = useState(!!customSettings)
 
     const [isCustomSettings, setIsCustomSettings] = useState(false)
     const [queue, setQueue] = useState([]) // {id, file, status, error, result}
@@ -42,6 +43,9 @@ export function PsdDataProvider({children}) {
 
     const allDone = useMemo(() => queue.filter(q => q.status === 'done' && q.result), [queue])
     const activeItem = useMemo(() => queue.find(q => q.id === activeId) ?? null, [queue, activeId])
+    const processingComplete = useMemo(() => {
+        return (allDone?.length === queue?.length)
+    }, [queue, allDone])
 
     const normalizedParticles = useMemo(() => {
         return allDone.flatMap(item => {
@@ -61,7 +65,7 @@ export function PsdDataProvider({children}) {
 
     const aggregateItem = useMemo(() => {
         if (allDone.length < 2) return null
-        
+
         const activeData = {
             id: 'aggregateResults',
             filename: 'Aggregate',
@@ -85,6 +89,8 @@ export function PsdDataProvider({children}) {
         })
         return {...activeData, histograms: hists, stats}
     }, [allDone.length, queue, normalizedParticles, settings.bins, settings.binsType, binSpacing, yAxis, xAxis])
+
+    const getQueue = useCallback(() => queue || [], [queue])
 
     const queueItems = useMemo(() => {
         if (queue.length === 0) return []
@@ -118,7 +124,7 @@ export function PsdDataProvider({children}) {
 
                 return {
                     id: q.id,
-                    filename: result.filename || q.file?.name || '',
+                    filename: q.filename || result.filename || q.file?.name || '',
                     stats: stats,
                     histograms: hists,
                     scale: result.scale || {},
@@ -126,7 +132,6 @@ export function PsdDataProvider({children}) {
                     status: q.status || 'queued'
                 }
             }
-
             return {
                 id: q.id,
                 filename: q.result.filename || getFileNameWithoutExtension(q.file?.name) || '',
@@ -236,6 +241,8 @@ export function PsdDataProvider({children}) {
         }))
         setQueue(prev => [...prev, ...next])
         if (!activeId && next.length) setActiveId(next[0].id)
+        setDroppedFiles([])
+
     }, [queue, activeId])
 
     const analyzeAll = useCallback(() => {
@@ -272,7 +279,10 @@ export function PsdDataProvider({children}) {
 
                 try {
                     console.log(`Starting analysis for ${item.file?.name}`)
-                    const result = await analyzeImageFiles(item.file, {...settings, binSpacing}, null, overlayOptions, null)
+                    const result = await analyzeImageFiles(item.file, {
+                        ...settings,
+                        binSpacing
+                    }, null, overlayOptions, null)
 
 
                     console.log('Analysis result:', result)
@@ -282,7 +292,14 @@ export function PsdDataProvider({children}) {
                         setIsAnalyzing(false)
                         return
                     }
-                    setQueue(prev => prev.map(p => p.id === item.id ? {...p, status: 'done', result} : p))
+                    setQueue(prev => prev.map(p => p.id === item.id
+                        ? {
+                            ...p, sampleName: result.filename,
+                            status: 'done',
+                            result
+                        }
+                        : p
+                    ))
                 } catch (err) {
                     console.error('Analysis failed:', err)
                     // Log the full error object and stack trace
@@ -327,7 +344,7 @@ export function PsdDataProvider({children}) {
         }
     }, [queue])
 
-    // Process selected image with multiple settings
+// Process selected image with multiple settings
     const processMultipleSettings = useCallback(async (id, settingsList = {...PSD_PRESETS}) => {
         const item = queue.find(q => q.id === id)
         if (!item) return
@@ -339,7 +356,10 @@ export function PsdDataProvider({children}) {
         }
         for (const [key, value] of Object.entries(settingsList)) {
             try {
-                const result = await analyzeImageFiles(item.file, {...PSD_DEFAULTS, ...value.params, binSpacing}, null, overlayOptions, `${item.result.filename}-${key}`)
+                const result = await analyzeImageFiles(item.file, {
+                    ...PSD_DEFAULTS, ...value.params,
+                    binSpacing
+                }, null, overlayOptions, `${item.result.filename}-${key}`)
                 console.log('Processed', {result})
                 const newItem = {...item, id: uuidv4(), status: 'done', result}
                 setQueue(prev => prev.concat(newItem))
@@ -352,7 +372,7 @@ export function PsdDataProvider({children}) {
 
     }, [binSpacing, isCustomSettings, overlayOptions, queue, settings])
 
-    // Manual corner selection
+// Manual corner selection
     const handleManualCorners = useCallback(async (corners) => {
         const id = manualSelectionId
         setManualSelectionId(null)
@@ -383,9 +403,9 @@ export function PsdDataProvider({children}) {
         , [theme.palette.mode])
     const aggregateColor = theme.palette.mode === 'dark' ? '#eeee33' : '#eeee33'
     const baseColors = useMemo(() => reverseColors
-        ? swappedColors.slice(0, nonAggregateItems.length)
-        : allColors.slice(0, nonAggregateItems.length)
-    , [reverseColors, nonAggregateItems, allColors, swappedColors])
+            ? swappedColors.slice(0, nonAggregateItems.length)
+            : allColors.slice(0, nonAggregateItems.length)
+        , [reverseColors, nonAggregateItems, allColors, swappedColors])
     const chartColors = useMemo(() => [...baseColors, aggregateColor], [baseColors, aggregateColor])
     const swapColors = useCallback(() => setReverseColors(!reverseColors), [reverseColors])
 
@@ -398,8 +418,11 @@ export function PsdDataProvider({children}) {
         swapColors,
         settings, setSettings,
         customSettings, setCustomSettings,
+        retainCustomSettings, setRetainCustomSettings,
         isCustomSettings, setIsCustomSettings,
-        queue, setQueue,
+        queue, setQueue, getQueue,
+        allDone,
+        processingComplete,
         droppedFiles, setDroppedFiles,
         activeId, setActiveId,
         activeIdList, setActiveIdList,
@@ -427,7 +450,7 @@ export function PsdDataProvider({children}) {
         handleQueueRemove,
         processMultipleSettings,
         handleManualCorners,
-        cancelManual,
+        cancelManual
     }), [
         allColors,
         swappedColors,
@@ -437,8 +460,11 @@ export function PsdDataProvider({children}) {
         swapColors,
         settings, setSettings,
         customSettings, setCustomSettings,
+        retainCustomSettings, setRetainCustomSettings,
         isCustomSettings, setIsCustomSettings,
-        queue, setQueue,
+        queue, setQueue, getQueue,
+        allDone,
+        processingComplete,
         droppedFiles, setDroppedFiles,
         activeId, setActiveId,
         activeIdList, setActiveIdList,
@@ -466,7 +492,7 @@ export function PsdDataProvider({children}) {
         handleQueueRemove,
         processMultipleSettings,
         handleManualCorners,
-        cancelManual,
+        cancelManual
     ])
 
     return (

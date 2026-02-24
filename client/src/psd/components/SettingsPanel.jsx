@@ -1,4 +1,4 @@
-import React, {useContext, useMemo, useState} from 'react'
+import React, {useCallback, useContext, useMemo, useState} from 'react'
 import {Paper, Stack, Typography, Slider, Divider, FormControlLabel} from '@mui/material'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import ToggleButton from '@mui/material/ToggleButton'
@@ -10,13 +10,18 @@ import useWindowSize from '../../util/useWindowSize.jsx'
 import DataContext from '../../context/DataContext.jsx'
 import Box from '@mui/material/Box'
 import isDeepEqual from '../../util/isDeepEqual.js'
+import CustomSettingsButtons from './CustomSettingButtons.jsx'
+import ExpandButton from '../../misc/ExpandButton.jsx'
 
 export default function SettingsPanel() {
     const {
         queueItems,
         settings, setSettings,
+        customSettings, setCustomSettings,
+        retainCustomSettings,
         setResetToggle,
-        setIsCustomSettings
+        isCustomSettings, setIsCustomSettings,
+        isDesktop
     } = useContext(DataContext)
 
     // TODO: implement save/load custom settings from local storage
@@ -34,6 +39,8 @@ export default function SettingsPanel() {
     }, [queueItems, settings])
 
     const handlePresetChange = (presetKey) => {
+        console.log('isCustomSettings && showDetails', {isCustomSettings, showDetails})
+
         setPreset(presetKey)
         const preset = PSD_PRESETS[presetKey]
         if (preset) {
@@ -43,11 +50,24 @@ export default function SettingsPanel() {
             }))
         }
         if (presetKey === 'custom') {
-            setShowDetails(true)
+            setIsCustomSettings(true)
+            if (retainCustomSettings && customSettings) {
+                setSettings(customSettings)
+            } else if (retainCustomSettings && !customSettings) {
+                setCustomSettings(settings)
+            }
         } else {
             setIsCustomSettings(false)
         }
     }
+
+    const handleCustomClick = useCallback(() => {
+        if (isCustomSettings && showDetails) {
+            setShowDetails(false)
+        } else if (!isCustomSettings || (isCustomSettings && !showDetails)) {
+            setShowDetails(true)
+        }
+    }, [isCustomSettings, showDetails])
 
     const handleParameterChange = (param, value) => {
         setSettings(prev => ({
@@ -55,6 +75,11 @@ export default function SettingsPanel() {
             [param]: value
         }))
         if (preset !== 'custom') handlePresetChange('custom')
+        if (retainCustomSettings) setCustomSettings(prev => ({
+            ...prev,
+            [param]: value
+        }))
+
         setIsCustomSettings(true)
     }
 
@@ -70,62 +95,40 @@ export default function SettingsPanel() {
             <Stack direction='row' alignItems='flex-end' justifyContent='space-between'
                    sx={{fontSize: '1.1rem', fontWeight: 500}}>
                 SETTINGS
-                <Box sx={{display: 'flex', alignItems: 'center'}}>
-                    <FormControlLabel
-                        control={
-                            <Switch size='small'
-                                    checked={settings.testPipeline}
-                                    onChange={(_, v) => handleParameterChange('testPipeline', v)}
-                                    name='testPipeline'
-                            />}
-                        label='Test Pipeline'
-                    />
-                    <FormControlLabel
-                        control={
-                            <Switch size='small'
-                                    checked={settings.correctPerspective}
-                                    onChange={(_, v) => handleParameterChange('correctPerspective', v)}
-                                    name='correctPerspective'
-                            />}
-                        label='Correct Perspective'
-                    />
-                    <FormControlLabel
-                        control={
-                            <Switch size='small'
-                                    checked={settings.useMorphology}
-                                    onChange={(_, v) => handleParameterChange('useMorphology', v)}
-                                    name='useMorphology'
-                            />}
-                        label='Use Morphology'
-                    />
-                </Box>
             </Stack>
 
 
-            <Stack direction='row' flexWrap='wrap' alignItems='center' sx={{mb: 0}}>
-                <Stack direction='row' flexWrap='wrap' alignItems='center'>
-                    <ToggleButtonGroup
-                        size='small'
-                        value={preset}
-                        exclusive
-                        onChange={(_, v) => v && handlePresetChange(v)}
-                        style={{margin: '10px 10px 10px 0'}}
-                    >
-                        {Object.entries(PSD_PRESETS).map(([key, preset]) => (
-                            <ToggleButton key={key} value={key}>{preset.name}</ToggleButton>
-                        ))}
-                    </ToggleButtonGroup>
-                    <ToggleButtonGroup
-                        size='small'
-                        value={showDetails}
-                        exclusive
-                        onChange={() => setShowDetails(!showDetails)}
-                        style={{margin: '10px 0px 10px 0'}}
-                    >
-                        <ToggleButton style={{width: 120}} selected={showDetails}
-                                      value='advanced'>{showDetails ? 'Hide' : 'Show'} Details</ToggleButton>
-                    </ToggleButtonGroup>
+            <Stack direction='row' flexWrap='wrap' alignItems='center' justifyContent='space-between'>
+                <Stack direction='row' alignItems='center' justifyContent='space-between' style={{flexGrow: 1}}>
+                    <Stack direction='row' flexWrap='wrap' alignItems='center'>
+                        <ToggleButtonGroup
+                            size='small'
+                            value={preset}
+                            exclusive
+                            onChange={(_, v) => v && handlePresetChange(v)}
+                            style={{margin: '10px 10px 10px 0'}}
+                        >
+                            {Object.entries(PSD_PRESETS).map(([key, preset]) => (
+                                <ToggleButton key={key} value={key}>{preset.name}</ToggleButton>
+                            ))}
+                        </ToggleButtonGroup>
 
+                        <ToggleButtonGroup
+                            size='small'
+                            value={preset}
+                            exclusive
+                            onChange={(_, v) => v && handlePresetChange(v)}
+                            style={{margin: '10px 8px 10px 20px'}}
+                        >
+                            <ToggleButton key='custom' value='custom' onClick={handleCustomClick}>Custom</ToggleButton>
+                        </ToggleButtonGroup>
+                        <CustomSettingsButtons/>
+                    </Stack>
+                    <ExpandButton expanded={showDetails} onChange={() => setShowDetails(!showDetails)}/>
+                </Stack>
+
+
+                <Stack direction='row' alignItems='center'>
                     <Button variant='contained'
                             disabled={!needsRefresh || queueItems.length === 0}
                             onClick={handleRecalculate}
@@ -135,8 +138,44 @@ export default function SettingsPanel() {
                 </Stack>
             </Stack>
 
-            <Collapse in={showDetails} sx={{ml: !isMobile ? 3 : 0}}>
+            <Collapse in={showDetails} sx={{ml: !isMobile ? 1 : 0}}>
                 <Divider sx={{mt: 2, mb: 2}}/>
+
+                <Stack direction='row' spacing={isDesktop ? 3 : 1} sx={{alignItems: 'center', width: '100%', justifyContent: 'center'}}>
+                    <FormControlLabel
+                        label='Test Pipeline'
+                        control={
+                            <Switch size='small'
+                                    checked={settings.testPipeline}
+                                    onChange={(_, v) => handleParameterChange('testPipeline', v)}
+                                    name='testPipeline'
+                            />}
+                        labelPlacement={'start'} style={{textAlign: 'right'}}
+                    />
+                    <FormControlLabel
+                        label='Correct Perspective'
+                        control={
+                            <Switch size='small'
+                                    checked={settings.correctPerspective}
+                                    onChange={(_, v) => handleParameterChange('correctPerspective', v)}
+                                    name='correctPerspective'
+                            />}
+                        labelPlacement={'start'} style={{textAlign: 'right'}}
+                    />
+                    <FormControlLabel
+                        labelPlacement={'start'}
+                        control={
+                            <Switch size='small'
+                                    checked={settings.useMorphology}
+                                    onChange={(_, v) => handleParameterChange('useMorphology', v)}
+                                    name='useMorphology'
+                            />}
+                        label='Use Morphology' style={{textAlign: 'right'}}
+                    />
+                </Stack>
+
+                <Divider sx={{mt: 2, mb: 2}}/>
+
                 <Stack direction='row' alignItems='center' sx={{mb: 3, alignContent: 'center'}}>
                     <Stack sx={{mr: 2}}>
                         <ToggleButtonGroup
@@ -250,7 +289,7 @@ export default function SettingsPanel() {
 
                     <Stack style={{width: sliderWidth, marginRight: 24}}>
 
-                        <Typography variant='body2'>Adaptive C: {settings.adaptiveC}</Typography>
+                        <Typography variant='body2'>Adaptive Constant: {settings.adaptiveC}</Typography>
                         <Slider
                             value={settings.adaptiveC}
                             min={0}

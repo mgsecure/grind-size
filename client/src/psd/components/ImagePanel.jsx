@@ -24,11 +24,12 @@ export default function ImagePanel() {
     const entry = { media: queue.map((item, index) => {
             if (item.result) {
                 return {
-                    'title': item.result?.filename || `Image ${index + 1}`,
-                    'subtitle': item.result?.settings?.name || '',
-                    'thumbnailUrl': item.result?.previews?.[srcVar],
-                    'sequenceId': index + 1,
-                    'fullSizeUrl': item.result?.previews?.[srcVar]
+                    title: item.result?.filename || `Image ${index + 1}`,
+                    subtitle: item.result?.settings?.name || '',
+                    thumbnailUrl: item.result?.previews?.[srcVar],
+                    sequenceId: index + 1,
+                    fullSizeUrl: item.result?.previews?.[srcVar],
+                    id: item.id
                 }
             } else return {}
         }) }

@@ -8,17 +8,16 @@ This document provides a comprehensive guide to the settings and presets availab
 
 These settings directly control how the image is processed and how particles are detected.
 
+#### Particle Size Filtering
+*   **Minimum Area (px):** The minimum size of a detected object (in pixels) to be considered a particle. This helps filter out camera noise and tiny dust specks.
+*   **Maximum Surface (mm²):** The maximum surface area a particle can have. This is used to exclude objects that are clearly too large to be coffee grounds, such as hair or parts of the template itself.
+
 #### Detection & Image Processing
 *   **Lighting Sigma (`bgSigma`):** Used for background normalization. It helps smooth out uneven lighting or shadows across the image before detection.
 *   **Adaptive Block Size:** The size of the neighborhood used for the adaptive thresholding algorithm. Larger blocks are better for images with soft lighting transitions, while smaller blocks can capture more localized detail.
-*   **Adaptive C:** A constant subtracted from the mean during thresholding. Increasing this value makes the detection more "conservative," filtering out noise but potentially missing faint particles.
+*   **Adaptive Constant:** A constant subtracted from the mean during thresholding. Increasing this value makes the detection more "conservative," filtering out noise but potentially missing faint particles.
 *   **Split Overlaps (`splitOverlaps`):** When enabled, uses a watershed algorithm to try and separate particles that are touching or slightly overlapping.
 *   **Split Sensitivity:** Adjusts how aggressive the overlap separation is. Higher sensitivity will more readily break up clusters, but may incorrectly split elongated single particles.
-
-#### Size Filtering
-*   **Min Area (px):** The minimum size of a detected object (in pixels) to be considered a particle. This helps filter out camera noise and tiny dust specks.
-*   **Max Surface (mm²):** The maximum surface area a particle can have. This is used to exclude objects that are clearly too large to be coffee grounds, such as hair or parts of the template itself.
-*   **Inset (px):** A safety margin applied to the Region of Interest (ROI). It ensures that particles touching the very edge of the detection zone are excluded, as their full size cannot be accurately measured.
 
 ---
 
@@ -69,8 +68,9 @@ The PSD module provides two primary ways to visualize detected particles, each s
 
 #### 1. Threshold Image (Mask View)
 *   **What it represents:** This is the "ground truth" of the analysis. It shows the exact pixels that were identified as foreground (particle) by the thresholding and morphology algorithms.
-*   **Analyzed Data:** If a pixel is colored in this view, it was directly used to calculate the area and moments of that particle. This view accurately reflects irregular shapes, jagged edges, and any noise that might have survived filtering.
-*   **Use Case:** Use this to verify that the lighting and threshold settings are correctly capturing the particles without too much background noise or "ghost" detections.
+*   **Warped Overlay:** This view is rendered in the warped analysis space (2000x2000px). It now includes overlays for the **Region of Interest (ROI)** (blue boundary), **detected particles** (green ellipses/contours), and **ArUco markers** (magenta).
+*   **Analyzed Data:** If a pixel is colored red in this view, it was directly used to calculate the area and moments of that particle. This view accurately reflects irregular shapes, jagged edges, and any noise that might have survived filtering.
+*   **Use Case:** Use this to verify that the lighting and threshold settings are correctly capturing the particles within the analysis zone and that the mathematical outlines align perfectly with the raw pixels.
 *   **Recent Improvements (2026-02-19):** Enhanced the adaptive thresholding logic to better distinguish between legitimate particles and shadow-induced "halos" by implementing stricter dark-region verification.
 
 #### 2. Overlay View (Outlines)

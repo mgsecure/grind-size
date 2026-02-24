@@ -4,7 +4,7 @@ import {useTheme} from '@mui/material/styles'
 import Stack from '@mui/material/Stack'
 import DataContext from '../../context/DataContext.jsx'
 
-export default function StatsTable() {
+export default function StatsPanel() {
     const {activeItems, isDesktop} = useContext(DataContext)
     const domEl = useRef(null)
     const theme = useTheme()
