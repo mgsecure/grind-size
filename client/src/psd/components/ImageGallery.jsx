@@ -59,7 +59,7 @@ function ImageGallery(props) {
 
     return (
         <React.Fragment>
-            {open &&
+            {!!open &&
                 <ImageViewer
                     media={fullMedia}
                     openIndex={openIndex}

@@ -13,13 +13,13 @@ import {useLocalStorage} from 'usehooks-ts'
 export function PsdDataProvider({children}) {
     const theme = useTheme()
     const {isDesktop} = useWindowSize()
-    const defaultBins = isDesktop ? 30 : 20
+
+    const defaultBins = useMemo(() => isDesktop ? 30 : 20, [isDesktop])
 
     // State from PsdPage
     const [settings, setSettings] = useState({...PSD_DEFAULTS, bins: defaultBins})
     const [customSettings, setCustomSettings] = useLocalStorage('psd-custom', undefined)
     const [retainCustomSettings, setRetainCustomSettings] = useState(!!customSettings)
-
     const [isCustomSettings, setIsCustomSettings] = useState(false)
     const [queue, setQueue] = useState([]) // {id, file, status, error, result}
     const [droppedFiles, setDroppedFiles] = useState([])
@@ -40,15 +40,22 @@ export function PsdDataProvider({children}) {
         showScale: true,
         showRoi: true
     })
+    const [showTitleBar, setShowTitleBar] = useState(false)
 
-    const allDone = useMemo(() => queue.filter(q => q.status === 'done' && q.result), [queue])
-    const activeItem = useMemo(() => queue.find(q => q.id === activeId) ?? null, [queue, activeId])
+    const processedCount = useMemo(() => queue.reduce((acc, q) => {
+        acc = acc + ((q.status === 'done' && q.result) || q.status === 'error' ? 1 : 0)
+        return acc
+    }, 0), [queue])
+
+    console.log('Processing queue:', queue)
+    console.log('Processed count:', processedCount)
+
     const processingComplete = useMemo(() => {
-        return (allDone?.length === queue?.length)
-    }, [queue, allDone])
+        return (queue.length === processedCount)
+    }, [processedCount, queue.length])
 
     const normalizedParticles = useMemo(() => {
-        return allDone.flatMap(item => {
+        return queue.filter(q => q.status === 'done' && q.result).flatMap(item => {
             const mmPerPx = item.result.scale.mmPerPx
             const factor = mmPerPx * 1000
             return item.result.particles.map(p => ({
@@ -61,11 +68,10 @@ export function PsdDataProvider({children}) {
                 eqDiameterPx: p.eqDiameterPx * factor
             }))
         })
-    }, [allDone])
+    }, [queue])
 
     const aggregateItem = useMemo(() => {
-        if (allDone.length < 2) return null
-
+        if (queue.filter(q => q.status === 'done' && q.result).length < 2) return null
         const activeData = {
             id: 'aggregateResults',
             filename: 'Aggregate',
@@ -73,7 +79,6 @@ export function PsdDataProvider({children}) {
             status: queue.find(q => q.status !== 'done') ? 'analyzing' : 'done',
             histograms: null
         }
-
         const hists = buildHistograms(normalizedParticles, {
             binCount: settings.bins,
             spacing: binSpacing,
@@ -87,10 +92,13 @@ export function PsdDataProvider({children}) {
             mmPerPx: activeData.scale.mmPerPx,
             metric: xAxis
         })
-        return {...activeData, histograms: hists, stats}
-    }, [allDone.length, queue, normalizedParticles, settings.bins, settings.binsType, binSpacing, yAxis, xAxis])
-
-    const getQueue = useCallback(() => queue || [], [queue])
+        return {
+            ...activeData,
+            histograms: hists,
+            stats,
+            status: processingComplete ? 'done' : 'analyzing'
+        }
+    }, [queue, normalizedParticles, settings.bins, settings.binsType, binSpacing, yAxis, xAxis, processingComplete])
 
     const queueItems = useMemo(() => {
         if (queue.length === 0) return []
@@ -129,6 +137,7 @@ export function PsdDataProvider({children}) {
                     histograms: hists,
                     scale: result.scale || {},
                     settings: result.settings || {},
+                    error: q.error,
                     status: q.status || 'queued'
                 }
             }
@@ -155,10 +164,6 @@ export function PsdDataProvider({children}) {
         return null
     }, [activeItems, queue])
 
-    const activeResult = useMemo(() => {
-        if (activeId === 'aggregateResults') return aggregateItem
-        return activeItem?.result ?? null
-    }, [activeId, aggregateItem, activeItem])
 
     useEffect(() => {
         const item = queue.find(q => q.id === manualSelectionId)
@@ -170,36 +175,6 @@ export function PsdDataProvider({children}) {
             setManualSelectionUrl(null)
         }
     }, [manualSelectionId, queue])
-
-    const processedActive = useMemo(() => {
-        const activeData = activeResult
-        if (!activeData) return null
-
-        const currentBinsType = activeData.histograms?.[binSpacing]?.customBinsUsed ? 'default' : 'dynamic'
-
-        if (activeData.histograms?.[binSpacing]?.metric !== xAxis ||
-            activeData.histograms?.[binSpacing]?.weighting !== yAxis ||
-            currentBinsType !== settings.binsType ||
-            activeData.histograms?.[binSpacing]?.spacing !== binSpacing ||
-            activeData.histograms?.[binSpacing]?.binCount !== settings.bins) {
-
-            const hists = buildHistograms(activeData.particles, {
-                binCount: settings.bins,
-                spacing: binSpacing,
-                weighting: yAxis,
-                mmPerPx: activeData.scale.mmPerPx,
-                metric: xAxis,
-                binsType: settings.binsType
-            })
-            const stats = calculateStatistics(activeData.particles, {
-                weighting: yAxis,
-                mmPerPx: activeData.scale.mmPerPx,
-                metric: xAxis
-            })
-            return {...activeData, histograms: hists, stats}
-        }
-        return activeData
-    }, [activeResult, xAxis, yAxis, settings.bins, binSpacing, settings.binsType])
 
     const globalMaxY = useMemo(() => {
         let logMax = 0
@@ -410,18 +385,11 @@ export function PsdDataProvider({children}) {
     const swapColors = useCallback(() => setReverseColors(!reverseColors), [reverseColors])
 
     const value = useMemo(() => ({
-        allColors,
-        swappedColors,
-        aggregateColor,
-        reverseColors,
-        chartColors,
-        swapColors,
         settings, setSettings,
         customSettings, setCustomSettings,
         retainCustomSettings, setRetainCustomSettings,
         isCustomSettings, setIsCustomSettings,
-        queue, setQueue, getQueue,
-        allDone,
+        queue, setQueue,
         processingComplete,
         droppedFiles, setDroppedFiles,
         activeId, setActiveId,
@@ -436,13 +404,10 @@ export function PsdDataProvider({children}) {
         manualSelectionId, setManualSelectionId,
         manualSelectionUrl, setManualSelectionUrl,
         overlayOptions, setOverlayOptions,
-        activeItem,
         aggregateItem,
         queueItems,
         allItems,
         activeItems,
-        activeResult,
-        processedActive,
         globalMaxY,
         isDesktop,
         onFiles,
@@ -450,20 +415,20 @@ export function PsdDataProvider({children}) {
         handleQueueRemove,
         processMultipleSettings,
         handleManualCorners,
-        cancelManual
+        cancelManual,
+        showTitleBar, setShowTitleBar,
+        allColors,
+        swappedColors,
+        aggregateColor,
+        reverseColors,
+        chartColors,
+        swapColors
     }), [
-        allColors,
-        swappedColors,
-        aggregateColor,
-        reverseColors,
-        chartColors,
-        swapColors,
         settings, setSettings,
         customSettings, setCustomSettings,
         retainCustomSettings, setRetainCustomSettings,
         isCustomSettings, setIsCustomSettings,
-        queue, setQueue, getQueue,
-        allDone,
+        queue, setQueue,
         processingComplete,
         droppedFiles, setDroppedFiles,
         activeId, setActiveId,
@@ -478,13 +443,10 @@ export function PsdDataProvider({children}) {
         manualSelectionId, setManualSelectionId,
         manualSelectionUrl, setManualSelectionUrl,
         overlayOptions, setOverlayOptions,
-        activeItem,
         aggregateItem,
         queueItems,
         allItems,
         activeItems,
-        activeResult,
-        processedActive,
         globalMaxY,
         isDesktop,
         onFiles,
@@ -492,7 +454,14 @@ export function PsdDataProvider({children}) {
         handleQueueRemove,
         processMultipleSettings,
         handleManualCorners,
-        cancelManual
+        cancelManual,
+        showTitleBar, setShowTitleBar,
+        allColors,
+        swappedColors,
+        aggregateColor,
+        reverseColors,
+        chartColors,
+        swapColors,
     ])
 
     return (

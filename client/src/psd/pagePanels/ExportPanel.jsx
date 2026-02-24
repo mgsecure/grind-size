@@ -13,15 +13,13 @@ import SelectBox from '../../formUtils/SelectBox.jsx'
 export default function ExportPanel({result}) {
     const theme = useTheme()
 
-    const {allDone, queue, getQueue, binSpacing, isDesktop} = useContext(DataContext)
+    const {queue, binSpacing, isDesktop} = useContext(DataContext)
     //const queue = useMemo( () => allDone ? getQueue() : [], [allDone, getQueue])
     const queueItemNames = queue.map(item => item.filename)
 
-    console.log('q', queue)
-
     const [name, setName] = useState('')
-    const [form, setForm] = useState({})
-    const [editOpen, setEditOpen] = useState(false)
+    const [form] = useState({})
+    const [editOpen] = useState(false)
 
 
     const canSave = useMemo(() => {
@@ -52,8 +50,6 @@ export default function ExportPanel({result}) {
         if (isDesktop) handleExportStats()
         if (isDesktop) handleExportHistogram()
     }
-
-    const disabledStyle = !result ? {opacity: 0.5, pointerEvents: 'none'} : undefined
 
     return (
         <Stack direction='row' spacing={1} sx={{width: '100%'}}>

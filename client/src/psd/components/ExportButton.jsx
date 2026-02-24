@@ -19,12 +19,7 @@ import Divider from '@mui/material/Divider'
 
 export default function ExportButton({text}) {
 
-    const {queue, activeIdList, processingComplete, queueItems, binSpacing, isDesktop} = useContext(DataContext)
-
-    if (!activeIdList.length) return null
-
-    console.log('q', queue)
-    console.log('queueItems', queueItems)
+    const {queue, activeIdList, processingComplete, binSpacing, isDesktop} = useContext(DataContext)
 
     const cleanedQueue = queue
         .filter(item => activeIdList.includes(item.id))
@@ -71,39 +66,16 @@ export default function ExportButton({text}) {
         handleClose()
     }, [cleanedQueue, handleClose, handleExportCsvFiles, isDesktop])
 
-
-    const handleExportClipboard = useCallback((result) => {
-        const data = result.map(datum => ({
-            id: datum.id,
-            make: datum.makeModels.map(e => e.make).join(','),
-            model: datum.makeModels.map(e => e.model).join(','),
-            version: datum.version,
-            belt: datum.belt,
-            name: 'name',
-            versionText: datum.version ? ' (' + datum.version + ')' : ''
-        }))
-
-        const clipboardText = data.map(datum => {
-            return '* ' + datum.name + datum.versionText
-        }).join('\n')
-
-        handleClose()
-        navigator.clipboard.writeText(clipboardText).then()
-        enqueueSnackbar('Current lock entries copied to clipboard.')
-    }, [handleClose])
-
     const menuItemStyle = {padding: '10px 16px'}
 
     return (
         <React.Fragment>
             {text
-                ? <Tooltip title='Export' arrow disableFocusListener>
-                    <Button variant='text' size='small' onClick={handleOpen}
+                ? <Button variant='text' size='small' onClick={handleOpen}
                             disabled={!activeIdList.length || !processingComplete}
                             startIcon={<FileDownloadIcon/>}>
                         Export Selected
                     </Button>
-                </Tooltip>
                 : <Tooltip title='Export' arrow disableFocusListener>
                     <IconButton onClick={handleOpen} disabled={!activeIdList.length || !processingComplete}>
                         <FileDownloadIcon/>

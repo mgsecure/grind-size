@@ -11,6 +11,7 @@ import Dialog from '@mui/material/Dialog'
 import SaveIcon from '@mui/icons-material/Save'
 import TextField from '@mui/material/TextField'
 import Collapse from '@mui/material/Collapse'
+import ErrorIcon from '@mui/icons-material/Error'
 
 export default function ItemInformationButton({item, imageViewer = false}) {
     if (!item) return null
@@ -21,7 +22,7 @@ export default function ItemInformationButton({item, imageViewer = false}) {
     const [name, setName] = useState(item.filename)
     const [editOpen, setEditOpen] = useState(false)
 
-    const {queue, setQueue} = useContext(DataContext)
+    const {queue, setQueue, isDesktop} = useContext(DataContext)
     const queueItemNames = queue.map(item => item.filename)
     const queueItem = queue.find(q => q.id === item.id)
 
@@ -94,28 +95,37 @@ export default function ItemInformationButton({item, imageViewer = false}) {
                 </>
             }
 
-            <Table size='small' sx={{borderTop: '1px solid', borderColor: theme.palette.divider}}>
-                <TableBody>
-                    {rows.map((row, idx) => {
-                        const [label, data] = row
-                        return (
-                            <TableRow key={idx}>
-                                <>
-                                    <TableCell sx={{p: '8px 8px', fontWeight: 500}}>{label}</TableCell>
-                                    <TableCell sx={{p: '8px 8px'}}>{data}</TableCell>
-                                </>
-                            </TableRow>
-                        )
-                    })}
-                </TableBody>
-            </Table>
+            {item.status === 'error'
+                ? <Stack direction='row' alignItems='center' sx={{mt: 1}}>
+                    <ErrorIcon fontSize='small' sx={{mr: 1, color: theme.palette.error.main, width: 20, height: 20}}/>
+                    <span style={{color: theme.palette.error.main, fontSize: '0.9rem'}}>
+                        ERROR:<br/>
+                        {item.error}</span>
+                </Stack>
+                : <Table size='small' sx={{borderTop: '1px solid', borderColor: theme.palette.divider}}>
+                    <TableBody>
+                        {rows.map((row, idx) => {
+                            const [label, data] = row
+                            return (
+                                <TableRow key={idx}>
+                                    <>
+                                        <TableCell sx={{p: '8px 8px', fontWeight: 500}}>{label}</TableCell>
+                                        <TableCell sx={{p: '8px 8px'}}>{data}</TableCell>
+                                    </>
+                                </TableRow>
+                            )
+                        })}
+                    </TableBody>
+                </Table>
+            }
         </Stack>
-
     )
+
     return (
         <>
-            <IconButton onClick={openDrawer} disabled={item.status !== 'done'} style={{height: 36, width: 36}}>
-                <InfoOutlineIcon fontSize='small'/>
+            <IconButton onClick={openDrawer} disabled={!['done', 'error'].includes(item.status)}
+                        style={{height: 36, width: 36}}>
+                <InfoOutlineIcon fontSize='small' style={{color: item.error ? theme.palette.error.main : theme.palette.text.primary}}/>
             </IconButton>
             {imageViewer
                 ? <Dialog
@@ -131,6 +141,13 @@ export default function ItemInformationButton({item, imageViewer = false}) {
                     open={open}
                     onOpen={openDrawer}
                     onClose={closeDrawer}
+                    slotProps={{
+                        paper: {sx: {maxWidth: isDesktop ? '600px' : '90vw'}},
+                        transition: {
+                            direction: 'right'
+                        }
+                    }}
+
                 >
                     {settingsTable}
                 </SwipeableDrawer>

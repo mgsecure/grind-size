@@ -34,7 +34,6 @@ export default function HistogramPanel({domEl}) {
 
     const [chartMode, setChartMode] = useState('bar')
     const aggregateItem = activeItems.find(item => item.filename === 'Aggregate')
-    const nonAggregateItems = activeItems.filter(item => item.filename !== 'Aggregate')
     const maxY = binSpacing === 'log' ? globalMaxY.logMax : globalMaxY.linearMax
     const showAggregate = aggregateItem && activeItems.length === 1
 

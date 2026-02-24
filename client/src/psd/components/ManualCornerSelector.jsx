@@ -1,4 +1,4 @@
-import React, {useState, useRef, useEffect} from 'react'
+import React, {useState, useRef} from 'react'
 import {Box, Typography, Button, Stack} from '@mui/material'
 
 export default function ManualCornerSelector({imageUrl, onCornersSelected, onCancel}) {

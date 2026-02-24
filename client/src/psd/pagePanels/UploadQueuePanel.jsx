@@ -25,20 +25,28 @@ export default function UploadQueuePanel() {
     const theme = useTheme()
 
     const {
-        queue,
-        queueItems,
-        chartColors,
         droppedFiles,
         onFiles: handleDroppedFiles,
         allItems,
         handleQueueRemove,
-        activeIdList,
-        setActiveIdList,
+        activeIdList, setActiveIdList,
         processMultipleSettings,
-        isDesktop
+        isDesktop,
+        chartColors
     } = useContext(DataContext)
 
     const selectEnabled = allItems.length > 1 || activeIdList.length === 0
+
+    const validIdList = allItems
+        .filter(item => (item.status === 'done' && !item.filename?.includes('aggregateResults')))
+        .map(item => item.id)
+
+    const validActiveIdList = activeIdList.filter(id => validIdList.includes(id))
+
+    console.log('allItems', allItems)
+    console.log('activeIdList', activeIdList)
+    console.log('validIdList', validIdList)
+    console.log('validActiveIdList', validActiveIdList)
 
     const handleSelect = useCallback((id) => {
         if (!selectEnabled) return
@@ -50,11 +58,9 @@ export default function UploadQueuePanel() {
     }, [activeIdList, allItems, selectEnabled, setActiveIdList])
 
     useEffect(() => {
-        if (allItems.length > 0
-            && activeIdList.length === 0
-            && allItems[0]?.id !== 'aggregateResults') {
+        if (activeIdList.length === 0 && validIdList.length > 0) {
             console.log('no active items, selecting first item')
-            handleSelect(allItems[0]?.id)
+            //validIdList[0] && handleSelect(validIdList[0])
         } else if (allItems.length === 1 && activeIdList.includes('aggregateResults')) {
             console.log('only one active item, clearing aggregateResults')
             setActiveIdList(prev => prev.filter(i => i !== 'aggregateResults'))
@@ -62,7 +68,7 @@ export default function UploadQueuePanel() {
             console.log('no active items, clearing selection')
             setActiveIdList([])
         }
-    }, [activeIdList, handleSelect, allItems, setActiveIdList])
+    }, [activeIdList, handleSelect, allItems, setActiveIdList, validIdList])
 
     const handleDelete = (id) => {
         handleQueueRemove(id)
@@ -98,21 +104,23 @@ export default function UploadQueuePanel() {
                             <List dense sx={{}} style={{width: '100%'}}>
                                 {allItems.map(item => (
                                     <ListItem
-                                        key={item.id} selected={activeIdList.includes(item.id)}
+                                        key={item.id}
+                                        selected={activeIdList.includes(item.id)}
                                         style={{cursor: selectEnabled ? 'pointer' : 'default', padding: 10}}
                                         sx={{
                                             backgroundColor: activeIdList.includes(item.id) ? theme.palette.divider : 'inherit',
                                             '&:hover': selectEnabled ? {backgroundColor: theme.palette.action.hover} : {}
                                         }}
-                                        onClick={() => handleSelect(item.id)}
+                                        onClick={() => (item.status === 'done') && handleSelect(item.id)}
                                         secondaryAction={
                                             item.id !== 'aggregateResults'
                                                 ? <>
                                                     <Stack direction='row' alignItems='center' sx={{marginLeft: 10}}>
                                                         {!Object.keys(PSD_PRESETS).some(s => item.filename?.includes(`-${s}`)) &&
+                                                            item.status === 'done' &&
                                                             <IconButton
                                                                 onClick={() => processMultipleSettings(item.id)}
-                                                                disabled={item.status !== 'done'}
+                                                                disabled={!validActiveIdList.includes(item.id)}
                                                             >
                                                                 <TroubleshootIcon fontSize='small'
                                                                                   style={{
@@ -127,7 +135,9 @@ export default function UploadQueuePanel() {
                                                         <Box sx={{display: 'flex', alignItems: 'center'}}>
                                                             <RefreshSingleButton id={item.id}/>
                                                         </Box>
+
                                                         <ItemInformationButton item={item}/>
+
                                                         <IconButton edge='end' aria-label='delete' size='small'
                                                                     onClick={() => handleDelete(item.id)}>
                                                             <DeleteIcon fontSize='small'/>
@@ -164,13 +174,10 @@ export default function UploadQueuePanel() {
                                                 color: item.status === 'error' ? theme.palette.error.main : theme.palette.text.secondary,
                                                 fontSize: '0.9rem', marginLeft: 8
                                             }}>
-                                        {item.status === 'error' &&
-                                            <>[{item.error}]</>
-                                        }
                                                 {item.id !== 'aggregateResults' &&
                                                     <>({item.status === 'done' ? item.settings?.name : item.status})</>
                                                 }
-                                        </span>
+                                             </span>
                                         </Stack>
 
                                     </ListItem>
@@ -179,11 +186,8 @@ export default function UploadQueuePanel() {
                             </List>
 
                             <Stack direction='row' alignItems='center' justifyContent='space-between'
-                                   sx={{width: '100%', pl: 4}} style={{marginTop: 0}}>
+                                   sx={{width: '100%', pl: 4}} style={{marginTop: 0.5}}>
                                 <ExportButton text={true}/>
-                                {allItems.length > 2 &&
-                                    <div/>
-                                }
                             </Stack>
                         </Stack>
                     }

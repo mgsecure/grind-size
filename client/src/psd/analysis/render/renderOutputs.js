@@ -97,15 +97,15 @@ export async function renderMaskPng(maskObj, width, height, originalImageData, v
         }
     }
 
-    // 2. ROI Boundary (blue #0033ff, 3px wide)
+    // 2. ROI Boundary (blue #0033ff, 2px wide)
     if (meta.roi && options.showRoi) {
         if (meta.roi.actualBounds) {
             const {minX, maxX, minY, maxY} = meta.roi.actualBounds
-            ctx.lineWidth = 3
+            ctx.lineWidth = 2
             ctx.strokeStyle = '#0033ff'
             ctx.strokeRect(minX, minY, maxX - minX, maxY - minY)
         } else if (meta.roi.points && meta.roi.points.length >= 2) {
-            ctx.lineWidth = 3
+            ctx.lineWidth = 2
             ctx.strokeStyle = '#0033ff'
             ctx.beginPath()
             ctx.moveTo(meta.roi.points[0].x, meta.roi.points[0].y)

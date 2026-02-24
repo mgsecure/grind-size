@@ -2,21 +2,23 @@ import React, {useContext, useRef} from 'react'
 import {Stack, Paper, Typography, Alert, AlertTitle} from '@mui/material'
 import UploadQueuePanel from './pagePanels/UploadQueuePanel.jsx'
 import ImagePanel from './pagePanels/ImagePanel.jsx'
-import ExportPanel from './pagePanels/ExportPanel.jsx'
 import SettingsPanel from './pagePanels/SettingsPanel.jsx'
 import HistogramPanel from './pagePanels/HistogramPanel.jsx'
 import ManualCornerSelector from './components/ManualCornerSelector.jsx'
 import StatsPanel from './pagePanels/StatsPanel.jsx'
 import DataContext from '../context/DataContext.jsx'
+import {useTheme} from '@mui/material/styles'
 
 export default function PsdPage() {
+    const theme = useTheme()
+
     const {
-        binSpacing,
         manualSelectionId,
         manualSelectionUrl,
         processedActive,
         handleManualCorners,
-        cancelManual
+        cancelManual,
+        showTitleBar
     } = useContext(DataContext)
 
     const domEl = useRef(null)
@@ -56,7 +58,15 @@ export default function PsdPage() {
                 </Stack>
             )}
 
-            <Stack direction='column' spacing={1} sx={{width: '100%'}} ref={domEl}>
+            <Stack direction='column' spacing={1} sx={{width: '100%', backgroundColor: theme.palette.background.default}} ref={domEl}>
+
+                { showTitleBar && (
+                    <Paper sx={{p: 2, width: '100%'}}>
+                        <Typography style={{fontSize: '1.5rem', fontWeight: 700}}>
+                            COFFEE GRINDS <span style={{fontWeight: 300}}> PARTICLE SIZE DISTRIBUTION</span>
+                        </Typography>
+                    </Paper>
+                )}
 
                 <HistogramPanel domEl={domEl}/>
 
@@ -65,8 +75,6 @@ export default function PsdPage() {
             </Stack>
 
             <ImagePanel/>
-
-            <ExportPanel result={processedActive} binSpacing={binSpacing}/>
 
             <div style={{height: 100}}/>
 

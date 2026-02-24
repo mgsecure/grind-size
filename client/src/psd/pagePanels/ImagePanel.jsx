@@ -1,17 +1,24 @@
 import React, {useContext, useMemo, useState} from 'react'
-import {Paper, ToggleButton, ToggleButtonGroup, Stack, Typography, alpha, Box, lighten} from '@mui/material'
+import {Paper, Stack, Typography, alpha, Box, lighten} from '@mui/material'
 import {useTheme} from '@mui/material/styles'
 import DataContext from '../../context/DataContext.jsx'
 import EntryImageGallery from '../components/EntryImageGallery.jsx'
+import ToggleButtons from '../components/ToggleButtons.jsx'
 
 export default function ImagePanel() {
     const {
-        allDone,
+        queue,
         activeIdList
     } = useContext(DataContext)
 
     const theme = useTheme()
-    const [mode, setMode] = useState('diagnostic') // original | mask | overlay
+    const [mode, setMode] = useState('mask') // original | mask | overlay
+
+    const modeMap = [
+        {key: 'mode', value: 'overlay', label: 'Overlay View'},
+        {key: 'mode', value: 'mask', label: 'Threshold Image'},
+        {key: 'mode', value: 'diagnostic', label: 'Diagnostic View'}
+    ]
 
     const disabledStyle = !activeIdList.length ? {opacity: 0.5, pointerEvents: 'none'} : undefined
 
@@ -21,7 +28,10 @@ export default function ImagePanel() {
         return 'overlayPngDataUrl'
     }, [mode])
 
-    const entry = { media: allDone.map((item, index) => {
+    const entry = {
+        media: queue
+            .filter(item => item.status === 'done')
+            .map((item, index) => {
             if (item.result) {
                 return {
                     title: item.result?.filename || `Image ${index + 1}`,
@@ -32,22 +42,14 @@ export default function ImagePanel() {
                     id: item.id
                 }
             } else return {}
-        }) }
+        })
+    }
 
     return (
         <Paper sx={{p: 2}}>
             <Typography style={{...disabledStyle, fontSize: '1.1rem', fontWeight: 500}}>PARTICLE DETECTION</Typography>
             <Stack direction='row' spacing={1} sx={{mt: 2, mb: 2}} style={disabledStyle}>
-                <ToggleButtonGroup
-                    size='small'
-                    value={mode}
-                    exclusive
-                    onChange={(_, v) => v && setMode(v)}
-                >
-                    <ToggleButton value='overlay'>Overlay View</ToggleButton>
-                    <ToggleButton value='mask'>Threshold Image</ToggleButton>
-                    <ToggleButton value='diagnostic'>Diagnostic View</ToggleButton>
-                </ToggleButtonGroup>
+                <ToggleButtons options={modeMap} currentValue={mode} onChange={setMode}/>
             </Stack>
 
             {(entry.media?.length > 0)

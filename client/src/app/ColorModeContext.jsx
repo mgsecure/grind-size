@@ -72,8 +72,9 @@ export function ColorModeProvider({children}) {
     })
 
     const [mode, setMode] = useState('dark')
-    const colorMode = React.useMemo(() => ({
+    const colorMode = useMemo(() => ({
             toggleColorMode: () => {
+                console.log('toggleColorMode')
                 setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'))
             }
         }),

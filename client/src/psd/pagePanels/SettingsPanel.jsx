@@ -11,7 +11,7 @@ import DataContext from '../../context/DataContext.jsx'
 import isDeepEqual from '../../util/isDeepEqual.js'
 import CustomSettingsButtons from '../components/CustomSettingButtons.jsx'
 import ExpandButton from '../../misc/ExpandButton.jsx'
-import ContentDrawerButton from '../../misc/ContentDrawerButton.jsx'
+import HelpContentDrawerButton from '../components/HelpContentDrawerButton.jsx'
 import helpSettings from '../resources/helpSettings.md?raw'
 
 export default function SettingsPanel() {
@@ -93,11 +93,11 @@ export default function SettingsPanel() {
 
     return (
         <Paper sx={{p: 2}}>
-            <Stack direction='row' alignItems='flex-end' justifyContent='space-between'
-                   sx={{fontSize: '1.1rem', fontWeight: 500}}>
-                SETTINGS
+            <Stack direction='row' alignItems='flex-end' sx={{fontSize: '1.1rem', fontWeight: 500}}>
 
-                <ContentDrawerButton markdown={helpSettings}/>
+                <span style={{marginRight: 10}}>SETTINGS</span>
+
+                <HelpContentDrawerButton markdown={String(helpSettings)}/>
 
             </Stack>
 

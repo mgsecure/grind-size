@@ -182,7 +182,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         throw new Error('No valid particles remaining after filtering.')
     }
 
-    console.log(`Final analysis: ${particles.length} particles`, particles)
+    console.log(`Final analysis: ${particles.length} particles`)
 
     const filteredValidIds = particles.map(p => p.id)
 
