@@ -1,8 +1,8 @@
 import queryString from 'query-string'
 import React, {useCallback, useContext, useMemo} from 'react'
 import {useLocation} from 'react-router-dom'
-import FilterContext from '../context/FilterContext'
-import ImageGallery from '../misc/ImageGallery'
+import FilterContext from '../../context/FilterContext.jsx'
+import ImageGallery from './ImageGallery.jsx'
 
 function EntryImageGallery({entry}) {
     const location = useLocation()

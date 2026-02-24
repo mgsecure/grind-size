@@ -3,12 +3,12 @@ import ImageList from '@mui/material/ImageList'
 import ImageListItem from '@mui/material/ImageListItem'
 import ImageListItemBar from '@mui/material/ImageListItemBar'
 import Tooltip from '@mui/material/Tooltip'
-import licenses from '../data/licenses'
+import licenses from '../../data/licenses.js'
 import IconButton from '@mui/material/IconButton'
 import LaunchIcon from '@mui/icons-material/Launch'
-import useWindowSize from '../util/useWindowSize'
-import ytIcon from '../resources/yt.png'
-import ImageViewer from './ImageViewer'
+import useWindowSize from '../../util/useWindowSize.jsx'
+import ytIcon from '../../resources/yt.png'
+import ImageViewer from './ImageViewer.jsx'
 
 function ImageGallery(props) {
     const {

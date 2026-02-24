@@ -27,7 +27,7 @@ export function detectParticles(maskObj, {minAreaPx = 8, externalLabels = null} 
     }
 
     if (externalLabels) {
-        // Collect components from existing labels
+        // Collect pagePanels from existing labels
         const comps = new Map()
         for (let i = 0; i < externalLabels.length; i++) {
             const label = externalLabels[i]

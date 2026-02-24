@@ -1,12 +1,12 @@
 import React, {useContext, useRef} from 'react'
 import {Stack, Paper, Typography, Alert, AlertTitle} from '@mui/material'
-import UploadQueuePanel from './components/UploadQueuePanel.jsx'
-import ImagePanel from './components/ImagePanel.jsx'
-import ExportPanel from './components/ExportPanel.jsx'
-import SettingsPanel from './components/SettingsPanel.jsx'
-import HistogramPanel from './components/HistogramPanel.jsx'
+import UploadQueuePanel from './pagePanels/UploadQueuePanel.jsx'
+import ImagePanel from './pagePanels/ImagePanel.jsx'
+import ExportPanel from './pagePanels/ExportPanel.jsx'
+import SettingsPanel from './pagePanels/SettingsPanel.jsx'
+import HistogramPanel from './pagePanels/HistogramPanel.jsx'
 import ManualCornerSelector from './components/ManualCornerSelector.jsx'
-import StatsPanel from './components/StatsPanel.jsx'
+import StatsPanel from './pagePanels/StatsPanel.jsx'
 import DataContext from '../context/DataContext.jsx'
 
 export default function PsdPage() {

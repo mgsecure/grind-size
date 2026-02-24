@@ -17,9 +17,9 @@ import Dropzone from '../../formUtils/Dropzone.jsx'
 import DataContext from '../../context/DataContext.jsx'
 import TroubleshootIcon from '@mui/icons-material/Troubleshoot'
 import {PSD_PRESETS} from '@starter/shared'
-import RefreshSingleButton from './RefreshSingleButton.jsx'
-import ItemInformationButton from './ItemInformationButton.jsx'
-import ExportButton from './ExportButton.jsx'
+import RefreshSingleButton from '../components/RefreshSingleButton.jsx'
+import ItemInformationButton from '../components/ItemInformationButton.jsx'
+import ExportButton from '../components/ExportButton.jsx'
 
 export default function UploadQueuePanel() {
     const theme = useTheme()

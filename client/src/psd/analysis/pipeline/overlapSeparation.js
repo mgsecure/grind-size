@@ -158,7 +158,7 @@ export function watershed(distObj, labels, minPeakDist = 5) {
 
     // 5. Restore "lost" particles that didn't have a watershed seed
     // We do this by finding all foreground pixels (dist > 0) that still have label 0
-    // and running a simple connected components pass on them.
+    // and running a simple connected pagePanels pass on them.
     for (let i = 0; i < seedLabels.length; i++) {
         if (dist[i] > 0 && seedLabels[i] === 0) {
             nextId++

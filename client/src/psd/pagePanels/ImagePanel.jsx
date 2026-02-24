@@ -2,11 +2,11 @@ import React, {useContext, useMemo, useState} from 'react'
 import {Paper, ToggleButton, ToggleButtonGroup, Stack, Typography, alpha, Box, lighten} from '@mui/material'
 import {useTheme} from '@mui/material/styles'
 import DataContext from '../../context/DataContext.jsx'
-import EntryImageGallery from '../../misc/EntryImageGallery.jsx'
+import EntryImageGallery from '../components/EntryImageGallery.jsx'
 
 export default function ImagePanel() {
     const {
-        queue,
+        allDone,
         activeIdList
     } = useContext(DataContext)
 
@@ -21,7 +21,7 @@ export default function ImagePanel() {
         return 'overlayPngDataUrl'
     }, [mode])
 
-    const entry = { media: queue.map((item, index) => {
+    const entry = { media: allDone.map((item, index) => {
             if (item.result) {
                 return {
                     title: item.result?.filename || `Image ${index + 1}`,

@@ -24,7 +24,7 @@ import EntryRatingDisplay from '../entries/EntryRatingDisplay.jsx'
 import isValidUrl from '../util/isValidUrl'
 import Link from '@mui/material/Link'
 import AppContext from '../app/AppContext.jsx'
-import EntryImageGallery from '../misc/EntryImageGallery.jsx'
+import EntryImageGallery from '../psd/components/EntryImageGallery.jsx'
 
 function BeanEntry({entry, expanded, onExpand}) {
     const {beta} = useContext(AppContext)

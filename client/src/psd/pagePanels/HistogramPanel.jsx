@@ -9,7 +9,7 @@ import ScaleLinearIcon from '../resources/ScaleLinearIcon.jsx'
 import ScaleLogIcon from '../resources/ScaleLogIcon.jsx'
 import {line} from 'd3-shape'
 import DataContext from '../../context/DataContext.jsx'
-import ScreenshotElementButton from './ScreenshotElementButton.jsx'
+import ScreenshotElementButton from '../components/ScreenshotElementButton.jsx'
 
 function fmtNumber(n, digits = 2) {
     if (!Number.isFinite(n)) return '—'

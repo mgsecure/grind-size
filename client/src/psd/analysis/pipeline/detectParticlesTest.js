@@ -22,7 +22,7 @@ export function detectParticlesTest(maskObj, {minAreaPx = 8, _maxAreaMm2=10, ext
             }
         }
     } else {
-        // Collect components from existing external labels (e.g. from Watershed)
+        // Collect pagePanels from existing external labels (e.g. from Watershed)
         const comps = new Map()
         for (let i = 0; i < externalLabels.length; i++) {
             const label = externalLabels[i]

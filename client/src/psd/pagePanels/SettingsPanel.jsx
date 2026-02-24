@@ -8,10 +8,11 @@ import {PSD_PRESETS} from '@starter/shared'
 import Collapse from '@mui/material/Collapse'
 import useWindowSize from '../../util/useWindowSize.jsx'
 import DataContext from '../../context/DataContext.jsx'
-import Box from '@mui/material/Box'
 import isDeepEqual from '../../util/isDeepEqual.js'
-import CustomSettingsButtons from './CustomSettingButtons.jsx'
+import CustomSettingsButtons from '../components/CustomSettingButtons.jsx'
 import ExpandButton from '../../misc/ExpandButton.jsx'
+import ContentDrawerButton from '../../misc/ContentDrawerButton.jsx'
+import helpSettings from '../resources/helpSettings.md?raw'
 
 export default function SettingsPanel() {
     const {
@@ -95,6 +96,9 @@ export default function SettingsPanel() {
             <Stack direction='row' alignItems='flex-end' justifyContent='space-between'
                    sx={{fontSize: '1.1rem', fontWeight: 500}}>
                 SETTINGS
+
+                <ContentDrawerButton markdown={helpSettings}/>
+
             </Stack>
 
 

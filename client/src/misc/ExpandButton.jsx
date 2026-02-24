@@ -1,11 +1,10 @@
 import {styled} from '@mui/material/styles'
 import IconButton from '@mui/material/IconButton'
-import React, {useCallback, useState} from 'react'
+import React, {useCallback} from 'react'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import Tooltip from '@mui/material/Tooltip'
 
 export default function ExpandButton({expanded, onChange, label = 'Details'}) {
-
 
     const tooltipText = expanded ? `Hide ${label}` : `Show ${label}`
 

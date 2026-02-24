@@ -313,7 +313,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
 
             // Filter diagnostic labels to only include those in the original image ROI
             // Note: we can't easily use filteredValidIds here because the IDs in detectOrig
-            // correspond to components in the original image, not the warped one.
+            // correspond to pagePanels in the original image, not the warped one.
             // We'll re-apply the ROI and size filters to detectOrig.particles
             let diagnosticParticles = detectOrig.particles
             const maxAreaPxOrig = maxAreaMm2 * (pxPerMm ** 2)
