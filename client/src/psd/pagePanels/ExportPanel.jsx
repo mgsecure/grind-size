@@ -55,7 +55,7 @@ export default function ExportPanel({result}) {
         <Stack direction='row' spacing={1} sx={{width: '100%'}}>
 
 
-            <Paper sx={{p: 2, width: '100%'}}>
+            <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
                 <Typography style={{fontSize: '1.1rem', fontWeight: 500}}>EXPORT/IMPORT SAMPLES</Typography>
 
                 <Stack direction='row' alignItems='center' justifyContent='space-between'

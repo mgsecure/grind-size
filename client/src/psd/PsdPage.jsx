@@ -18,7 +18,8 @@ export default function PsdPage() {
         processedActive,
         handleManualCorners,
         cancelManual,
-        showTitleBar
+        showTitleBar,
+        isDesktop
     } = useContext(DataContext)
 
     const domEl = useRef(null)
@@ -35,8 +36,10 @@ export default function PsdPage() {
                 </Paper>
             )}
             <Paper sx={{p: 2, width: '100%'}}>
-                <Typography style={{fontSize: '1.5rem', fontWeight: 700}}>
-                    COFFEE GRINDS <span style={{fontWeight: 300}}> PARTICLE SIZE DISTRIBUTION</span>
+                <Typography style={{fontSize: '1.5rem', fontWeight: 700, lineHeight: '1.2em'}}>
+                    COFFEE GRINDS
+                    {!isDesktop && <br/>}
+                    <span style={{fontWeight: 300}}> PARTICLE SIZE DISTRIBUTION</span>
                 </Typography>
                 <Typography variant='body2' color='text.secondary'>
                     Upload up to 6 images.

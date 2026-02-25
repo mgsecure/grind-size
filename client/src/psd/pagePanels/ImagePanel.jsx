@@ -8,7 +8,8 @@ import ToggleButtons from '../components/ToggleButtons.jsx'
 export default function ImagePanel() {
     const {
         queue,
-        activeIdList
+        activeIdList,
+        isDesktop
     } = useContext(DataContext)
 
     const theme = useTheme()
@@ -46,7 +47,7 @@ export default function ImagePanel() {
     }
 
     return (
-        <Paper sx={{p: 2}}>
+        <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
             <Typography style={{...disabledStyle, fontSize: '1.1rem', fontWeight: 500}}>PARTICLE DETECTION</Typography>
             <Stack direction='row' spacing={1} sx={{mt: 2, mb: 2}} style={disabledStyle}>
                 <ToggleButtons options={modeMap} currentValue={mode} onChange={setMode}/>

@@ -49,7 +49,6 @@ export default function HelpContentDrawerButton({markdown = 'content tk', title 
                             height: 64,
                             backgroundColor: theme.palette.card?.add
                         }} onClick={() => setOpen(false)}>
-
                             <div
                                 style={{
                                     flexGrow: 1,

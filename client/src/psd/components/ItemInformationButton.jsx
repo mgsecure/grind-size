@@ -1,5 +1,5 @@
 import IconButton from '@mui/material/IconButton'
-import React, {useCallback, useContext, useMemo, useState} from 'react'
+import React, {useCallback, useContext, useEffect, useMemo, useState} from 'react'
 import DataContext from '../../context/DataContext.jsx'
 import {useTheme, alpha} from '@mui/material/styles'
 import InfoOutlineIcon from '@mui/icons-material/InfoOutline'
@@ -12,18 +12,21 @@ import SaveIcon from '@mui/icons-material/Save'
 import TextField from '@mui/material/TextField'
 import Collapse from '@mui/material/Collapse'
 import ErrorIcon from '@mui/icons-material/Error'
+import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 
 export default function ItemInformationButton({item, imageViewer = false, noButton = false, openOverride = false, onClose}) {
     if (!item) return null
-
-    console.log('item', {item, noButton, openOverride})
 
     const {filename = 'sample', scale = {}, stats = {}, settings = {}} = item
 
     const theme = useTheme()
     const [open, setOpen] = useState(false)
-    const [name, setName] = useState(item.filename)
+    const [name, setName] = useState(item.filename || 'sample')
     const [editOpen, setEditOpen] = useState(false)
+
+    useEffect(() => {
+        setName(item.filename || 'sample')
+    }, [item])
 
     const {queue, setQueue, isDesktop} = useContext(DataContext)
     const queueItemNames = queue.map(item => item.filename)
@@ -86,12 +89,11 @@ export default function ItemInformationButton({item, imageViewer = false, noButt
                         }
                     </Stack>
                     <Collapse in={editOpen}>
-                        <Stack direction='row' alignItems='center' style={{marginBottom: 12, fontWeight: 600}}>
-                            <TextField type='text' name='name' fullWidth style={{minWidth: 300}}
+                        <Stack direction='row' alignItems='center' style={{marginBottom: 18, fontWeight: 600}}>
+                            <TextField type='text' name='name' fullWidth style={{minWidth: 280}}
                                        size='small'
                                        onChange={e => setName(e.target.value)} value={name}
                                        color='info'/>
-
                             <IconButton disabled={!canSave} onClick={saveName} style={{height: 36, width: 36}}>
                                 <SaveIcon fontSize='small'
                                           style={{color: canSave ? theme.palette.success.main : alpha(theme.palette.text.primary, 0.5)}}/>
@@ -127,6 +129,27 @@ export default function ItemInformationButton({item, imageViewer = false, noButt
         </Stack>
     )
 
+    const titleBar = (
+        <div style={{
+            display: 'flex',
+            padding: '15px 15px',
+            height: 64,
+            backgroundColor: theme.palette.card?.add
+        }} onClick={() => setOpen(false)}>
+            <div style={{
+                    flexGrow: 1,
+                    fontSize: '1.5rem',
+                    fontWeight: 500,
+                    color: theme.palette.text.primary
+                }}>
+                Sample Information
+            </div>
+            <div onClick={closeDrawer}>
+                <HighlightOffIcon sx={{cursor: 'pointer', color: theme.palette.text.primary}}/>
+            </div>
+        </div>
+
+    )
     return (
         <>
             {!noButton &&
@@ -143,6 +166,7 @@ export default function ItemInformationButton({item, imageViewer = false, noButt
                     onOpen={openDrawer}
                     onClose={closeDrawer}
                 >
+                    {titleBar}
                     {settingsTable}
                 </Dialog>
                 : <SwipeableDrawer
@@ -158,6 +182,7 @@ export default function ItemInformationButton({item, imageViewer = false, noButt
                     }}
 
                 >
+                    {titleBar}
                     {settingsTable}
                 </SwipeableDrawer>
             }

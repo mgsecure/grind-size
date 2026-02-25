@@ -6,7 +6,6 @@ import Button from '@mui/material/Button'
 import Switch from '@mui/material/Switch'
 import {PSD_PRESETS} from '@starter/shared'
 import Collapse from '@mui/material/Collapse'
-import useWindowSize from '../../util/useWindowSize.jsx'
 import DataContext from '../../context/DataContext.jsx'
 import isDeepEqual from '../../util/isDeepEqual.js'
 import CustomSettingsButtons from '../components/CustomSettingButtons.jsx'
@@ -88,11 +87,10 @@ export default function SettingsPanel() {
         setResetToggle(true)
     }
 
-    const {isMobile} = useWindowSize()
-    const sliderWidth = isMobile ? 170 : 230
+    const sliderWidth = isDesktop ? 230 : 170
 
     return (
-        <Paper sx={{p: 2}}>
+        <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
             <Stack direction='row' alignItems='flex-end' sx={{fontSize: '1.1rem', fontWeight: 500}}>
 
                 <span style={{marginRight: 10}}>SETTINGS</span>
@@ -122,7 +120,7 @@ export default function SettingsPanel() {
                             value={preset}
                             exclusive
                             onChange={(_, v) => v && handlePresetChange(v)}
-                            style={{margin: '10px 8px 10px 20px'}}
+                            style={{margin: isDesktop ? '10px 8px 10px 20px' : 0}}
                         >
                             <ToggleButton key='custom' value='custom' onClick={handleCustomClick}>Custom</ToggleButton>
                         </ToggleButtonGroup>
@@ -131,21 +129,23 @@ export default function SettingsPanel() {
                     <ExpandButton expanded={showDetails} onChange={() => setShowDetails(!showDetails)}/>
                 </Stack>
 
-
-                <Stack direction='row' alignItems='center'>
-                    <Button variant='contained'
-                            disabled={!needsRefresh || queueItems.length === 0}
-                            onClick={handleRecalculate}
-                            style={{margin: 10}}>
-                        Refresh All
-                    </Button>
-                </Stack>
+                {queueItems.length > 0 &&
+                    <Stack direction='row' alignItems='center'>
+                        <Button variant='contained'
+                                disabled={!needsRefresh || queueItems.length === 0}
+                                onClick={handleRecalculate}
+                                style={{margin: 10}}>
+                            Refresh All
+                        </Button>
+                    </Stack>
+                }
             </Stack>
 
-            <Collapse in={showDetails} sx={{ml: !isMobile ? 1 : 0}}>
+            <Collapse in={showDetails} sx={{ml: isDesktop ? 1 : 0}}>
                 <Divider sx={{mt: 2, mb: 2}}/>
 
-                <Stack direction='row' spacing={isDesktop ? 3 : 1} sx={{alignItems: 'center', width: '100%', justifyContent: 'center'}}>
+                <Stack direction='row' spacing={isDesktop ? 3 : 1}
+                       sx={{alignItems: 'center', width: '100%', justifyContent: 'center'}}>
                     <FormControlLabel
                         label='Test Pipeline'
                         control={

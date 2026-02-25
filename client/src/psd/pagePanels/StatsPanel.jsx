@@ -1,5 +1,5 @@
 import React, {useContext, useRef} from 'react'
-import {alpha, Box, lighten, Paper, Table, TableBody, TableCell, TableRow} from '@mui/material'
+import {alpha, Box, lighten, Paper, Table, TableBody, TableCell, TableContainer, TableRow} from '@mui/material'
 import {useTheme} from '@mui/material/styles'
 import Stack from '@mui/material/Stack'
 import DataContext from '../../context/DataContext.jsx'
@@ -11,7 +11,7 @@ export default function StatsPanel() {
     const disabledStyle = {opacity: 0.5, pointerEvents: 'none'}
 
     if (!activeItems.length || activeItems[0].status !== 'done') return (
-        <Paper sx={{p: 2}}>
+        <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
             <Stack direction='row' alignItems='flex-end' justifyContent='space-between'
                    sx={{fontSize: '1.1rem', fontWeight: 500}} style={disabledStyle}>
                 STATISTICS
@@ -112,48 +112,77 @@ export default function StatsPanel() {
     const dataOne = !breakTables ? metricData : metricDataOne
 
     return (
-        <Paper sx={{p: 2}} ref={domEl}>
+        <Paper sx={{p: isDesktop ? 2 : 1}} ref={domEl}>
             <Stack direction='row' alignItems='flex-end' justifyContent='space-between'
-                   sx={{fontSize: '1.1rem', fontWeight: 500}} >
+                   sx={{fontSize: '1.1rem', fontWeight: 500}}>
                 STATISTICS
             </Stack>
             <Stack direction={breakTables ? 'row' : 'column'} spacing={3} sx={{my: 2}}>
-                <Table size='small' sx={{borderTop: '1px solid', borderColor: theme.palette.divider}}>
-                    <TableBody>
-                        {!breakTables &&
-                            <TableRow key={'filename'}>
-                                <TableCell sx={{p: '0px 12px 0px 0px'}}></TableCell>
-                                {activeItems.map(item => {
-                                    const data = tableData[item.id]?.filename
-                                    return <TableCell sx={{p: '6px 8px', fontWeight: 'bold'}}
-                                                      key={item.id}>{data !== undefined ? data : 'N/A'}</TableCell>
-                                })}
-                                <TableCell sx={{p: '6px 8px', width: 'auto'}}/>
-                            </TableRow>
-                        }
-                        {dataOne.map(({key, label, unit}) => (
-                            <TableRow key={key} sx={{
-                                '&:hover': {backgroundColor: theme.palette.action.hover}
-                            }}
-                            >
-                                <TableCell sx={{p: '0px 12px 0px 0px', width: '200px'}}>{label}</TableCell>
-                                {activeItems.map((item, index) => {
-                                    return <TableCell sx={{p: '6px 8px'}} key={item.id}>
-                                        {tableData[item.id]?.[key] !== undefined ? tableData[item.id]?.[key] : 'N/A'} {(index === activeItems.length - 1 && unit) ? unit : ''}
+                <TableContainer component={Paper} sx={{}}>
+                    <Table size='small' sx={{borderTop: '1px solid', borderColor: theme.palette.divider}}>
+                        <TableBody>
+
+                            {!breakTables &&
+                                <TableRow key={'filename'}>
+                                    <TableCell sx={{
+                                        p: '0px 12px 0px 0px', width: '180px',
+                                        position: 'sticky',
+                                        left: 0,
+                                        zIndex: 10,
+                                        backgroundColor: theme.palette.background.paper,
+                                        borderRight: `1px solid ${theme.palette.divider}`,
+                                    }} />
+                                    {activeItems.map(item => {
+                                        const data = tableData[item.id]?.filename
+                                        return <TableCell sx={{p: '6px 8px', fontWeight: 'bold'}}
+                                                          key={item.id}>{data !== undefined ? data : 'N/A'}</TableCell>
+                                    })}
+                                    <TableCell sx={{p: '6px 8px', width: 'auto'}}/>
+                                </TableRow>
+                            }
+                            {dataOne.map(({key, label, unit}) => (
+                                <TableRow key={key} sx={{
+                                    '&:hover': {backgroundColor: theme.palette.action.hover}
+                                }}
+                                >
+                                    <TableCell sx={{
+                                        p: '0px 12px 0px 4px',
+                                        width: '180px',
+                                        position: 'sticky',
+                                        left: 0,
+                                        zIndex: 10,
+                                        backgroundColor: theme.palette.background.paper,
+                                        borderRight: `1px solid ${theme.palette.divider}`,
+                                        whiteSpace: 'nowrap'
+                                    }}>
+                                        {label}
                                     </TableCell>
-                                })}
-                                <TableCell sx={{p: '6px 8px', width: 'auto'}}/>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+
+                                    {activeItems.map((item, index) => {
+                                        return <TableCell sx={{p: '6px 8px'}} key={item.id} style={{whiteSpace: 'nowrap'}}>
+                                            {tableData[item.id]?.[key] !== undefined ? tableData[item.id]?.[key] : 'N/A'} {(index === activeItems.length - 1 && unit) ? unit : ''}
+                                        </TableCell>
+                                    })}
+                                    <TableCell sx={{p: '6px 8px', width: 'auto'}}/>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
 
                 {breakTables &&
                     <Table size='small' sx={{borderTop: '1px solid', borderColor: theme.palette.divider}}>
                         <TableBody>
                             {!breakTables &&
                                 <TableRow key={'filename'}>
-                                    <TableCell sx={{p: '0px 12px 0px 0px'}}></TableCell>
+                                    <TableCell sx={{
+                                        p: '0px 12px 0px 0px', width: '180px',
+                                        position: 'sticky',
+                                        left: 0,
+                                        zIndex: 10,
+                                        backgroundColor: 'inherit', // Must have background to prevent overlap
+                                        borderRight: '1px solid #e0e0e0'
+                                    }}></TableCell>
                                     {activeItems.map(item => {
                                         const data = tableData[item.id]?.filename
                                         return <TableCell sx={{p: '6px 8px', fontWeight: 'bold'}}
@@ -167,7 +196,15 @@ export default function StatsPanel() {
                                     '&:hover': {backgroundColor: theme.palette.action.hover}
                                 }}
                                 >
-                                    <TableCell sx={{p: '0px 12px 0px 0px', width: '200px'}}>{label}</TableCell>
+                                    <TableCell sx={{
+                                        p: '0px 12px 0px 0px', width: '180px',
+                                        position: 'sticky',
+                                        left: 0,
+                                        zIndex: 10,
+                                        backgroundColor: 'inherit', // Must have background to prevent overlap
+                                        borderRight: '1px solid #e0e0e0'
+                                    }}>
+                                        {label}</TableCell>
                                     {activeItems.map((item, index) => {
                                         return <TableCell sx={{p: '6px 8px'}} key={item.id}>
                                             {tableData[item.id]?.[key] !== undefined ? tableData[item.id]?.[key] : 'N/A'} {(index === activeItems.length - 1 && unit) ? unit : ''}

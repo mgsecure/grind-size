@@ -33,8 +33,15 @@ export default function PsdUIProvider({children}) {
     const currentColors = reverseColors ? swappedColors : allColors
     const aggregateColor = theme.palette.mode === 'dark' ? '#eeee33' : '#eeee33'
 
-    const chartColors = useMemo(() => [...currentColors.slice(0, validActiveIdList.length), aggregateColor]
-        ,[currentColors, validActiveIdList.length, aggregateColor])
+    const chartColors = useMemo(() => {
+            const sampleColors = validIdList.map((id, index) => {
+                const color = currentColors[index]
+                if (activeIdList.includes(id)) return color
+            }).filter(c => c)
+
+            return [...sampleColors, aggregateColor]
+
+        }, [activeIdList, aggregateColor, currentColors, validIdList])
 
     const value = useMemo(() => ({
         theme,
@@ -50,7 +57,7 @@ export default function PsdUIProvider({children}) {
         isMobile,
         chartColors,
         swapColors,
-        aggregateColor,
+        aggregateColor
     ])
 
     return (

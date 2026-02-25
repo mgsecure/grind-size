@@ -39,9 +39,6 @@ export function PsdDataProvider({children}) {
         return acc
     }, 0), [queue])
 
-    console.log('Processing queue:', queue)
-    console.log('Processed count:', processedCount)
-
     const processingComplete = useMemo(() => {
         return (queue.length === processedCount)
     }, [processedCount, queue.length])
@@ -61,6 +58,8 @@ export function PsdDataProvider({children}) {
             }))
         })
     }, [queue])
+
+    // TODO: create aggregate item for export/import
 
     const aggregateItem = useMemo(() => {
         if (queue.filter(q => q.status === 'done' && q.result).length < 2) return null

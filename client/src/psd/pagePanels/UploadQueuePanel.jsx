@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useEffect, useMemo} from 'react'
+import React, {useCallback, useContext, useEffect} from 'react'
 import {
     List,
     Paper,
@@ -35,7 +35,7 @@ export default function UploadQueuePanel() {
         processMultipleSettings,
     } = useContext(DataContext)
 
-    const {chartColors, aggregateColor, isDesktop} = useContext(UIContext)
+    const {chartColors, isDesktop} = useContext(UIContext)
 
     const selectEnabled = allItems.length > 1 || activeIdList.length === 0
 
@@ -74,7 +74,7 @@ export default function UploadQueuePanel() {
 
 
     return (
-        <Paper sx={{p: 2, width: '100%'}} width={'100%'}>
+        <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
 
             <Stack direction='row' alignItems='center' justifyContent='space-between'
                    sx={{width: '100%'}}>

@@ -24,9 +24,7 @@ export default function ExportButton({text}) {
     const {altButtonColor} = useContext(UIContext)
 
     const cleanedQueue = queue
-        .filter(item => activeIdList.includes(item.id)
-            && item.result?.particles?.length > 0
-            && item.id !== 'aggregateResult')
+        .filter(item => activeIdList.includes(item.id))
         .map(item => {
             const newResult = {...item.result}
             newResult.previews = {}

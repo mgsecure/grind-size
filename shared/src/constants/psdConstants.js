@@ -89,7 +89,7 @@ export const PSD_PRESETS = {
 
 export const BIN_DEFAULTS = {
     min: 100,
-    max: 2000,
+    max: 2500,
     nBins: 30
 }
 
