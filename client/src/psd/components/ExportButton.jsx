@@ -16,18 +16,22 @@ import Button from '@mui/material/Button'
 import {convertHistogramToCsv, convertParticlesToCsv, convertStatsToCsv, downloadFile} from '../analysis/exportCsv.js'
 import {Switch} from '@mui/material'
 import Divider from '@mui/material/Divider'
+import UIContext from '../../context/UIContext.jsx'
 
 export default function ExportButton({text}) {
 
     const {queue, activeIdList, processingComplete, binSpacing, isDesktop} = useContext(DataContext)
+    const {altButtonColor} = useContext(UIContext)
 
     const cleanedQueue = queue
-        .filter(item => activeIdList.includes(item.id))
+        .filter(item => activeIdList.includes(item.id)
+            && item.result?.particles?.length > 0
+            && item.id !== 'aggregateResult')
         .map(item => {
             const newResult = {...item.result}
             newResult.previews = {}
             newResult.particles = newResult.particles?.map(p => ({...p, contour: []}))
-            return {...item, result: newResult, source: 'export'}
+            return {...item, result: newResult, source: 'export', file: {}}
         })
 
     const [anchorEl, setAnchorEl] = useState(null)
@@ -72,13 +76,14 @@ export default function ExportButton({text}) {
         <React.Fragment>
             {text
                 ? <Button variant='text' size='small' onClick={handleOpen}
-                            disabled={!activeIdList.length || !processingComplete}
-                            startIcon={<FileDownloadIcon/>}>
-                        Export Selected
-                    </Button>
+                          disabled={!activeIdList.length || !processingComplete}
+                          startIcon={<FileDownloadIcon style={{color: altButtonColor}}/>}
+                          style={{color: altButtonColor}}>
+                    Export Selected
+                </Button>
                 : <Tooltip title='Export' arrow disableFocusListener>
                     <IconButton onClick={handleOpen} disabled={!activeIdList.length || !processingComplete}>
-                        <FileDownloadIcon/>
+                        <FileDownloadIcon style={{color: altButtonColor}}/>
                     </IconButton>
                 </Tooltip>
             }
@@ -110,21 +115,24 @@ export default function ExportButton({text}) {
                     <ListItemText>Analysis Data (3x CSV)</ListItemText>
                 </MenuItem>
 
-                <MenuItem style={menuItemStyle} onClick={() => {}} disabled>
+                <MenuItem style={menuItemStyle} onClick={() => {
+                }} disabled>
                     <ListItemIcon>
                         <CodeIcon fontSize='small'/>
                     </ListItemIcon>
                     <ListItemText>Analysis Data (JSON)</ListItemText>
                 </MenuItem>
 
-                <MenuItem style={menuItemStyle} onClick={() => {}} disabled>
+                <MenuItem style={menuItemStyle} onClick={() => {
+                }} disabled>
                     <ListItemIcon>
                         <ContentCopyIcon fontSize='small'/>
                     </ListItemIcon>
                     <ListItemText>Clipboard??</ListItemText>
                 </MenuItem>
 
-                <MenuItem style={menuItemStyle} onClick={() => {}} disabled>
+                <MenuItem style={menuItemStyle} onClick={() => {
+                }} disabled>
                     <ListItemIcon>
                         <ContentCopyIcon fontSize='small'/>
                     </ListItemIcon>

@@ -13,8 +13,11 @@ import TextField from '@mui/material/TextField'
 import Collapse from '@mui/material/Collapse'
 import ErrorIcon from '@mui/icons-material/Error'
 
-export default function ItemInformationButton({item, imageViewer = false}) {
+export default function ItemInformationButton({item, imageViewer = false, noButton = false, openOverride = false, onClose}) {
     if (!item) return null
+
+    console.log('item', {item, noButton, openOverride})
+
     const {filename = 'sample', scale = {}, stats = {}, settings = {}} = item
 
     const theme = useTheme()
@@ -35,7 +38,10 @@ export default function ItemInformationButton({item, imageViewer = false}) {
         // Clear current focus to prevent weird issues on mobile
         document.activeElement.blur()
     }, [])
-    const closeDrawer = useCallback(() => setOpen(false), [])
+    const closeDrawer = useCallback(() => {
+        setOpen(false)
+        onClose && onClose()
+    }, [onClose])
 
     const saveName = useCallback(() => {
         const newItem = {...queueItem, filename: name}
@@ -123,14 +129,17 @@ export default function ItemInformationButton({item, imageViewer = false}) {
 
     return (
         <>
-            <IconButton onClick={openDrawer} disabled={!['done', 'error'].includes(item.status)}
-                        style={{height: 36, width: 36}}>
-                <InfoOutlineIcon fontSize='small' style={{color: item.error ? theme.palette.error.main : theme.palette.text.primary}}/>
-            </IconButton>
+            {!noButton &&
+                <IconButton onClick={openDrawer} disabled={!['done', 'error'].includes(item.status)}
+                            style={{height: 36, width: 36}}>
+                    <InfoOutlineIcon fontSize='small'
+                                     style={{color: item.error ? theme.palette.error.main : theme.palette.text.primary}}/>
+                </IconButton>
+            }
             {imageViewer
                 ? <Dialog
                     anchor='left'
-                    open={open}
+                    open={open || openOverride}
                     onOpen={openDrawer}
                     onClose={closeDrawer}
                 >
@@ -138,7 +147,7 @@ export default function ItemInformationButton({item, imageViewer = false}) {
                 </Dialog>
                 : <SwipeableDrawer
                     anchor='left'
-                    open={open}
+                    open={open || openOverride}
                     onOpen={openDrawer}
                     onClose={closeDrawer}
                     slotProps={{

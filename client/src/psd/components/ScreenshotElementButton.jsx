@@ -3,6 +3,7 @@ import CameraAltIcon from '@mui/icons-material/CameraAlt'
 import React, {useCallback, useContext} from 'react'
 import html2canvas from 'html2canvas'
 import DataContext from '../../context/DataContext.jsx'
+import {useHotkeys} from 'react-hotkeys-hook'
 
 export default function ScreenshotElementButton({domEl, filename, disabled}) {
 
@@ -29,12 +30,13 @@ export default function ScreenshotElementButton({domEl, filename, disabled}) {
             setShowTitleBar(false)
         }, 100)
 
-    },[domEl, downloadImage, setShowTitleBar])
+    }, [domEl, downloadImage, setShowTitleBar])
 
+    useHotkeys('s', () => takeScreenshot())
 
-        return (
+    return (
         <IconButton size='small' onClick={takeScreenshot} disabled={disabled}>
-            <CameraAltIcon />
+            <CameraAltIcon/>
         </IconButton>
     )
 }

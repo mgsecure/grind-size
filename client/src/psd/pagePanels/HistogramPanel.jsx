@@ -1,4 +1,4 @@
-import React, {useContext, useMemo, useState} from 'react'
+import React, {useCallback, useContext, useMemo, useState} from 'react'
 import {Paper, Stack, Typography, ToggleButtonGroup, ToggleButton, Box, Slider, lighten, alpha} from '@mui/material'
 import {ResponsiveBar} from '@nivo/bar'
 import {ResponsiveLine} from '@nivo/line'
@@ -10,6 +10,8 @@ import ScaleLogIcon from '../resources/ScaleLogIcon.jsx'
 import {line} from 'd3-shape'
 import DataContext from '../../context/DataContext.jsx'
 import ScreenshotElementButton from '../components/ScreenshotElementButton.jsx'
+import UIContext from '../../context/UIContext.jsx'
+import ItemInformationButton from '../components/ItemInformationButton.jsx'
 
 function fmtNumber(n, digits = 2) {
     if (!Number.isFinite(n)) return '—'
@@ -18,16 +20,23 @@ function fmtNumber(n, digits = 2) {
 
 export default function HistogramPanel({domEl}) {
     const {
-        aggregateColor, swapColors,
-        chartColors,
         activeItems,
         xAxis,
         yAxis, setYAxis,
         settings, setSettings,
         binSpacing, setBinSpacing,
         globalMaxY,
-        isDesktop
     } = useContext(DataContext)
+
+    const {aggregateColor, swapColors, chartColors, isDesktop} = useContext(UIContext)
+    const [settingsOpen, setSettingsOpen] = useState(false)
+    const openSettings = useCallback(() => {
+        setSettingsOpen(true)
+        document.activeElement.blur()
+    }, [])
+    const closeSettings = useCallback(() => setSettingsOpen(false), [])
+
+
 
     //TODO: Skip every other tick on mobile
     //TODO: add aggregate to bar chart legend if displayed
@@ -179,6 +188,7 @@ export default function HistogramPanel({domEl}) {
         colors: chartColors,
         curve: 'basis',
         enableLabel: false,
+        onClick: swapColors,
         theme: {
             axis: {
                 ticks: {
@@ -226,7 +236,7 @@ export default function HistogramPanel({domEl}) {
                 itemDirection: 'left-to-right',
                 itemOpacity: 0.85,
                 symbolSize: 20,
-                onClick: swapColors,
+                onClick: openSettings,
                 effects: [{on: 'hover', style: {itemOpacity: 1}}]
             }
         ],
@@ -295,6 +305,9 @@ export default function HistogramPanel({domEl}) {
                 HISTOGRAM
                 <ScreenshotElementButton domEl={domEl} filename={`psd-results_${activeFilename}`} />
             </Stack>
+
+            <ItemInformationButton item={activeItems[0]} noButton={true} openOverride={settingsOpen} onClose={closeSettings}/>
+
             <Stack direction='row' alignItems='center' flexWrap='wrap' justifyContent='space-between'
                    sx={{mb: 0}} style={!chartData.length ? disabledStyle : undefined}>
                 <ToggleButtonGroup
@@ -430,6 +443,7 @@ export default function HistogramPanel({domEl}) {
                     />
                 </Box>
             )}
+
         </Paper>
     )
 }

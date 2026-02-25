@@ -22,6 +22,12 @@ export function getFileNameWithoutExtension(filename) {
     return filename
 }
 
+export function cleanCount(num, string, lowerCase = true) {
+    const numberStrings = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine']
+    const numString = numberStrings[num] || parseInt(num).toString()
+    return (lowerCase ? numString.toLowerCase() : numString) + ' ' + string + (num > 1 ? 's' : '')
+}
+
 
 export function isValidRegex(pattern) {
     try {

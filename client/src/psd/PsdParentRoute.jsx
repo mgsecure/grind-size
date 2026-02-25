@@ -1,7 +1,8 @@
 import React from 'react'
 import {Outlet} from 'react-router-dom'
-import DataProvider from './PsdDataProvider.jsx'
 import {FilterProvider} from '../context/FilterContext.jsx'
+import DataProvider from './PsdDataProvider.jsx'
+import UIProvider from './PsdUIProvider.jsx'
 
 export default function PsdParentRoute() {
 
@@ -9,7 +10,9 @@ export default function PsdParentRoute() {
     return (
         <FilterProvider filterFields={[]}>
             <DataProvider>
-                <Outlet/>
+                <UIProvider>
+                    <Outlet/>
+                </UIProvider>
             </DataProvider>
         </FilterProvider>
     )
