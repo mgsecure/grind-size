@@ -7,14 +7,16 @@ import {normalizeLighting} from './pipeline/normalizeLighting.js'
 import {adaptiveThreshold} from './pipeline/thresholdAdaptive.js'
 import {morphologyOpen} from './pipeline/morphology.js'
 import {detectParticles} from './pipeline/detectParticles.js'
-import {detectParticlesTest} from './pipeline/detectParticlesTest.js'
+import {detectParticlesCandidate} from './pipeline/detectParticlesCandidate.js'
 import {separateOverlaps} from './pipeline/overlapSeparation.js'
 import {buildHistograms} from './metrics/buildHistograms.js'
 import {calculateStatistics} from './metrics/calculateStatistics.js'
 import {renderMaskPng, renderOverlayPng, renderDiagnosticPng} from './render/renderOutputs.js'
 import {getFileNameWithoutExtension} from '../../util/stringUtils.js'
+import defineROI from './pipeline/defineROI.js'
 
 const debug = false
+const renderDiagnosticImage = false
 
 export async function analyzeImageFiles(file, settings, manualCorners = null, overlayOptions = null, altFilename=null,) {
     const startedAt = new Date().toISOString()
@@ -47,30 +49,11 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         templateCorners,
         presentCorners,
         uniqueMarkers,
-        pxPerMm,
-        baseRoi} = scaleInfo
+        pxPerMm} = scaleInfo
 
-    debug && console.log('Template info:', scaleInfo)
+    debug && console.log('Template scaleInfo:', scaleInfo)
 
-    let roi = {...baseRoi}
-
-    // update ROI if correctPerspective
-    if (presentCorners.length === 4 && correctPerspective) {
-        const outerMm = template.outerMm
-        const innerMm = template.innerMm
-        const marginMm = (outerMm - innerMm) / 2
-        const marginPx = marginMm * pxPerMm
-        const sizePx = settings.warpSizePx || 2000
-        roi = {
-            ...roi,
-            actualBounds: {
-                minX: Math.round(marginPx + (settings.insetPx || 8)),
-                maxX: Math.round(sizePx - marginPx - (settings.insetPx || 8)),
-                minY: Math.round(marginPx + (settings.insetPx || 8)),
-                maxY: Math.round(sizePx - marginPx - (settings.insetPx || 8))
-            }
-        }
-    }
+    const roi = defineROI({scaleInfo, settings, correctPerspective, debug})
 
     let analysisImageData = imageData
     let warpSize = settings.warpSizePx || 2000
@@ -101,7 +84,6 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         debug && console.log('Scale info:', scaleInfo)
     }
 
-
     const gray = normalizeLighting(analysisImageData, {bgSigma: settings.bgSigma})
     const mask = adaptiveThreshold(gray, {blockSize: settings.adaptiveBlockSize, C: settings.adaptiveC})
 
@@ -109,8 +91,8 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
     const cleaned = useMorphology ? morphologyOpen(mask) : mask
 
     // Filter particles by ROI and size if present
-    const detectFn = testPipeline ? detectParticlesTest : detectParticles
-    debug && console.log(`Using detection function: ${testPipeline ? 'detectParticlesTest' : 'detectParticles'}`)
+    const detectFn = testPipeline ? detectParticlesCandidate : detectParticles
+    debug && console.log(`Using detection function: ${testPipeline ? 'detectParticlesCandidate' : 'detectParticles'}`)
     let detectResult
     try {
         detectResult = detectFn(mask, {minAreaPx: settings.minAreaPx})
@@ -372,7 +354,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
             diagnosticValidIds = diagnosticParticles.map(p => p.id)
         }
 
-        diagnosticPngDataUrl = await renderDiagnosticPng({
+        if (renderDiagnosticImage) diagnosticPngDataUrl = await renderDiagnosticPng({
             width,
             height,
             data: imageData.data.slice()

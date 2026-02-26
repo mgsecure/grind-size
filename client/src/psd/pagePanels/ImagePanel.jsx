@@ -4,7 +4,6 @@ import {useTheme} from '@mui/material/styles'
 import DataContext from '../../context/DataContext.jsx'
 import EntryImageGallery from '../components/EntryImageGallery.jsx'
 import ToggleButtons from '../components/ToggleButtons.jsx'
-
 export default function ImagePanel() {
     const {
         queue,
@@ -15,11 +14,19 @@ export default function ImagePanel() {
     const theme = useTheme()
     const [mode, setMode] = useState('mask') // original | mask | overlay
 
+    const availableImageModes = Array.from(queue.reduce((acc, item) => {
+        item.result?.previews?.overlayPngDataUrl && acc.add('overlay')
+        item.result?.previews?.maskPngDataUrl && acc.add('mask')
+        item.result?.previews?.diagnosticPngDataUrl && acc.add('diagnostic')
+        return acc
+    }, new Set()))
+
+
     const modeMap = [
         {key: 'mode', value: 'overlay', label: 'Overlay View'},
-        {key: 'mode', value: 'mask', label: 'Threshold Image'},
+        {key: 'mode', value: 'mask', label: 'Mask View'},
         {key: 'mode', value: 'diagnostic', label: 'Diagnostic View'}
-    ]
+    ].filter(item => availableImageModes.includes(item.value))
 
     const disabledStyle = !activeIdList.length ? {opacity: 0.5, pointerEvents: 'none'} : undefined
 
@@ -31,7 +38,7 @@ export default function ImagePanel() {
 
     const entry = {
         media: queue
-            .filter(item => item.status === 'done')
+            .filter(item => item.status === 'done' && item.result?.previews?.[srcVar] !== undefined)
             .map((item, index) => {
             if (item.result) {
                 return {

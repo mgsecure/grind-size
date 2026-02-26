@@ -165,7 +165,7 @@ export async function renderOverlayPng(imageData, particles, meta = {}, options 
     
     // 1. Draw ArUco markers (magenta #ff3399, 3px wide)
     if (meta.markers && options.showMarkers) {
-        ctx.lineWidth = 3
+        ctx.lineWidth = 5
         ctx.strokeStyle = '#ff3399'
         for (const m of meta.markers) {
             ctx.beginPath()
@@ -179,41 +179,53 @@ export async function renderOverlayPng(imageData, particles, meta = {}, options 
     }
 
     // 2. Draw outer polygon (green #33ff33, 3px wide)
-    if (meta.template && meta.warpCorners && options.showScale) {
+    if (meta.template && (meta.templateCorners || meta.warpCorners) && options.showScale) {
+        const corners = meta.templateCorners || meta.warpCorners
         ctx.lineWidth = 3
-        ctx.strokeStyle = '#33ff33'
+        ctx.strokeStyle = '#48c148'
         ctx.beginPath()
-        ctx.moveTo(meta.warpCorners[0].x, meta.warpCorners[0].y)
+        ctx.moveTo(corners[0].x, corners[0].y)
         for (let i = 1; i < 4; i++) {
-            if (meta.warpCorners[i]) ctx.lineTo(meta.warpCorners[i].x, meta.warpCorners[i].y)
+            if (corners[i]) ctx.lineTo(corners[i].x, corners[i].y)
         }
         ctx.closePath()
         ctx.stroke()
     }
 
     // 3. Draw inner polygon / analysis region (blue #0033ff, 3px wide)
-    if (meta.roi && meta.warpCorners && options.showRoi) {
+    if (meta.roi && meta.templateCorners && options.showRoi) {
         // Map warped ROI bounds back to original coordinates
         const {minX, maxX, minY, maxY} = meta.roi.actualBounds
-        const p1 = getUnwarpedPoint({x: minX, y: minY}, meta.warpCorners)
-        const p2 = getUnwarpedPoint({x: maxX, y: minY}, meta.warpCorners)
-        const p3 = getUnwarpedPoint({x: maxX, y: maxY}, meta.warpCorners)
-        const p4 = getUnwarpedPoint({x: minX, y: maxY}, meta.warpCorners)
+        const warpSize = (meta.scaleInfo && meta.scaleInfo.isWarped) ? 2000 : null
 
-        ctx.lineWidth = 3
-        ctx.strokeStyle = '#0033ff'
-        ctx.beginPath()
-        ctx.moveTo(p1.x, p1.y)
-        ctx.lineTo(p2.x, p2.y)
-        ctx.lineTo(p3.x, p3.y)
-        ctx.lineTo(p4.x, p4.y)
-        ctx.closePath()
-        ctx.stroke()
-        
-        // Draw dashed safe zone if requested or useful
-        ctx.setLineDash([10, 5])
-        ctx.stroke()
-        ctx.setLineDash([])
+        if (warpSize) {
+            const p1 = getUnwarpedPoint({x: minX, y: minY}, meta.templateCorners, warpSize)
+            const p2 = getUnwarpedPoint({x: maxX, y: minY}, meta.templateCorners, warpSize)
+            const p3 = getUnwarpedPoint({x: maxX, y: maxY}, meta.templateCorners, warpSize)
+            const p4 = getUnwarpedPoint({x: minX, y: maxY}, meta.templateCorners, warpSize)
+
+            ctx.lineWidth = 3
+            ctx.strokeStyle = '#0033ff'
+            ctx.beginPath()
+            ctx.moveTo(p1.x, p1.y)
+            ctx.lineTo(p2.x, p2.y)
+            ctx.lineTo(p3.x, p3.y)
+            ctx.lineTo(p4.x, p4.y)
+            ctx.closePath()
+            //ctx.stroke()
+            
+            // Draw dashed safe zone if requested or useful
+            ctx.setLineDash([10, 5])
+            ctx.stroke()
+            ctx.setLineDash([])
+        } else {
+            ctx.lineWidth = 3
+            ctx.strokeStyle = '#0033ff'
+            ctx.strokeRect(minX, minY, maxX - minX, maxY - minY)
+            ctx.setLineDash([10, 5])
+            ctx.strokeRect(minX, minY, maxX - minX, maxY - minY)
+            ctx.setLineDash([])
+        }
     } else if (meta.roi && meta.roi.points && meta.roi.points.length >= 2 && options.showRoi) {
         ctx.lineWidth = 3
         ctx.strokeStyle = '#0033ff'
@@ -241,21 +253,21 @@ export async function renderOverlayPng(imageData, particles, meta = {}, options 
             const radiusY = (p.shortAxisPx || p.eqDiameterPx) / 2
             const rotation = p.angleRad || 0
             
-            ctx.strokeStyle = '#00ff00'
+            ctx.strokeStyle = '#0033ffaa'
             ctx.beginPath()
             ctx.ellipse(p.cxPx, p.cyPx, radiusX, radiusY, rotation, 0, Math.PI * 2)
             ctx.stroke()
 
             // Draw exact contour if available (slightly dimmer or different color)
             if (p.contour && p.contour.length > 0) {
-                ctx.strokeStyle = '#00ff0066' // Semi-transparent
+                ctx.strokeStyle = 'rgb(243,17,17)' // Semi-transparent
                 ctx.beginPath()
                 ctx.moveTo(p.contour[0].x, p.contour[0].y)
                 for (let i = 1; i < p.contour.length; i++) {
                     ctx.lineTo(p.contour[i].x, p.contour[i].y)
                 }
                 ctx.closePath()
-                ctx.stroke()
+                //ctx.stroke()
             }
         }
     }

@@ -1,7 +1,7 @@
 import * as CV_pkg from 'js-aruco2/src/cv.js'
 const _CV = CV_pkg.CV || CV_pkg.default?.CV || CV_pkg
 
-export function detectParticlesTest(maskObj, {minAreaPx = 8, _maxAreaMm2=10, externalLabels = null} = {}) {
+export function detectParticlesCandidate(maskObj, {minAreaPx = 8, _maxAreaMm2=10, externalLabels = null} = {}) {
     const {width, height, mask} = maskObj
     const labels = externalLabels || new Uint32Array(width * height)
     const particles = []
@@ -157,8 +157,8 @@ function finalizeParticle(comp, particleId) {
     const eqDiameterPx = 2 * Math.sqrt(comp.area / Math.PI)
     const common = Math.sqrt(Math.max(0, (mu20 - mu02) ** 2 + 4 * mu11 ** 2))
 
-    // Tighter factor (k=4.2) for coffee grounds in the Test pipeline
-    const k = 4.2 
+    // Tighter factor for coffee grounds in the Test pipeline
+    const k = 5.0 // was 4.2
     const majorPx = Math.sqrt(Math.max(0, k * (mu20 + mu02 + common)))
     const minorPx = Math.sqrt(Math.max(0, k * (mu20 + mu02 - common)))
 

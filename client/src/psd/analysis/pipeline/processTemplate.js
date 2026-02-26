@@ -97,10 +97,10 @@ export function processTemplate({
 
         if (innerPoints.length >= 3) {
             const validPoints = innerPoints.filter(p => p !== null)
-            const minX = Math.round(Math.min(...validPoints.map(p => p.x)) + (settings.insetPx || 20))
-            const maxX = Math.round(Math.max(...validPoints.map(p => p.x)) - (settings.insetPx || 20))
-            const minY = Math.round(Math.min(...validPoints.map(p => p.y)) + (settings.insetPx || 20))
-            const maxY = Math.round(Math.max(...validPoints.map(p => p.y)) - (settings.insetPx || 20))
+            const minX = Math.round(Math.min(...validPoints.map(p => p.x)) + (settings.insetPx || 8))
+            const maxX = Math.round(Math.max(...validPoints.map(p => p.x)) - (settings.insetPx || 8))
+            const minY = Math.round(Math.min(...validPoints.map(p => p.y)) + (settings.insetPx || 8))
+            const maxY = Math.round(Math.max(...validPoints.map(p => p.y)) - (settings.insetPx || 8))
             baseRoi = {points: validPoints, actualBounds: {minX, maxX, minY, maxY}}
         }
 
