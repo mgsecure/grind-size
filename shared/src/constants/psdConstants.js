@@ -19,10 +19,10 @@ export const PSD_DEFAULTS = {
     adaptiveC: 4,
     minAreaPx: 8,
     maxAreaMm2: 10,
-    bins: 30,
+    bins: 15,
     binsType: 'default', // 'auto' | 'default'
     binSpacing: 'log', // 'log' | 'linear'
-    weighting: 'count', // 'count' | 'surface' | 'volume' | 'mass'
+    weighting: 'mass', // 'count' | 'surface' | 'volume' | 'mass'
     metric: 'diameter', // 'diameter' | 'surface' | 'volume'
     chartMode: 'bar', // 'bar' | 'line'
     splitOverlaps: false,
@@ -90,7 +90,7 @@ export const PSD_PRESETS = {
 export const BIN_DEFAULTS = {
     min: 100,
     max: 2500,
-    nBins: 30
+    nBins: 15
 }
 
 

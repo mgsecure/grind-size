@@ -14,6 +14,8 @@ import {calculateStatistics} from './metrics/calculateStatistics.js'
 import {renderMaskPng, renderOverlayPng, renderDiagnosticPng} from './render/renderOutputs.js'
 import {getFileNameWithoutExtension} from '../../util/stringUtils.js'
 
+const debug = false
+
 export async function analyzeImageFiles(file, settings, manualCorners = null, overlayOptions = null, altFilename=null,) {
     const startedAt = new Date().toISOString()
 
@@ -48,7 +50,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         pxPerMm,
         baseRoi} = scaleInfo
 
-    console.log('Template info:', scaleInfo)
+    debug && console.log('Template info:', scaleInfo)
 
     let roi = {...baseRoi}
 
@@ -96,7 +98,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
             markerCount: template.markers.length,
             isWarped: correctPerspective && presentCorners.length === 4
         }
-        console.log('Scale info:', scaleInfo)
+        debug && console.log('Scale info:', scaleInfo)
     }
 
 
@@ -108,7 +110,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
 
     // Filter particles by ROI and size if present
     const detectFn = testPipeline ? detectParticlesTest : detectParticles
-    console.log(`Using detection function: ${testPipeline ? 'detectParticlesTest' : 'detectParticles'}`)
+    debug && console.log(`Using detection function: ${testPipeline ? 'detectParticlesTest' : 'detectParticles'}`)
     let detectResult
     try {
         detectResult = detectFn(mask, {minAreaPx: settings.minAreaPx})
@@ -117,14 +119,14 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         throw e
     }
 
-    console.log('Initial particle detection:', detectResult)
+    debug && console.log('Initial particle detection:', detectResult)
 
     // Optional Overlap Separation (Watershed)
     const overlapParticles = settings.splitOverlaps ? separateOverlaps(detectFn, detectResult, cleaned, settings) : []
 
     let particles = overlapParticles.length > 0 ? overlapParticles : detectResult.particles
 
-    console.log(`Initial detection: ${particles.length} particles`)
+    debug && console.log(`Initial detection: ${particles.length} particles`)
 
     if (particles.length === 0) {
         throw new Error('No particles detected. Check your threshold settings or image quality.')
@@ -135,7 +137,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
     const maxAreaPx = maxAreaMm2 * (scaleInfo.pxPerMm ** 2)
 
     particles = particles.filter(p => p.areaPx <= maxAreaPx)
-    console.log(`After size filtering (maxAreaPx: ${maxAreaPx}): ${particles.length} particles`)
+    debug && console.log(`After size filtering (maxAreaPx: ${maxAreaPx}): ${particles.length} particles`)
 
     if (particles.length === 0) {
         throw new Error('All detected particles were filtered out (too large). Adjust Max Surface setting.')
@@ -146,7 +148,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         particles = particles.filter(p =>
             p.cxPx >= minX && p.cxPx <= maxX && p.cyPx >= minY && p.cyPx <= maxY
         )
-        console.log(`After ROI filtering: ${particles.length} particles`)
+        debug && console.log(`After ROI filtering: ${particles.length} particles`)
     }
 
     if (particles.length === 0) {
@@ -174,7 +176,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
             return !isMarker
         })
         if (particles.length !== prevCount) {
-            console.log(`Excluded ${prevCount - particles.length} particles overlapping markers`)
+            debug && console.log(`Excluded ${prevCount - particles.length} particles overlapping markers`)
         }
     }
 
@@ -300,7 +302,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         let diagnosticValidIds = filteredValidIds
 
         if (scaleInfo.isWarped) {
-            console.log('Diagnostic View: Image was warped. Re-running thresholding on original image for diagnostic overlay.')
+            debug && console.log('Diagnostic View: Image was warped. Re-running thresholding on original image for diagnostic overlay.')
             // Run thresholding on original image for diagnostic view overlay
             const grayOrig = normalizeLighting(imageData, {bgSigma: settings.bgSigma})
             const maskOrig = adaptiveThreshold(grayOrig, {blockSize: settings.adaptiveBlockSize, C: settings.adaptiveC})

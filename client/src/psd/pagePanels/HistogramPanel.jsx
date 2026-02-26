@@ -7,11 +7,13 @@ import ShowChartIcon from '@mui/icons-material/ShowChart'
 import {useTheme} from '@mui/material/styles'
 import ScaleLinearIcon from '../resources/ScaleLinearIcon.jsx'
 import ScaleLogIcon from '../resources/ScaleLogIcon.jsx'
-import {line} from 'd3-shape'
+import {line, curveLinear, curveCardinal} from 'd3-shape'
 import DataContext from '../../context/DataContext.jsx'
 import ScreenshotElementButton from '../components/ScreenshotElementButton.jsx'
 import UIContext from '../../context/UIContext.jsx'
 import ItemInformationButton from '../components/ItemInformationButton.jsx'
+import CurveLinearIcon from '../resources/CurveLinearIcon.jsx'
+import CurveCardinalIcon from '../resources/CurveCardinalIcon.jsx'
 
 function fmtNumber(n, digits = 2) {
     if (!Number.isFinite(n)) return '—'
@@ -20,7 +22,10 @@ function fmtNumber(n, digits = 2) {
 
 export default function HistogramPanel({domEl}) {
     const {
+        allItems,
         activeItems,
+        activeIdList,
+        aggregateQueueItem,
         xAxis,
         yAxis, setYAxis,
         settings, setSettings,
@@ -32,23 +37,37 @@ export default function HistogramPanel({domEl}) {
 
     const [settingsItem, setSettingsItem] = useState([])
     const [settingsOpen, setSettingsOpen] = useState(false)
-    const openSettings = useCallback((id) => {
-        setSettingsItem(activeItems.find(item => item.filename === id))
+
+    const openSettings = useCallback((e, id) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setSettingsItem(allItems.find(item => item.sampleName === id))
         setSettingsOpen(true)
         document.activeElement.blur()
-    }, [activeItems])
-    const closeSettings = useCallback(() => setSettingsOpen(false), [])
+    }, [allItems])
+    const closeSettings = useCallback(() => {
+        document.activeElement.blur()
+        setSettingsOpen(false)
+    }, [])
 
 
     //TODO: Skip every other tick on mobile
-    //TODO: add aggregate to bar chart legend if displayed
 
     const [chartMode, setChartMode] = useState('bar')
-    const aggregateItem = activeItems.find(item => item.filename === 'Aggregate')
+    const [chartCurve, setChartCurve] = useState('linear')
     const maxY = binSpacing === 'log' ? globalMaxY.logMax : globalMaxY.linearMax
-    const showAggregate = aggregateItem && activeItems.length === 1
 
-    const legendItems = activeItems.map((item, idx) => ({id: item.filename, color: chartColors[idx]}))
+    // show aggregate in normal chart if only series remaining
+    const showAggregate = activeIdList.includes(aggregateQueueItem?.id) && activeIdList.length === 1
+
+    const sampleNames = allItems.reduce((acc, item) => {
+        acc[item.id] = item.sampleName
+        return acc
+    },{})
+
+    const legendItems = allItems
+        .filter(item => activeIdList.includes(item.id))
+        .map((item, idx) => ({id: item.sampleName, color: chartColors[idx]}))
 
     const theme = useTheme()
     const tickLegendColor = theme.palette.text.primary
@@ -74,12 +93,12 @@ export default function HistogramPanel({domEl}) {
         }
         const yLab = yLabels[yAxis] || '% of Particles'
 
-        if (!activeItems?.length) {
+        if (!activeIdList?.length) {
             return {chartData: [], lineData: [], xLabel: xLab, yLabel: yLab, keys: []}
         }
 
         const itemsWithHist = activeItems && activeItems
-            .filter(item => (showAggregate || item.filename !== 'Aggregate'))
+            .filter(item => (showAggregate || item.id !== aggregateQueueItem?.id))
             .filter(item => {
                 const hist = binSpacing === 'log' ? item.histograms?.log : item.histograms?.linear
                 return hist?.bins?.length && hist?.values?.length
@@ -89,7 +108,7 @@ export default function HistogramPanel({domEl}) {
             return {chartData: [], lineData: [], xLabel: xLab, yLabel: yLab, keys: []}
         }
 
-        const seriesKeys = itemsWithHist.map(item => item.filename)
+        const seriesKeys = itemsWithHist.map(item => item.id)
 
         // Use the first item's bins as the master set of bins for the X-axis
         const firstHist = binSpacing === 'log' ? itemsWithHist[0].histograms.log : itemsWithHist[0].histograms.linear
@@ -98,17 +117,18 @@ export default function HistogramPanel({domEl}) {
             const entry = {
                 bin: fmtNumber(b.center, xAxis === 'diameter' ? 1 : 0),
                 lowerBound: b.start,
-                upperBound: b.end
+                upperBound: b.end,
             }
             itemsWithHist.forEach(item => {
                 const h = binSpacing === 'log' ? item.histograms.log : item.histograms.linear
                 // We assume all items have the same bins if they were analyzed with the same settings
-                entry[item.filename] = h.values[i]?.percent ?? 0
+                entry[item.id] = h.values[i]?.percent ?? 0
+                entry.sampleName = item.sampleName
             })
 
-            if (aggregateItem) {
-                const h = binSpacing === 'log' ? aggregateItem.histograms.log : aggregateItem.histograms.linear
-                entry.Aggregate = aggregateItem ? h.values[i]?.percent ?? 0 : undefined
+            if (aggregateQueueItem && activeIdList.includes(aggregateQueueItem?.id)) {
+                const h = binSpacing === 'log' ? aggregateQueueItem.result.histograms.log : aggregateQueueItem.result.histograms.linear
+                entry.Aggregate = (aggregateQueueItem && activeIdList.includes(aggregateQueueItem?.id)) ? h.values[i]?.percent ?? 0 : undefined
             }
             return entry
         })
@@ -116,18 +136,19 @@ export default function HistogramPanel({domEl}) {
         const lData = itemsWithHist.map(item => {
             const h = binSpacing === 'log' ? item.histograms.log : item.histograms.linear
             return {
-                id: item.filename,
+                id: item.id,
                 data: h.bins.map((b, i) => ({
                     x: fmtNumber(b.center, xAxis === 'diameter' ? 1 : 0),
                     y: h.values[i]?.percent ?? 0,
                     lowerBound: b.start,
-                    upperBound: b.end
+                    upperBound: b.end,
+                    seriesName: item.sampleName,
                 }))
             }
         })
 
         // Add Aggregate line data
-        !showAggregate && aggregateItem && lData.push({
+        !showAggregate && activeIdList.includes(aggregateQueueItem?.id) && lData.push({
             id: 'Aggregate',
             data: cData.map(d => ({
                 x: d.bin,
@@ -138,12 +159,13 @@ export default function HistogramPanel({domEl}) {
         })
 
         return {chartData: cData, lineData: lData, xLabel: xLab, yLabel: yLab, keys: seriesKeys}
-    }, [xAxis, yAxis, activeItems, binSpacing, aggregateItem, showAggregate])
+    }, [xAxis, yAxis, activeItems, binSpacing, showAggregate, aggregateQueueItem, activeIdList])
 
     const aggregateBarLineLayer = ({bars, xScale, yScale}) => {
         const lineGenerator = line()
             .x(d => xScale(d.data.data.bin) + d.width / 2) // Center point on the bar
             .y(d => yScale(d.data.data.Aggregate))       // 'Aggregate' is calculated in chartData
+            .curve(chartCurve === 'linear' ? curveLinear : curveCardinal)
         const uniqueBins = []
         const seenBins = new Set()
         bars.forEach(bar => {
@@ -154,7 +176,7 @@ export default function HistogramPanel({domEl}) {
             }
         })
         uniqueBins.sort((a, b) => xScale(a.data.data.bin) - xScale(b.data.data.bin))
-        return (aggregateItem && !showAggregate
+        return (activeIdList.includes(aggregateQueueItem?.id) && !showAggregate
                 ? <path
                     d={lineGenerator(uniqueBins)}
                     fill='none'
@@ -170,6 +192,7 @@ export default function HistogramPanel({domEl}) {
         const lineGenerator = line()
             .x(d => xScale(d.data.x))
             .y(d => yScale(d.data.y))
+            .curve(chartCurve === 'linear' ? curveLinear : curveCardinal)
         return (<g>
                 {series
                     .map(({id, data, color}) => (
@@ -190,7 +213,6 @@ export default function HistogramPanel({domEl}) {
     const commonProps = {
         margin: {top: 20, right: 10, bottom: 60, left: 40},
         colors: chartColors,
-        curve: 'basis',
         enableLabel: false,
         onClick: swapColors,
         theme: {
@@ -232,7 +254,7 @@ export default function HistogramPanel({domEl}) {
         tooltip: ({id, value, color, data}) => (
             <Paper sx={{p: 1, border: `1px solid ${color}`}}>
                 <Typography variant='body2' sx={{fontWeight: 'bold'}} style={{color}}>
-                    {id}
+                    {sampleNames[id]}
                 </Typography>
                 <Typography variant='body2' style={{whiteSpace: 'nowrap'}}>
                     Range: {fmtNumber(data.lowerBound, 1)} – {fmtNumber(data.upperBound, 1)}
@@ -268,7 +290,7 @@ export default function HistogramPanel({domEl}) {
                             backgroundColor: point.seriesId === 'Aggregate' ? aggregateColor : point.seriesColor
                         }}/>
                         <Typography variant='body2' style={{whiteSpace: 'nowrap'}}>
-                            <strong>{point.seriesId}:</strong> {fmtNumber(point.data.y, 2)}%
+                            <strong>{point.seriesId === 'Aggregate' ? 'Aggregate' : sampleNames[point.seriesId]}:</strong> {fmtNumber(point.data.y, 2)}%
                         </Typography>
                     </Box>
                 ))}
@@ -292,21 +314,33 @@ export default function HistogramPanel({domEl}) {
                 <ScreenshotElementButton domEl={domEl} filename={`psd-results_${activeFilename}`}/>
             </Stack>
 
-            <Stack direction='row' alignItems='center' flexWrap='wrap' justifyContent='space-between'
+            <Stack direction='row' spacing={1} alignItems='center' flexWrap='wrap' justifyContent='space-between'
                    style={!chartData.length ? disabledStyle : undefined}>
                 <ToggleButtonGroup
                     size='small'
                     value={yAxis}
                     exclusive
-                    onChange={(_, v) => {
-                        if (v) {
-                            setYAxis(v)
-                        }
-                    }}
+                    onChange={(_, v) => {if (v) {setYAxis(v)}}}
+                    style={{margin: '10px 10px 10px 0'}}
                 >
                     <ToggleButton value='mass'>Mass</ToggleButton>
                     <ToggleButton value='surface'>Surface Area</ToggleButton>
                     <ToggleButton value='count'>Count</ToggleButton>
+                </ToggleButtonGroup>
+
+                <ToggleButtonGroup
+                    size='small'
+                    value={binSpacing}
+                    exclusive
+                    onChange={(_, v) => v && setBinSpacing(v)}
+                    style={{margin: '10px 10px 10px 10px'}}
+                >
+                    <ToggleButton value='log' style={{padding: 9}}>
+                        <ScaleLogIcon width={18} height={18} style={{margin: '0px 1px'}}/>
+                    </ToggleButton>
+                    <ToggleButton value='linear' style={{padding: 9}}>
+                        <ScaleLinearIcon width={18} height={18} style={{margin: '0px 1px'}}/>
+                    </ToggleButton>
                 </ToggleButtonGroup>
 
                 <Stack direction='row' alignContent='center' justifyContent='flex-end' sx={{mb: 0, flexGrow: 1}}>
@@ -327,30 +361,31 @@ export default function HistogramPanel({domEl}) {
                 </Stack>
 
                 <Stack direction='row' alignItems='center' justifyContent={isDesktop ? 'flex-end' : 'flex-start'}
-                       sx={{mb: 1, flexGrow: 1}}>
+                       sx={{flexGrow: 1}}>
 
                     <ToggleButtonGroup
                         size='small'
                         value={chartMode}
                         exclusive
                         onChange={(_, v) => v && setChartMode(v)}
-                        style={{marginRight: isDesktop ? 20 : 10}}
+                        style={{margin: '10px 10px 10px 10px'}}
                     >
-                        <ToggleButton value='bar'><BarChartIcon/></ToggleButton>
-                        <ToggleButton value='line'><ShowChartIcon/></ToggleButton>
+                        <ToggleButton value='bar' style={{}}><BarChartIcon/></ToggleButton>
+                        <ToggleButton value='line' style={{}}><ShowChartIcon/></ToggleButton>
                     </ToggleButtonGroup>
 
                     <ToggleButtonGroup
                         size='small'
-                        value={binSpacing}
+                        value={chartCurve}
                         exclusive
-                        onChange={(_, v) => v && setBinSpacing(v)}
+                        onChange={(_, v) => v && setChartCurve(v)}
+                        style={{margin: '10px 0px 10px 10px'}}
                     >
-                        <ToggleButton value='log' style={{padding: 8}}>
-                            <ScaleLogIcon width={20} height={20}/>
+                        <ToggleButton value='linear' style={{}}>
+                            <CurveLinearIcon width={16} height={16} style={{margin: '4px 5px'}}/>
                         </ToggleButton>
-                        <ToggleButton value='linear' style={{padding: 8}}>
-                            <ScaleLinearIcon width={20} height={20}/>
+                        <ToggleButton value='curve' >
+                            <CurveCardinalIcon width={16} height={16} style={{margin: '4px 5px'}}/>
                         </ToggleButton>
                     </ToggleButtonGroup>
 
@@ -437,7 +472,7 @@ export default function HistogramPanel({domEl}) {
                 {legendItems.map(li => (
                     <Box key={li.id} sx={{display: 'flex', alignItems: 'center', gap: 0.5}} style={{marginTop: 12}}>
                         <Box sx={{width: 14, height: 14, backgroundColor: li.color}}
-                             onClick={() => openSettings(li.id)}/>
+                             onClick={(e) => openSettings(e, li.id)}/>
                         <Typography style={{fontSize: '0.75rem'}}>{li.id}</Typography>
                     </Box>
                 ))}

@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useEffect} from 'react'
+import React, {useCallback, useContext, useEffect, useMemo} from 'react'
 import {
     List,
     Paper,
@@ -29,57 +29,64 @@ export default function UploadQueuePanel() {
     const {
         droppedFiles,
         onFiles: handleDroppedFiles,
-        allItems,
+        queue,
+        aggregateQueueItem = {},
         handleQueueRemove,
         activeIdList, setActiveIdList,
-        processMultipleSettings,
+        processMultipleSettings
     } = useContext(DataContext)
 
     const {chartColors, isDesktop} = useContext(UIContext)
 
-    const selectEnabled = allItems.length > 1 || activeIdList.length === 0
+    const selectEnabled = queue.length > 1 || activeIdList.length === 0
 
-    const validIdList = allItems
-        .filter(item => (item.status === 'done' && !item.filename?.includes('aggregateResults')))
+    const fullQueue = useMemo(() => {
+        return aggregateQueueItem?.result ? [...queue, aggregateQueueItem] : queue
+    }, [queue, aggregateQueueItem])
+
+    const validIdList = fullQueue
+        .filter(item => (item.status === 'done'))
         .map(item => item.id)
     const validActiveIdList = activeIdList.filter(id => validIdList.includes(id))
+
+    const colorMap = validActiveIdList.reduce((acc, id, idx) => {
+        acc[id] = chartColors[idx]
+        return acc
+    }, {})
+
 
     const handleSelect = useCallback((id) => {
         if (!selectEnabled) return
         const newList = activeIdList.includes(id)
             ? activeIdList.filter(i => i !== id)
             : [...activeIdList, id]
-        const allItemIds = allItems.map(item => item.id)
+        const allItemIds = fullQueue.map(item => item.id)
         setActiveIdList(newList.sort((a, b) => allItemIds.indexOf(a) - allItemIds.indexOf(b)))
-    }, [activeIdList, allItems, selectEnabled, setActiveIdList])
+    }, [activeIdList, fullQueue, selectEnabled, setActiveIdList])
 
     useEffect(() => {
         if (activeIdList.length === 0 && validIdList.length > 0) {
-            console.log('no active items, selecting first item')
+            //console.log('no active items, selecting first item')
             //validIdList[0] && handleSelect(validIdList[0])
-        } else if (allItems.length === 1 && activeIdList.includes('aggregateResults')) {
-            console.log('only one active item, clearing aggregateResults')
-            setActiveIdList(prev => prev.filter(i => i !== 'aggregateResults'))
-        } else if (allItems.length === 0 && activeIdList.length > 0) {
+        } else if (queue.length === 1 && activeIdList.includes(aggregateQueueItem?.id)) {
+            console.log('only one active item, clearing CurrentAggregateResults')
+            setActiveIdList(prev => prev.filter(i => i !== aggregateQueueItem?.id))
+        } else if (queue.length === 0 && activeIdList.length > 0) {
             console.log('no active items, clearing selection')
             setActiveIdList([])
         }
-    }, [activeIdList, handleSelect, allItems, setActiveIdList, validIdList])
+    }, [activeIdList, aggregateQueueItem, handleSelect, queue, setActiveIdList, validIdList])
 
-    const handleDelete = (id) => {
+    const handleDelete = useCallback((id) => {
         handleQueueRemove(id)
-        const newActiveIdList = activeIdList.filter(i => (i !== id && allItems.find(q => q.id === i)))
+        const newActiveIdList = activeIdList.filter(i => (i !== id && queue.find(q => q.id === i)))
         setActiveIdList(newActiveIdList)
-    }
-
+    }, [activeIdList, handleQueueRemove, queue, setActiveIdList])
 
     return (
         <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
-
-            <Stack direction='row' alignItems='center' justifyContent='space-between'
-                   sx={{width: '100%'}}>
-
-                <Typography style={{fontSize: '1.1rem', fontWeight: 500}}>IMAGES</Typography>
+            <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{width: '100%'}}>
+                <Typography style={{fontSize: '1.1rem', fontWeight: 500}}>IMAGE QUEUE</Typography>
                 <ImportButton text={true}/>
             </Stack>
             <Stack direction='column' spacing={1} sx={{width: '100%'}}>
@@ -101,99 +108,113 @@ export default function UploadQueuePanel() {
                             messgageStyle={{fontSize: '0.9rem', height: '100%', margin: '4px 0px'}}
                         />
                     </Box>
-                    {allItems.length > 0 &&
+                    {fullQueue.length > 0 &&
                         <Stack direction='column' spacing={1} sx={{width: '100%'}}>
 
                             <List dense sx={{}} style={{width: '100%'}}>
-                                {allItems.map(item => (
+                                {fullQueue.map(item => (
                                     <ListItem
                                         key={item.id}
                                         selected={activeIdList.includes(item.id)}
-                                        style={{cursor: selectEnabled ? 'pointer' : 'default', padding: 10}}
+                                        style={{
+                                            cursor: selectEnabled ? 'pointer' : 'default',
+                                            padding: '4px 8px',
+                                            minHeight: 44
+                                        }}
                                         sx={{
                                             backgroundColor: activeIdList.includes(item.id) ? theme.palette.divider : 'inherit',
                                             '&:hover': selectEnabled ? {backgroundColor: theme.palette.action.hover} : {}
                                         }}
                                         onClick={() => (item.status === 'done') && handleSelect(item.id)}
                                         secondaryAction={
-                                            item.id !== 'aggregateResults'
-                                                ? <>
-                                                    <Stack direction='row' alignItems='center' sx={{marginLeft: 10}}>
-                                                        {!Object.keys(PSD_PRESETS).some(s => item.filename?.includes(`-${s}`)) &&
-                                                            item.status === 'done' &&
-                                                            item.source !== 'import' &&
-                                                            <IconButton
-                                                                onClick={() => processMultipleSettings(item.id)}
-                                                                disabled={!validActiveIdList.includes(item.id)}
-                                                            >
-                                                                <TroubleshootIcon fontSize='small'
-                                                                                  style={{
-                                                                                      color: theme.palette.text.secondary,
-                                                                                      opacity: item.status === 'done'
-                                                                                          ? 1.0
-                                                                                          : 0.5,
-                                                                                      marginRight: 10
-                                                                                  }}/>
-                                                            </IconButton>
-                                                        }
-                                                        {!Object.keys(PSD_PRESETS).some(s => item.filename?.includes(`-${s}`)) &&
-                                                            item.status === 'done' &&
-                                                            item.source !== 'import' &&
-                                                            <Box sx={{display: 'flex', alignItems: 'center'}}>
-                                                                <RefreshSingleButton id={item.id}/>
-                                                            </Box>
-                                                        }
-
-                                                        <ItemInformationButton item={item}/>
-
-                                                        <IconButton edge='end' aria-label='delete' size='small'
-                                                                    onClick={() => handleDelete(item.id)}>
-                                                            <DeleteIcon fontSize='small'/>
-                                                        </IconButton>
-                                                    </Stack>
-                                                </>
-                                                : <Button onClick={() => handleDelete('all')}>Remove All</Button>
-
+                                            item.id === 'CurrentAggregateResults' &&
+                                            <Button onClick={() => handleDelete('all')}>Remove All</Button>
                                         }>
 
-                                        <Stack direction='row' alignItems='center'>
-                                            {activeIdList.includes(item.id)
-                                                ? <CheckBoxIcon fontSize='small'
-                                                                style={{
-                                                                    marginRight: 12,
-                                                                    color: chartColors?.[activeIdList.indexOf(item.id)]
-                                                                }}/>
-                                                : <CheckBoxOutlineBlankIcon fontSize='small'
-                                                                            style={{
-                                                                                marginRight: 12,
-                                                                                color: theme.palette.divider
-                                                                            }}/>
+                                        <Stack direction='row' alignItems='center' justifyContent='space-between'
+                                               sx={{width: '100%'}}>
+                                            <Stack direction={'row'} alignItems='center'
+                                                   sx={{flexGrow: 1, width: '100%'}}>
+                                                {activeIdList.includes(item.id)
+                                                    ? <CheckBoxIcon
+                                                        fontSize='small'
+                                                        style={{
+                                                            marginRight: 8,
+                                                            color: colorMap[item.id] || theme.palette.divider,
+                                                        }}/>
+                                                    : <CheckBoxOutlineBlankIcon
+                                                        fontSize='small'
+                                                        style={{marginRight: 8, color: theme.palette.divider}}/>
+                                                }
+
+                                                <Stack direction={isDesktop ? 'row' : 'column'}
+                                                       alignItems={isDesktop ? 'center' : 'column'}
+                                                       justifyContent='left' justifyItems='left'
+                                                       sx={{flexGrow: 1, width: '100%'}}>
+
+                                                    <div style={{
+                                                        color: item.status === 'done' ? theme.palette.text.primary : theme.palette.text.secondary,
+                                                        fontWeight: item.status === 'done' ? 600 : 400,
+                                                        fontSize: '0.9rem', marginLeft: 8,
+                                                        textAlign: 'left'
+                                                    }}>
+                                                        {item.sampleName || item.file?.name || 'Unnamed Sample'}
+                                                    </div>
+
+                                                    <div style={{
+                                                        color: item.status === 'error' ? theme.palette.error.main : theme.palette.text.secondary,
+                                                        fontSize: '0.9rem', marginLeft: 8
+                                                    }}>
+                                                        {item.id !== 'CurrentAggregateResults' &&
+                                                            <>{item.status === 'done' ? item.result?.settings?.name : item.status}</>
+                                                        }
+                                                        {item.id !== 'CurrentAggregateResults' &&
+                                                            <>{item.source && item.source !== 'upload' && ` (${item.source})`}</>
+                                                        }
+                                                    </div>
+                                                </Stack>
+                                            </Stack>
+
+                                            {!item.id.includes('CurrentAggregateResults') &&
+                                                <Stack direction='row' alignItems='center'
+                                                       sx={{marginLeft: 1, flexGrow: 0}}>
+                                                    {!Object.keys(PSD_PRESETS).some(s => item.filename?.includes(`-${s}`)) &&
+                                                        item.status === 'done' &&
+                                                        item.source !== 'import' &&
+                                                        <IconButton
+                                                            onClick={() => processMultipleSettings(item.id)}
+                                                            disabled={!validActiveIdList.includes(item.id)}
+                                                        >
+                                                            <TroubleshootIcon fontSize='small'
+                                                                              style={{
+                                                                                  color: theme.palette.text.secondary,
+                                                                                  opacity: item.status === 'done'
+                                                                                      ? 1.0
+                                                                                      : 0.5,
+                                                                                  marginRight: 0
+                                                                              }}/>
+                                                        </IconButton>
+                                                    }
+                                                    {!Object.keys(PSD_PRESETS).some(s => item.filename?.includes(`-${s}`)) &&
+                                                        item.status === 'done' &&
+                                                        item.source !== 'import' &&
+                                                        <Box sx={{display: 'flex', alignItems: 'center'}}>
+                                                            <RefreshSingleButton id={item.id}/>
+                                                        </Box>
+                                                    }
+
+                                                    {['done', 'error'].includes(item.status) &&
+                                                        <ItemInformationButton item={item}/>
+                                                    }
+                                                    <IconButton edge='end' aria-label='delete' size='small'
+                                                                onClick={() => handleDelete(item.id)}>
+                                                        <DeleteIcon fontSize='small'/>
+                                                    </IconButton>
+                                                </Stack>
                                             }
-
-                                            <span style={{
-                                                color: item.status === 'done' ? theme.palette.text.primary : theme.palette.text.secondary,
-                                                fontWeight: item.status === 'done' ? 600 : 400,
-                                                fontSize: '0.9rem', marginLeft: 8
-                                            }}>
-                                            {item.filename}
-                                        </span>
-
-                                            <span style={{
-                                                color: item.status === 'error' ? theme.palette.error.main : theme.palette.text.secondary,
-                                                fontSize: '0.9rem', marginLeft: 8
-                                            }}>
-                                                {item.id !== 'aggregateResults' &&
-                                                    <>{item.status === 'done' ? item.settings?.name : item.status}</>
-                                                }
-                                                {item.id !== 'aggregateResults' &&
-                                                    <>{item.source !== 'upload' && ` (${item.source})`}</>
-                                                }
-                                             </span>
                                         </Stack>
-
                                     </ListItem>
                                 ))}
-
                             </List>
 
                             <Stack direction='row' alignItems='center' justifyContent='space-between'

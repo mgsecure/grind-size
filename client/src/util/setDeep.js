@@ -32,6 +32,18 @@ export function setDeepPush(obj, path, value) {
     setDeepBase(obj, path, value, (a, b) => (a ? [...a, b] : [b]))
 }
 
+export function setDeepJoin(obj, path, value) {
+    setDeepBase(obj, path, value, (a, b) => (a ? [...a, ...b] : b))
+}
+
 export function setDeepUnique(obj, path, value) {
     setDeepBase(obj, path, value, (a, b) => (a ? [...new Set([...a, b])] : [b]))
+}
+
+export function setDeepMultiple(obj, path, value) {
+    setDeepBase(obj, path, value, (a, _b) => {
+        if (a === undefined) return value
+        if (a === value) return a
+        return 'multiple'
+    })
 }

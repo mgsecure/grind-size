@@ -17,11 +17,15 @@ import {convertHistogramToCsv, convertParticlesToCsv, convertStatsToCsv, downloa
 import {Switch} from '@mui/material'
 import Divider from '@mui/material/Divider'
 import UIContext from '../../context/UIContext.jsx'
+import {setDeep} from '../../util/setDeep.js'
+import genHexString from '../../util/genHexString.js'
 
 export default function ExportButton({text}) {
 
-    const {queue, activeIdList, processingComplete, binSpacing, isDesktop} = useContext(DataContext)
+    const {queue, activeIdList, processingComplete, binSpacing, isDesktop, aggregateQueueItem} = useContext(DataContext)
     const {altButtonColor} = useContext(UIContext)
+
+    //console.log('aggregateQueueItem', aggregateQueueItem)
 
     const cleanedQueue = queue
         .filter(item => activeIdList.includes(item.id))
@@ -58,6 +62,25 @@ export default function ExportButton({text}) {
         }
         handleClose()
     }, [handleClose, isDesktop])
+
+    const handleExportAggregate = useCallback(() => {
+
+        if (!isDesktop) {
+            enqueueSnackbar('Exports only available on desktop at this time.', {variant: 'warning'})
+            handleClose()
+            return
+        }
+
+        const aggregateExport = {...aggregateQueueItem}
+        setDeep(aggregateExport, ['id'], `aggregateExport_${genHexString(8)}`)
+        setDeep(aggregateExport, ['file', 'name'], 'Aggregate Results Export')
+        setDeep(aggregateExport, ['result', 'filename'], 'Aggregate Results Export')
+        setDeep(aggregateExport, ['sampleName'], 'Aggregate Results Export')
+
+        handleExportJson([aggregateExport], 'aggregate-export')
+
+        handleClose()
+    }, [aggregateQueueItem, handleClose, handleExportJson, isDesktop])
 
     const exportAllCsv = useCallback(() => {
         if (isDesktop) {
@@ -104,6 +127,13 @@ export default function ExportButton({text}) {
                         <CodeIcon fontSize='small'/>
                     </ListItemIcon>
                     <ListItemText>Full Import/Export (JSON)</ListItemText>
+                </MenuItem>
+
+                <MenuItem style={menuItemStyle} onClick={handleExportAggregate}>
+                    <ListItemIcon>
+                        <CodeIcon fontSize='small'/>
+                    </ListItemIcon>
+                    <ListItemText>Aggregate Sample (JSON)</ListItemText>
                 </MenuItem>
 
                 <MenuItem style={menuItemStyle} onClick={exportAllCsv}>

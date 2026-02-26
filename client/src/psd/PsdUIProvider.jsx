@@ -10,14 +10,8 @@ export default function PsdUIProvider({children}) {
     const theme = useTheme()
     const {isDesktop, isMobile} = useWindowSize()
     const {
-        allItems, activeIdList
+        queue, activeIdList, aggregateQueueItem
     } = useContext(DataContext)
-
-    const validIdList = useMemo(() => allItems
-        .filter(item => (item.status === 'done' && !item.id?.includes('aggregateResults')))
-        .map(item => item.id), [allItems])
-
-    const validActiveIdList = useMemo(() => validIdList.filter(id => activeIdList.includes(id)), [validIdList, activeIdList])
 
     const [reverseColors, setReverseColors] = useState(false)
     const swapColors = useCallback(() => setReverseColors(!reverseColors), [reverseColors])
@@ -30,18 +24,25 @@ export default function PsdUIProvider({children}) {
             ? ['#1f78b4', '#a6cee3', '#f47560', '#e8c1a0', '#33a02c', '#b2df8a']
             : ['#1f78b4', '#a6cee3', '#f47560', '#e8c1a0', '#33a02c', '#b2df8a']
         , [theme.palette.mode])
-    const currentColors = reverseColors ? swappedColors : allColors
-    const aggregateColor = theme.palette.mode === 'dark' ? '#eeee33' : '#eeee33'
+    const currentColors = useMemo(() => reverseColors
+            ? [...swappedColors, ...swappedColors]
+            : [...allColors, ...allColors]
+        , [reverseColors, allColors, swappedColors])
+
+    const aggregateColor = useMemo(() => theme.palette.mode === 'dark' ? '#eeee33' : '#eeee33'
+        , [theme.palette.mode])
+
+    const validIdList = useMemo(() => queue
+        .filter(item => (item.status === 'done' && item.id !== aggregateQueueItem?.id))
+        .map(item => item.id), [aggregateQueueItem?.id, queue])
 
     const chartColors = useMemo(() => {
             const sampleColors = validIdList.map((id, index) => {
                 const color = currentColors[index]
-                if (activeIdList.includes(id)) return color
+                if (queue.find(item => item.id === id) && activeIdList.includes(id)) return color
             }).filter(c => c)
-
             return [...sampleColors, aggregateColor]
-
-        }, [activeIdList, aggregateColor, currentColors, validIdList])
+        }, [queue, activeIdList, aggregateColor, currentColors, validIdList])
 
     const value = useMemo(() => ({
         theme,

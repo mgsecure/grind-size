@@ -92,11 +92,8 @@ export default function SettingsPanel() {
     return (
         <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
             <Stack direction='row' alignItems='flex-end' sx={{fontSize: '1.1rem', fontWeight: 500}}>
-
                 <span style={{marginRight: 10}}>SETTINGS</span>
-
                 <HelpContentDrawerButton markdown={String(helpSettings)}/>
-
             </Stack>
 
 

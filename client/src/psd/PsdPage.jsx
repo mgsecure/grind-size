@@ -41,8 +41,8 @@ export default function PsdPage() {
                     {!isDesktop && <br/>}
                     <span style={{fontWeight: 300}}> PARTICLE SIZE DISTRIBUTION</span>
                 </Typography>
-                <Typography variant='body2' color='text.secondary'>
-                    Upload up to 6 images.
+                <Typography variant='body2' color='text.secondary' style={{marginTop: 4}}>
+                    Intro copy and help links will go here.
                 </Typography>
             </Paper>
 

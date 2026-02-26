@@ -14,40 +14,46 @@ import Collapse from '@mui/material/Collapse'
 import ErrorIcon from '@mui/icons-material/Error'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 
-export default function ItemInformationButton({item, imageViewer = false, noButton = false, openOverride = false, onClose}) {
-    if (!item) return null
+export default function ItemInformationButton({item, imageViewer = false, noButton = false, openOverride = false, onClose = () => {}}) {
+    if (!item || !item.result) return null
 
-    const {filename = 'sample', scale = {}, stats = {}, settings = {}} = item
+    const {sampleName = 'sample', result = {}} = item
+    const {settings = {}, stats = {}, scale = {}} = result
 
     const theme = useTheme()
     const [open, setOpen] = useState(false)
-    const [name, setName] = useState(item.filename || 'sample')
+    const [name, setName] = useState(item.sampleName || 'sample')
     const [editOpen, setEditOpen] = useState(false)
 
     useEffect(() => {
-        setName(item.filename || 'sample')
+        setName(item.sampleName || 'sample')
     }, [item])
 
     const {queue, setQueue, isDesktop} = useContext(DataContext)
-    const queueItemNames = queue.map(item => item.filename)
+    const queueItemNames = queue.map(item => item.sampleName)
     const queueItem = queue.find(q => q.id === item.id)
 
     const canSave = useMemo(() => {
-        return (name.length > 1 && name !== filename && !queueItemNames.includes(name))
-    }, [name, filename, queueItemNames])
+        return (name.length > 1 && name !== sampleName && !queueItemNames.includes(name))
+    }, [name, sampleName, queueItemNames])
 
-    const openDrawer = useCallback(() => {
+    const openDrawer = useCallback((e) => {
+        e.preventDefault()
+        e.stopPropagation()
         setOpen(true)
         // Clear current focus to prevent weird issues on mobile
         document.activeElement.blur()
     }, [])
-    const closeDrawer = useCallback(() => {
+    const closeDrawer = useCallback((e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        document.activeElement.blur()
         setOpen(false)
         onClose && onClose()
     }, [onClose])
 
     const saveName = useCallback(() => {
-        const newItem = {...queueItem, filename: name}
+        const newItem = {...queueItem, sampleName: name}
         setQueue(oldQueue => oldQueue.map(i => i.id === item.id ? newItem : i))
         setEditOpen(false)
     }, [item, name, queueItem, setQueue])
@@ -75,10 +81,10 @@ export default function ItemInformationButton({item, imageViewer = false, noButt
     const settingsTable = (
         <Stack direction='column' style={{minWidth: 250, margin: 20}}>
 
-            {filename &&
+            {sampleName &&
                 <>
                     <Stack direction='row' alignItems='center' style={{marginBottom: 12, fontWeight: 600}}>
-                        <div style={{marginRight: 8}}>{filename}</div>
+                        <div style={{marginRight: 8}}>{sampleName}</div>
                         {!imageViewer &&
                             <>
                                 <IconButton onClick={() => setEditOpen(!editOpen)} disabled={item.status !== 'done'}
@@ -144,7 +150,7 @@ export default function ItemInformationButton({item, imageViewer = false, noButt
                 }}>
                 Sample Information
             </div>
-            <div onClick={closeDrawer}>
+            <div onClick={(e) => closeDrawer(e)}>
                 <HighlightOffIcon sx={{cursor: 'pointer', color: theme.palette.text.primary}}/>
             </div>
         </div>
@@ -153,7 +159,7 @@ export default function ItemInformationButton({item, imageViewer = false, noButt
     return (
         <>
             {!noButton &&
-                <IconButton onClick={openDrawer} disabled={!['done', 'error'].includes(item.status)}
+                <IconButton onClick={(e) => openDrawer(e)} disabled={!['done', 'error'].includes(item.status)}
                             style={{height: 36, width: 36}}>
                     <InfoOutlineIcon fontSize='small'
                                      style={{color: item.error ? theme.palette.error.main : theme.palette.text.primary}}/>
@@ -163,8 +169,8 @@ export default function ItemInformationButton({item, imageViewer = false, noButt
                 ? <Dialog
                     anchor='left'
                     open={open || openOverride}
-                    onOpen={openDrawer}
-                    onClose={closeDrawer}
+                    onOpen={(e) => openDrawer(e)}
+                    onClose={(e) => closeDrawer(e)}
                 >
                     {titleBar}
                     {settingsTable}
@@ -172,8 +178,8 @@ export default function ItemInformationButton({item, imageViewer = false, noButt
                 : <SwipeableDrawer
                     anchor='left'
                     open={open || openOverride}
-                    onOpen={openDrawer}
-                    onClose={closeDrawer}
+                    onOpen={(e) => openDrawer(e)}
+                    onClose={(e) => closeDrawer(e)}
                     slotProps={{
                         paper: {sx: {maxWidth: isDesktop ? '600px' : '90vw'}},
                         transition: {

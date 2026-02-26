@@ -98,9 +98,9 @@ export default function StatsPanel() {
             stdDev: item.stats.stdDev?.toFixed(0),
             min: item.stats.min?.toFixed(0),
             max: item.stats.max?.toFixed(0),
-            avgShortAxis: item.stats.avgShortAxis?.toFixed(0),
+            avgShortAxis: parseFloat(item.stats?.avgShortAxis).toFixed(0),
             avgLongAxis: item.stats.avgLongAxis?.toFixed(0),
-            pixelScale: item.scale.detectedTemplate !== 'Multiple' ? `${item.scale.pxPerMm?.toFixed(2)} px/mm` : 'N/A',
+            pixelScale: item.scale.detectedTemplate !== 'Multiple' ? `${parseFloat(item.scale.pxPerMm).toFixed(2)} px/mm` : 'N/A',
             avgRoundness: item.stats.avgRoundness?.toFixed(1),
             efficiency: item.stats.efficiency?.toFixed(2),
             span: item.stats.span?.toFixed(2)

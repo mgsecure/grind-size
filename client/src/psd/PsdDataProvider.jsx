@@ -8,14 +8,13 @@ import {getFileNameWithoutExtension} from '../util/stringUtils.js'
 import {v4 as uuidv4} from 'uuid'
 import useWindowSize from '../util/useWindowSize.jsx'
 import {useLocalStorage} from 'usehooks-ts'
+import {setDeep, setDeepJoin, setDeepMultiple} from '../util/setDeep.js'
 
 export function PsdDataProvider({children}) {
     const {isDesktop} = useWindowSize()
 
-    const defaultBins = useMemo(() => isDesktop ? 30 : 20, [isDesktop])
-
     // State from PsdPage
-    const [settings, setSettings] = useState({...PSD_DEFAULTS, bins: defaultBins})
+    const [settings, setSettings] = useState({...PSD_DEFAULTS})
     const [customSettings, setCustomSettings] = useLocalStorage('psd-custom', undefined)
     const [retainCustomSettings, setRetainCustomSettings] = useState(!!customSettings)
     const [isCustomSettings, setIsCustomSettings] = useState(false)
@@ -61,40 +60,72 @@ export function PsdDataProvider({children}) {
 
     // TODO: create aggregate item for export/import
 
-    const aggregateItem = useMemo(() => {
-        if (queue.filter(q => q.status === 'done' && q.result).length < 2) return null
-        const activeData = {
-            id: 'aggregateResults',
-            filename: 'Aggregate',
-            scale: {mmPerPx: 0.001, pxPerMm: 1000, detectedTemplate: 'Multiple'},
-            status: queue.find(q => q.status !== 'done') ? 'analyzing' : 'done',
-            histograms: null
-        }
-        const hists = buildHistograms(normalizedParticles, {
-            binCount: settings.bins,
-            spacing: binSpacing,
-            weighting: yAxis,
-            mmPerPx: activeData.scale.mmPerPx,
-            metric: xAxis,
-            binsType: settings.binsType
-        })
-        const stats = calculateStatistics(normalizedParticles, {
-            weighting: yAxis,
-            mmPerPx: activeData.scale.mmPerPx,
-            metric: xAxis
-        })
-        return {
-            ...activeData,
-            histograms: hists,
-            stats,
-            status: processingComplete ? 'done' : 'analyzing'
-        }
-    }, [queue, normalizedParticles, settings.bins, settings.binsType, binSpacing, yAxis, xAxis, processingComplete])
+    const aggregateQueueItem = useMemo(() => {
+        const allDone = queue.filter(q => q.status === 'done' && q.result)
+        if (allDone.length < 2 || queue.find(q => !['done', 'error'].includes(q.status))) return null
 
-    const queueItems = useMemo(() => {
-        if (queue.length === 0) return []
-        return queue.map(q => {
-            const result = q.result || {}
+        const aggregateData = allDone.reduce((acc, sample) => {
+            setDeepMultiple(acc, ['error'], sample.error)
+            setDeepMultiple(acc, ['status'], sample.status)
+            setDeepMultiple(acc, ['result', 'analysisVersion'], sample.result.analysisVersion)
+            Object.keys(sample.result.parameters || {}).map(p => {
+                setDeepMultiple(acc, ['result', 'parameters', p], sample.result.parameters[p])
+            })
+            Object.keys(sample.result.scale || {}).map(p => {
+                setDeepMultiple(acc, ['result', 'scale', p], sample.result.scale[p])
+            })
+            Object.keys(sample.result.settings || {}).map(p => {
+                setDeepMultiple(acc, ['result', 'settings', p], sample.result.settings[p])
+            })
+            setDeepMultiple(acc, ['result', 'testPipeline'], sample.result.testPipeline)
+            setDeepJoin(acc, ['result', 'warnings'], sample.result.warnings || [])
+            return acc
+        }, {})
+
+        const mmPerPx = aggregateData.results?.scale?.mmPerPx && aggregateData.results?.scale?.mmPerPx !== 'multiple'
+            ? aggregateData.results?.scale?.mmPerPx
+            : 0.001
+
+        const baseResult = {
+            filename: 'Aggregate Results',
+            sampleName: 'Aggregate Results',
+            histograms: buildHistograms(normalizedParticles, {
+                binCount: settings.bins,
+                spacing: binSpacing,
+                weighting: yAxis,
+                mmPerPx,
+                metric: xAxis,
+                binsType: settings.binsType
+            }),
+            image: {},
+            markers: [],
+            particles: normalizedParticles,
+            previews: {},
+            roi: 'multiple',
+            startedAt: allDone[0].result.startedAt,
+            stats: calculateStatistics(normalizedParticles, {
+                weighting: yAxis,
+                mmPerPx,
+                metric: xAxis
+            })
+        }
+
+        setDeep(aggregateData, ['result'], {...baseResult, ...aggregateData.result})
+
+        const baseData = {
+            id: 'CurrentAggregateResults',
+            file: {name: 'Aggregate Results'},
+            status: queue.find(q => q.status !== 'done') ? 'analyzing' : 'done',
+            sampleName: 'Aggregate Results',
+        }
+        return {...baseData, ...aggregateData}
+
+    }, [queue, normalizedParticles, settings.bins, settings.binsType, binSpacing, yAxis, xAxis])
+
+    const processItems = useCallback((items) => {
+        if (items.filter(x => x).length === 0) return []
+        return items.filter(x => x).map(q => {
+            const result = q?.result || {}
             const currentBinsType = result.histograms?.[binSpacing]?.customBinsUsed ? 'default' : 'dynamic'
 
             if (result.histograms?.[binSpacing]?.metric !== xAxis ||
@@ -120,10 +151,10 @@ export function PsdDataProvider({children}) {
                         metric: xAxis
                     })
                     : {}
-
                 return {
                     id: q.id,
                     filename: q.filename || result.filename || q.file?.name || '',
+                    sampleName: q.sampleName || result.filename || q.file?.name || '',
                     stats: stats,
                     histograms: hists,
                     scale: result.scale || {},
@@ -136,13 +167,27 @@ export function PsdDataProvider({children}) {
             return {
                 id: q.id,
                 filename: q.result.filename || getFileNameWithoutExtension(q.file?.name) || '',
+                sampleName: q.sampleName || q.result.filename || getFileNameWithoutExtension(q.file?.name) || '',
                 stats: q.result.stats || {},
                 histograms: q.result.histograms || {},
                 scale: q.result.scale || {},
-                status: q.status || 'queued'
+                status: q.status || 'queued',
+                source: q.source || 'upload'
             }
         }).filter(Boolean)
-    }, [queue, xAxis, yAxis, settings.bins, binSpacing, settings.binsType])
+    }, [binSpacing, settings.bins, settings.binsType, xAxis, yAxis])
+
+    const queueItems = useMemo(() => {
+        if (queue.length === 0) return []
+        return processItems(queue)
+    }, [queue, processItems])
+
+    const aggregateItem = useMemo(() => {
+        const baseItem =  processItems([aggregateQueueItem]).length > 0
+            ? processItems([aggregateQueueItem])[0]
+            : {}
+        return {...baseItem}
+    }, [aggregateQueueItem, processItems])
 
     const allItems = useMemo(() => (queueItems.length > 1 && aggregateItem)
         ? [...queueItems, aggregateItem].filter(Boolean)
@@ -152,6 +197,7 @@ export function PsdDataProvider({children}) {
         if (!item) return {}
         return {
             filename: item.filename,
+            sampleName: item.sampleName,
             scale: item.scale,
             settings: item.settings,
             error: item.error,
@@ -159,9 +205,9 @@ export function PsdDataProvider({children}) {
             source: item.source,
             imported: item.source === 'import',
             active: activeIdList.includes(item.id),
-            aggregate: item.filename === 'Aggregate'
+            aggregate: item.sampleName === 'Aggregate Results'
         }
-    },[activeIdList])
+    }, [activeIdList])
 
     const activeItems = useMemo(() => allItems.filter(q => !!getItemDetails(q).active), [allItems, getItemDetails])
 
@@ -184,10 +230,10 @@ export function PsdDataProvider({children}) {
 
         results.forEach(result => {
             if (!result) return
-            if (result?.histograms?.log) {
+            if (result.histograms?.log) {
                 logMax = Math.max(logMax, (result.histograms.log.maxY || 0) * 100)
             }
-            if (result?.histograms?.linear) {
+            if (result.histograms?.linear) {
                 linearMax = Math.max(linearMax, (result.histograms.linear.maxY || 0) * 100)
             }
         })
@@ -272,7 +318,9 @@ export function PsdDataProvider({children}) {
                     setActiveIdList(prev => prev.concat(item.id))
                     setQueue(prev => prev.map(p => p.id === item.id
                         ? {
-                            ...p, sampleName: result.filename,
+                            ...p,
+                            sampleName: p.filename || getFileNameWithoutExtension(p.file?.name) || '',
+                            source: p.source || 'upload',
                             status: 'done',
                             result
                         }
@@ -378,6 +426,7 @@ export function PsdDataProvider({children}) {
         manualSelectionId, setManualSelectionId,
         manualSelectionUrl, setManualSelectionUrl,
         overlayOptions, setOverlayOptions,
+        aggregateQueueItem,
         aggregateItem,
         queueItems,
         allItems,
@@ -391,7 +440,7 @@ export function PsdDataProvider({children}) {
         processMultipleSettings,
         handleManualCorners,
         cancelManual,
-        showTitleBar, setShowTitleBar,
+        showTitleBar, setShowTitleBar, // TODO: move to UIContext
     }), [
         settings, setSettings,
         customSettings, setCustomSettings,
@@ -409,6 +458,7 @@ export function PsdDataProvider({children}) {
         manualSelectionId, setManualSelectionId,
         manualSelectionUrl, setManualSelectionUrl,
         overlayOptions, setOverlayOptions,
+        aggregateQueueItem,
         aggregateItem,
         queueItems,
         allItems,
