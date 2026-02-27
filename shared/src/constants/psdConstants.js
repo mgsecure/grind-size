@@ -27,6 +27,8 @@ export const PSD_DEFAULTS = {
     chartMode: 'bar', // 'bar' | 'line'
     splitOverlaps: false,
     splitSensitivity: 0.4,
+    ellipseFactor: 5.0,
+    analysisChannel: 'grayscale', // 'grayscale' | 'blue'
     value: 'mass',
     templateSize: 100,
 }

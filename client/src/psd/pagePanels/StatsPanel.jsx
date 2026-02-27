@@ -85,7 +85,7 @@ export default function StatsPanel() {
 
     const tableData = activeItems.reduce((acc, item) => {
         acc[item.id] = {
-            filename: item.filename,
+            sampleName: item.sampleName,
             template: item.scale.detectedTemplate
                 ? `${item.scale.detectedTemplate}${item.scale.detectedTemplate === 'Multiple' ? '' : 'mm'}`
                 : 'None',
@@ -123,7 +123,7 @@ export default function StatsPanel() {
                         <TableBody>
 
                             {!breakTables &&
-                                <TableRow key={'filename'}>
+                                <TableRow key={'sampleName'}>
                                     <TableCell sx={{
                                         p: '0px 12px 0px 0px', width: '180px',
                                         position: 'sticky',
@@ -133,7 +133,7 @@ export default function StatsPanel() {
                                         borderRight: `1px solid ${theme.palette.divider}`,
                                     }} />
                                     {activeItems.map(item => {
-                                        const data = tableData[item.id]?.filename
+                                        const data = tableData[item.id]?.sampleName
                                         return <TableCell sx={{p: '6px 8px', fontWeight: 'bold'}}
                                                           key={item.id}>{data !== undefined ? data : 'N/A'}</TableCell>
                                     })}
@@ -174,7 +174,7 @@ export default function StatsPanel() {
                     <Table size='small' sx={{borderTop: '1px solid', borderColor: theme.palette.divider}}>
                         <TableBody>
                             {!breakTables &&
-                                <TableRow key={'filename'}>
+                                <TableRow key={'sampleName'}>
                                     <TableCell sx={{
                                         p: '0px 12px 0px 0px', width: '180px',
                                         position: 'sticky',
@@ -184,7 +184,7 @@ export default function StatsPanel() {
                                         borderRight: '1px solid #e0e0e0'
                                     }}></TableCell>
                                     {activeItems.map(item => {
-                                        const data = tableData[item.id]?.filename
+                                        const data = tableData[item.id]?.sampleName
                                         return <TableCell sx={{p: '6px 8px', fontWeight: 'bold'}}
                                                           key={item.id}>{data !== undefined ? data : 'N/A'}</TableCell>
                                     })}

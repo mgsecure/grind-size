@@ -5,9 +5,12 @@ export function calculateStatistics(particles, {weighting = 'mass', mmPerPx = 1,
         if (metric === 'surface') return (p.surfaceAreaPx || 0) * (factor ** 2)
         if (metric === 'volume') return (p.volumePx || 0) * (factor ** 3)
         
+        // Use true equivalent diameter from pixel area if available
+        if (p.eqDiameterPx) return p.eqDiameterPx * factor
+
         const dPx = (p.shortAxisPx && p.longAxisPx) 
             ? (p.shortAxisPx + p.longAxisPx) / 2 
-            : p.eqDiameterPx
+            : 0
         return dPx * factor
     }
 

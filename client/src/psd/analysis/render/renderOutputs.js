@@ -281,14 +281,16 @@ export async function renderDiagnosticPng(imageData, particles, maskObj, validPa
     canvas.width = width
     canvas.height = height
     const ctx = canvas.getContext('2d')
-    
+
+    const maskOnly = true
+
     // 1. Draw original uncorrected image
     const tempImageData = new ImageData(
         new Uint8ClampedArray(imageData.data),
         width,
         height
     )
-    ctx.putImageData(tempImageData, 0, 0)
+    !maskOnly && ctx.putImageData(tempImageData, 0, 0)
 
     // 2. Overlay threshold mask (red pixels)
     const labels = maskObj.labels
@@ -341,7 +343,7 @@ export async function renderDiagnosticPng(imageData, particles, maskObj, validPa
             ctx.strokeStyle = '#0000ffcc'
             ctx.beginPath()
             ctx.ellipse(p.cxPx, p.cyPx, radiusX, radiusY, rotation, 0, Math.PI * 2)
-            ctx.stroke()
+            !maskOnly && ctx.stroke()
 
             // Draw contour
             if (p.contour && p.contour.length > 0) {
@@ -352,7 +354,7 @@ export async function renderDiagnosticPng(imageData, particles, maskObj, validPa
                     ctx.lineTo(p.contour[i].x, p.contour[i].y)
                 }
                 ctx.closePath()
-                ctx.stroke()
+                !maskOnly && ctx.stroke()
             }
         }
     }

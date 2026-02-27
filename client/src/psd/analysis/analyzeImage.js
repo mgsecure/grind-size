@@ -16,7 +16,7 @@ import {getFileNameWithoutExtension} from '../../util/stringUtils.js'
 import defineROI from './pipeline/defineROI.js'
 
 const debug = false
-const renderDiagnosticImage = false
+const renderDiagnosticImage = true
 
 export async function analyzeImageFiles(file, settings, manualCorners = null, overlayOptions = null, altFilename=null,) {
     const startedAt = new Date().toISOString()
@@ -84,7 +84,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         debug && console.log('Scale info:', scaleInfo)
     }
 
-    const gray = normalizeLighting(analysisImageData, {bgSigma: settings.bgSigma})
+    const gray = normalizeLighting(analysisImageData, {bgSigma: settings.bgSigma, channel: settings.analysisChannel})
     const mask = adaptiveThreshold(gray, {blockSize: settings.adaptiveBlockSize, C: settings.adaptiveC})
 
     // use morphology to remove noise
@@ -95,7 +95,10 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
     debug && console.log(`Using detection function: ${testPipeline ? 'detectParticlesCandidate' : 'detectParticles'}`)
     let detectResult
     try {
-        detectResult = detectFn(mask, {minAreaPx: settings.minAreaPx})
+        detectResult = detectFn(mask, {
+            minAreaPx: settings.minAreaPx,
+            ellipseFactor: settings.ellipseFactor || 5.0
+        })
     } catch (e) {
         console.error('Initial particle detection failed', e)
         throw e

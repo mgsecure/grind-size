@@ -2681,6 +2681,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@techstark/opencv-js@npm:^4.12.0-release.1":
+  version: 4.12.0-release.1
+  resolution: "@techstark/opencv-js@npm:4.12.0-release.1"
+  checksum: 10c0/3e0976f489c775135904a5181c7f28c44b966d33f2b5334af0bb7f282c3a07863ce1ce72eaed46cda6991ea53e3c0a60a70876396dcc60637d0aeb4bbf2a9409
+  languageName: node
+  linkType: hard
+
 "@testing-library/dom@npm:^10.4.1":
   version: 10.4.1
   resolution: "@testing-library/dom@npm:10.4.1"
@@ -7494,6 +7501,7 @@ __metadata:
     "@eslint/js": "npm:^9.36.0"
     "@nivo/pie": "npm:^0.99.0"
     "@playwright/test": "npm:^1.48.2"
+    "@techstark/opencv-js": "npm:^4.12.0-release.1"
     "@testing-library/dom": "npm:^10.4.1"
     "@testing-library/jest-dom": "npm:^6.6.3"
     "@testing-library/react": "npm:^16.0.1"

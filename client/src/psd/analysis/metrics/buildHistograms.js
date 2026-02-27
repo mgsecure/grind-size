@@ -43,10 +43,13 @@ function buildHistogram(particles,
         if (metric === 'surface') return (p.surfaceAreaPx || 0) * (factor ** 2) / 10000
         if (metric === 'volume') return (p.volumePx || 0) * (factor ** 3)
         
-        // Default to diameter
+        // Use true equivalent diameter from pixel area if available
+        if (p.eqDiameterPx) return p.eqDiameterPx * factor
+
+        // Default to diameter from axes
         const dPx = (p.shortAxisPx && p.longAxisPx) 
             ? (p.shortAxisPx + p.longAxisPx) / 2 
-            : p.eqDiameterPx
+            : 0
         return dPx * factor
     }
 

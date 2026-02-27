@@ -1,10 +1,15 @@
 // Background correction: large blur approximation using a separable box blur on grayscale
-export function normalizeLighting(imageData, {bgSigma = 35} = {}) {
+export function normalizeLighting(imageData, {bgSigma = 35, channel = 'grayscale'} = {}) {
     const {width, height, data} = imageData
     const gray = new Uint8ClampedArray(width * height)
     const iData = imageData.data
     for (let i = 0, p = 0; i < gray.length; i++, p += 4) {
-        gray[i] = (iData[p] * 0.299 + iData[p + 1] * 0.587 + iData[p + 2] * 0.114) | 0
+        if (channel === 'blue') {
+            gray[i] = iData[p + 2]
+        } else {
+            // standard luminance
+            gray[i] = (iData[p] * 0.299 + iData[p + 1] * 0.587 + iData[p + 2] * 0.114) | 0
+        }
     }
 
     // crude blur radius derived from sigma
@@ -16,8 +21,7 @@ export function normalizeLighting(imageData, {bgSigma = 35} = {}) {
     for (let i = 0; i < gray.length; i++) {
         const g = gray[i] + 1
         const b = blurred[i] + 1
-        const v = Math.min(255, Math.max(0, Math.round((g / b) * 128)))
-        out[i] = v
+        out[i] = Math.min(255, Math.max(0, Math.round((g / b) * 128)))
     }
     return {width, height, gray: out}
 }

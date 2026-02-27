@@ -40,13 +40,18 @@ export function detectMarkers(imageData) {
         detectionImage = ctx.getImageData(0, 0, sw, sh)
     }
 
-    // Preprocessing: override internal thresholding by providing a binary image
-    // ArUco markers are typically ~5-7% of the image width. 
-    // In a 1000px image, they are ~50-70px. A blockSize of 41 is a good balance.
+    // 1. Grayscale conversion: 
+    // We can use standard luminance, or just the blue channel (which is common for marker detection 
+    // as it often provides higher contrast for black-on-white markers in varied lighting).
+    const useBlueChannel = true
     const gray = new Uint8ClampedArray(sw * sh)
     const dData = detectionImage.data
     for (let i = 0, p = 0; i < gray.length; i++, p += 4) {
-        gray[i] = (dData[p] * 0.299 + dData[p + 1] * 0.587 + dData[p + 2] * 0.114) | 0
+        if (useBlueChannel) {
+            gray[i] = dData[p + 2]
+        } else {
+            gray[i] = (dData[p] * 0.299 + dData[p + 1] * 0.587 + dData[p + 2] * 0.114) | 0
+        }
     }
     
     const {mask} = adaptiveThreshold({width: sw, height: sh, gray}, {blockSize: 61, C: 10})
