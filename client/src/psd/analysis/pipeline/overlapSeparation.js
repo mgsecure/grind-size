@@ -1,11 +1,13 @@
 
-export function separateOverlaps(detectFn, detectResult, cleaned, settings) {
+export async function separateOverlaps(detectFn, detectResult, cleaned, settings) {
+
+    console.log('using separateOverlaps')
 
     try {
         const dt = distanceTransform(cleaned)
         const minPeakDist = 3 + (settings.splitSensitivity || 0.5) * 20
         const watershedLabels = watershed(dt, detectResult.labels, minPeakDist)
-        return  detectFn(cleaned, {
+        return await detectFn(cleaned, {
             minAreaPx: settings.minAreaPx,
             externalLabels: watershedLabels
         })

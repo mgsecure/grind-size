@@ -18,10 +18,10 @@ import defineROI from './pipeline/defineROI.js'
 const debug = false
 const renderDiagnosticImage = true
 
-export async function analyzeImageFiles(file, settings, manualCorners = null, overlayOptions = null, altFilename=null,) {
+export async function analyzeImageFiles(file, settings, manualCorners = null, overlayOptions = null) {
     const startedAt = new Date().toISOString()
 
-    const {testPipeline=false, correctPerspective=true, useMorphology=true} = settings
+    const {testPipeline=false, correctPerspective=true, useMorphology=true, sampleName=null} = settings
 
     const imageData = await decodeImageToImageData(file)
     const {width, height} = imageData
@@ -42,6 +42,10 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         settings
     })
 
+    if (!scaleInfo) {
+        throw new Error('Could not determine pixel scale. Check your template and image quality.')
+    }
+
     // Filter duplicate markers (keep lowest hammingDistance)
     // Identify template
 
@@ -49,7 +53,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         templateCorners,
         presentCorners,
         uniqueMarkers,
-        pxPerMm} = scaleInfo
+        pxPerMm} = scaleInfo || {}
 
     debug && console.log('Template scaleInfo:', scaleInfo)
 
@@ -95,8 +99,9 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
     debug && console.log(`Using detection function: ${testPipeline ? 'detectParticlesCandidate' : 'detectParticles'}`)
     let detectResult
     try {
-        detectResult = detectFn(mask, {
+        detectResult = await detectFn(mask, {
             minAreaPx: settings.minAreaPx,
+            minSolidity: settings.minSolidity || 0.3,
             ellipseFactor: settings.ellipseFactor || 5.0
         })
     } catch (e) {
@@ -107,9 +112,9 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
     debug && console.log('Initial particle detection:', detectResult)
 
     // Optional Overlap Separation (Watershed)
-    const overlapParticles = settings.splitOverlaps ? separateOverlaps(detectFn, detectResult, cleaned, settings) : []
-
-    let particles = overlapParticles.length > 0 ? overlapParticles : detectResult.particles
+    const overlapResult = settings.splitOverlaps ? await separateOverlaps(detectFn, detectResult, cleaned, settings) : null
+    let particles = (overlapResult && overlapResult.particles && overlapResult.particles.length > 0) ? overlapResult.particles : detectResult.particles
+    let analysisLabels = (overlapResult && overlapResult.labels) ? overlapResult.labels : detectResult.labels
 
     debug && console.log(`Initial detection: ${particles.length} particles`)
 
@@ -239,7 +244,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
     let maskPngDataUrl = null
     try {
         maskPngDataUrl = await renderMaskPng({
-            labels: detectResult.labels,
+            labels: analysisLabels,
             width: analysisImageData.width,
             height: analysisImageData.height
         }, analysisImageData.width, analysisImageData.height, {
@@ -281,7 +286,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         // If the main analysis was warped, detectResult.labels is in warped space.
         // We'd need to run a separate thresholding on the original image to show those pixels correctly.
 
-        let diagnosticLabels = detectResult.labels
+        let diagnosticLabels = analysisLabels
         let diagnosticW = analysisImageData.width
         let diagnosticH = analysisImageData.height
         let diagnosticValidIds = filteredValidIds
@@ -292,7 +297,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
             const grayOrig = normalizeLighting(imageData, {bgSigma: settings.bgSigma})
             const maskOrig = adaptiveThreshold(grayOrig, {blockSize: settings.adaptiveBlockSize, C: settings.adaptiveC})
             const cleanedOrig = useMorphology ? morphologyOpen(maskOrig) : maskOrig
-            const detectOrig = detectFn(cleanedOrig, {minAreaPx: settings.minAreaPx})
+            const detectOrig = await detectFn(cleanedOrig, {minAreaPx: settings.minAreaPx})
 
             diagnosticLabels = detectOrig.labels
             diagnosticW = width
@@ -377,7 +382,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
     }
 
     return {
-        filename: altFilename || getFileNameWithoutExtension(file.name),
+        filename: sampleName || getFileNameWithoutExtension(file.name),
         analysisVersion: PSD_ANALYSIS_VERSION,
         testPipeline,
         settings,

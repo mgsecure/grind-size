@@ -1,7 +1,7 @@
 import * as CV_pkg from 'js-aruco2/src/cv.js'
 const _CV = CV_pkg.CV || CV_pkg.default?.CV || CV_pkg
 
-export function detectParticlesCandidate(maskObj, {minAreaPx = 8, _maxAreaMm2=10, externalLabels = null, ellipseFactor = 5.0} = {}) {
+export async function detectParticlesCandidate(maskObj, {minAreaPx = 8, minSolidity = 0.3, _maxAreaMm2=10, externalLabels = null, ellipseFactor = 5.0} = {}) {
     const {width, height, mask} = maskObj
     const labels = externalLabels || new Uint32Array(width * height)
     const particles = []
@@ -17,7 +17,10 @@ export function detectParticlesCandidate(maskObj, {minAreaPx = 8, _maxAreaMm2=10
                 const comp = flood(mask, labels, width, height, x, y, particleId)
 
                 if (comp.area >= minAreaPx) {
-                    particles.push(finalizeParticle(comp, particleId, ellipseFactor))
+                    const p = finalizeParticle(comp, particleId, ellipseFactor)
+                    if (p.solidity >= minSolidity) {
+                        particles.push(p)
+                    }
                 }
             }
         }
@@ -64,16 +67,19 @@ export function detectParticlesCandidate(maskObj, {minAreaPx = 8, _maxAreaMm2=10
                 minY: c.minY,
                 maxY: c.maxY
             }
-            particles.push(finalizeParticle(comp, id, ellipseFactor))
+            const p = finalizeParticle(comp, id, ellipseFactor)
+            if (p.solidity >= minSolidity) {
+                particles.push(p)
+            }
         }
     }
 
-    // 2. Extract Exact Boundaries using CV.findContours
+    // 2. Extract Exact Boundaries using CV.findContours (js-aruco2)
     const binaryData = new Uint8Array(mask.length)
     for (let i = 0; i < mask.length; i++) {
         binaryData[i] = mask[i] === 0 ? 0 : 1
     }
-
+    
     let contours = []
     try {
         // CV.findContours might crash or enter a `while(true)` loop if passed an array as the borderBuffer.
@@ -86,10 +92,10 @@ export function detectParticlesCandidate(maskObj, {minAreaPx = 8, _maxAreaMm2=10
     // 3. Match Contours to Particle Labels
     contours.forEach(c => {
         if (c.length === 0) return
-
+        
         const labelCounts = new Map()
         const step = c.length > 200 ? Math.floor(c.length / 50) : 1
-
+        
         for (let i = 0; i < c.length; i += step) {
             const pt = c[i]
             // Robust 3x3 window check around contour point
@@ -105,7 +111,7 @@ export function detectParticlesCandidate(maskObj, {minAreaPx = 8, _maxAreaMm2=10
                 }
             }
         }
-
+        
         if (labelCounts.size > 0) {
             // Pick the label with the most votes
             let bestLabel = -1
@@ -116,11 +122,17 @@ export function detectParticlesCandidate(maskObj, {minAreaPx = 8, _maxAreaMm2=10
                     bestLabel = label
                 }
             }
-
+            
             if (bestLabel !== -1) {
                 const particle = particles.find(p => p.id === bestLabel)
                 if (particle && !particle.contour) {
                     particle.contour = c
+                    // Re-calculate roundness if we have a contour (perimeter-based)
+                    const perimeter = calculatePerimeter(c)
+                    particle.perimeterPx = perimeter
+                    if (perimeter > 0) {
+                        particle.roundness = (4 * Math.PI * particle.areaPx) / (perimeter * perimeter)
+                    }
                 }
             }
         }
@@ -154,11 +166,18 @@ function finalizeParticle(comp, particleId, k = 5.0) {
     const ellipseAreaPx = Math.PI * (minorPx / 2) * (majorPx / 2)
     const solidity = comp.area / ellipseAreaPx
 
+    // Feret diameters (caliper-style measurements)
+    // For an ellipse, minFeret is the minor axis and maxFeret is the major axis.
+    // For irregular particles, these are robustly represented by the moment-based axes.
+    const minFeretPx = minorPx
+    const maxFeretPx = majorPx
+
     return {
         id: particleId,
         cxPx: comp.cx,
         cyPx: comp.cy,
         areaPx: comp.area, // True pixel area
+        perimeterPx: 0, // Fallback if no contour
         ellipseAreaPx,
         solidity,
         volumePx,
@@ -166,12 +185,27 @@ function finalizeParticle(comp, particleId, k = 5.0) {
         eqDiameterPx,
         longAxisPx: majorPx,
         shortAxisPx: minorPx,
+        minFeretPx,
+        maxFeretPx,
         aspectRatio: majorPx > 0 ? majorPx / minorPx : 1,
         angleRad,
-        roundness: majorPx > 0 ? minorPx / majorPx : 1,
+        roundness: majorPx > 0 ? minorPx / majorPx : 1, // Fallback to axis-ratio if no contour
         bbox: {minX: comp.minX, maxX: comp.maxX, minY: comp.minY, maxY: comp.maxY},
         contour: null
     }
+}
+
+function calculatePerimeter(contour) {
+    if (!contour || contour.length < 2) return 0
+    let p = 0
+    for (let i = 0; i < contour.length; i++) {
+        const p1 = contour[i]
+        const p2 = contour[(i + 1) % contour.length]
+        const dx = p1.x - p2.x
+        const dy = p1.y - p2.y
+        p += Math.sqrt(dx * dx + dy * dy)
+    }
+    return p
 }
 
 function flood(mask, labels, w, h, sx, sy, particleId) {
@@ -258,12 +292,6 @@ function flood(mask, labels, w, h, sx, sy, particleId) {
         sumXY,
         minX, maxX, minY, maxY
     }
-}
-
-function ellipsoidVolume(shortDiameter, longDiameter) {
-    const a = shortDiameter / 2
-    const c = longDiameter / 2
-    return (4 / 3) * Math.PI * a * a * c
 }
 
 function ellipsoidSurfaceArea(shortDiameter, longDiameter) {

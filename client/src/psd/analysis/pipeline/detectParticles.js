@@ -260,12 +260,6 @@ function flood(mask, labels, w, h, sx, sy, particleId) {
     }
 }
 
-function ellipsoidVolume(shortDiameter, longDiameter) {
-    const a = shortDiameter / 2
-    const c = longDiameter / 2
-    return (4 / 3) * Math.PI * a * a * c
-}
-
 function ellipsoidSurfaceArea(shortDiameter, longDiameter) {
     const a = shortDiameter / 2
     const c = longDiameter / 2

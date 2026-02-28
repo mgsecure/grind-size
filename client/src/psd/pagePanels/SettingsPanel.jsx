@@ -39,7 +39,6 @@ export default function SettingsPanel() {
     }, [queueItems, settings])
 
     const handlePresetChange = (presetKey) => {
-        console.log('isCustomSettings && showDetails', {isCustomSettings, showDetails})
 
         setPreset(presetKey)
         const preset = PSD_PRESETS[presetKey]

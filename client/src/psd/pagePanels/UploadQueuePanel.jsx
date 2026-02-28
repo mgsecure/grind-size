@@ -36,7 +36,7 @@ export default function UploadQueuePanel() {
         processMultipleSettings
     } = useContext(DataContext)
 
-    const {chartColors, isDesktop} = useContext(UIContext)
+    const {currentColors, aggregateColor, isDesktop} = useContext(UIContext)
 
     const selectEnabled = queue.length > 1 || activeIdList.length === 0
 
@@ -44,16 +44,19 @@ export default function UploadQueuePanel() {
         return aggregateQueueItem?.result ? [...queue, aggregateQueueItem] : queue
     }, [queue, aggregateQueueItem])
 
-    const validIdList = fullQueue
-        .filter(item => (item.status === 'done'))
-        .map(item => item.id)
+    const validIdList = useMemo(() => {
+        return fullQueue
+            .filter(item => (item.status === 'done'))
+            .map(item => item.id)
+    }, [fullQueue])
+
+    const noErrorIdList = useMemo(() => {
+        return fullQueue
+            .filter(item => (item.status === 'done'))
+            .map(item => item.id)
+    }, [fullQueue])
+
     const validActiveIdList = activeIdList.filter(id => validIdList.includes(id))
-
-    const colorMap = validActiveIdList.reduce((acc, id, idx) => {
-        acc[id] = chartColors[idx]
-        return acc
-    }, {})
-
 
     const handleSelect = useCallback((id) => {
         if (!selectEnabled) return
@@ -65,17 +68,14 @@ export default function UploadQueuePanel() {
     }, [activeIdList, fullQueue, selectEnabled, setActiveIdList])
 
     useEffect(() => {
-        if (activeIdList.length === 0 && validIdList.length > 0) {
-            //console.log('no active items, selecting first item')
-            //validIdList[0] && handleSelect(validIdList[0])
-        } else if (queue.length === 1 && activeIdList.includes(aggregateQueueItem?.id)) {
+        if (queue.length === 1 && activeIdList.includes(aggregateQueueItem?.id)) {
             console.log('only one active item, clearing CurrentAggregateResults')
             setActiveIdList(prev => prev.filter(i => i !== aggregateQueueItem?.id))
         } else if (queue.length === 0 && activeIdList.length > 0) {
             console.log('no active items, clearing selection')
             setActiveIdList([])
         }
-    }, [activeIdList, aggregateQueueItem, handleSelect, queue, setActiveIdList, validIdList])
+    }, [activeIdList, aggregateQueueItem, handleSelect, queue, setActiveIdList])
 
     const handleDelete = useCallback((id) => {
         handleQueueRemove(id)
@@ -112,7 +112,7 @@ export default function UploadQueuePanel() {
                         <Stack direction='column' spacing={1} sx={{width: '100%'}}>
 
                             <List dense sx={{}} style={{width: '100%'}}>
-                                {fullQueue.map(item => (
+                                {fullQueue.map((item) => (
                                     <ListItem
                                         key={item.id}
                                         selected={activeIdList.includes(item.id)}
@@ -133,14 +133,17 @@ export default function UploadQueuePanel() {
 
                                         <Stack direction='row' alignItems='center' justifyContent='space-between'
                                                sx={{width: '100%'}}>
-                                            <Stack direction={'row'} alignItems='center'
+                                            <Stack direction='row' alignItems='center'
                                                    sx={{flexGrow: 1, width: '100%'}}>
                                                 {activeIdList.includes(item.id)
                                                     ? <CheckBoxIcon
                                                         fontSize='small'
                                                         style={{
                                                             marginRight: 8,
-                                                            color: colorMap[item.id] || theme.palette.divider,
+                                                            color: (item.id !== aggregateQueueItem?.id
+                                                                    ? currentColors[noErrorIdList.indexOf(item.id)]
+                                                                    : aggregateColor)
+                                                                || theme.palette.primary.main
                                                         }}/>
                                                     : <CheckBoxOutlineBlankIcon
                                                         fontSize='small'

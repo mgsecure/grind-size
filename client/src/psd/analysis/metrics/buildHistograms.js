@@ -1,5 +1,7 @@
+import {BIN_DEFAULTS} from '@starter/shared'
+
 export function buildHistograms(particles, {
-    binCount = 30,
+    binCount = BIN_DEFAULTS.nBins,
     spacing = 'log',
     weighting = 'count',
     mmPerPx = 1,
@@ -30,7 +32,7 @@ export function buildHistograms(particles, {
 
 function buildHistogram(particles,
                         {
-                            binCount = 30,
+                            binCount = BIN_DEFAULTS.nBins,
                             spacing = 'log',
                             weighting = 'count',
                             mmPerPx = 1,
@@ -63,7 +65,7 @@ function buildHistogram(particles,
     let bins
     if (binsType === 'default' && metric === 'diameter') {
         // Use default range (150-2000um) but respect binCount from UI
-        bins = spacing === 'log' ? getLogBins({min: 150, max: 2000, binCount}) : getLinearBins({min: 150, max: 2000, binCount})
+        bins = spacing === 'log' ? getLogBins({min: BIN_DEFAULTS.min, max: BIN_DEFAULTS.max, binCount}) : getLinearBins({min: BIN_DEFAULTS.min, max: BIN_DEFAULTS.max, binCount})
         numBins = bins.length
         edges = new Array(numBins + 1)
         for (let i = 0; i < numBins; i++) {

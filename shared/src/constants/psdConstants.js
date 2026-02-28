@@ -28,6 +28,7 @@ export const PSD_DEFAULTS = {
     splitOverlaps: false,
     splitSensitivity: 0.4,
     ellipseFactor: 5.0,
+    minSolidity: 0.3,
     analysisChannel: 'grayscale', // 'grayscale' | 'blue'
     value: 'mass',
     templateSize: 100,
@@ -72,26 +73,13 @@ export const PSD_PRESETS = {
             splitOverlaps: false,
             splitSensitivity: 0.6
         }
-    },
-    nb: {
-        name: 'NB',
-        params: {
-            name: 'nb',
-            bgSigma: 25,
-            adaptiveBlockSize: 101,
-            adaptiveC: 3,
-            minAreaPx: 2,
-            maxAreaMm2: 10,
-            splitOverlaps: false,
-            splitSensitivity: 0.6
-        }
-    },
+    }
 }
 
 
 export const BIN_DEFAULTS = {
-    min: 100,
-    max: 2500,
+    min: 75,
+    max: 3000,
     nBins: 15
 }
 

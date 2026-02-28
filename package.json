@@ -45,7 +45,6 @@
     "eslint-plugin-promise": "^6.5.1",
     "eslint-plugin-react": "^7.37.5",
     "globals": "^16.4.0",
-    "js-aruco2": "^2.0.0",
     "jsdom": "^25.0.1",
     "lint-staged": "^15.2.9",
     "msw": "^2.6.6",
@@ -58,7 +57,6 @@
   },
   "dependencies": {
     "@nivo/pie": "^0.99.0",
-    "@techstark/opencv-js": "^4.12.0-release.1",
     "baseline-browser-mapping": "^2.9.11",
     "csv-parse": "^6.1.0",
     "fast-levenshtein": "^3.0.0",
@@ -66,6 +64,7 @@
     "firebase-admin": "^13.6.0",
     "fuzzysort": "^3.1.0",
     "joi": "^18.0.2",
+    "js-aruco2": "^2.0.0",
     "motion": "^12.23.26",
     "nivo": "^0.31.0",
     "query-string": "^9.3.1",

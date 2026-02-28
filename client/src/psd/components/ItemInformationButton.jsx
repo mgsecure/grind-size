@@ -15,10 +15,10 @@ import ErrorIcon from '@mui/icons-material/Error'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 
 export default function ItemInformationButton({item, imageViewer = false, noButton = false, openOverride = false, onClose = () => {}}) {
-    if (!item || !item.result) return null
+    if (!item || (!item.result && !item.error)) return null
 
     const {sampleName = 'sample', result = {}} = item
-    const {settings = {}, stats = {}, scale = {}} = result
+    const {settings = {}, stats = {}, scale = {}} = result || {}
 
     const theme = useTheme()
     const [open, setOpen] = useState(false)

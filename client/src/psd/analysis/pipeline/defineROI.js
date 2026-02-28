@@ -2,7 +2,7 @@ export default function defineROI({scaleInfo, settings, correctPerspective, debu
 
     const {template,
         presentCorners,
-        baseRoi} = scaleInfo
+        baseRoi} = scaleInfo || {}
 
     debug && console.log('Template info:', scaleInfo)
 
@@ -10,8 +10,8 @@ export default function defineROI({scaleInfo, settings, correctPerspective, debu
 
     // update ROI if correctPerspective
     if (presentCorners.length === 4 && correctPerspective) {
-        const outerMm = template.outerMm
-        const innerMm = template.innerMm
+        const outerMm = template?.outerMm
+        const innerMm = template?.innerMm
         const marginMm = (outerMm - innerMm) / 2
         const sizePx = settings.warpSizePx || 2000
         const marginPx = marginMm * (sizePx / outerMm)

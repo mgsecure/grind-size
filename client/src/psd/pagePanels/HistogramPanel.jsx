@@ -7,7 +7,7 @@ import ShowChartIcon from '@mui/icons-material/ShowChart'
 import {useTheme} from '@mui/material/styles'
 import ScaleLinearIcon from '../resources/ScaleLinearIcon.jsx'
 import ScaleLogIcon from '../resources/ScaleLogIcon.jsx'
-import {line, curveLinear, curveCardinal} from 'd3-shape'
+import {line, curveLinear, curveCardinal, curveCatmullRom} from 'd3-shape'
 import DataContext from '../../context/DataContext.jsx'
 import ScreenshotElementButton from '../components/ScreenshotElementButton.jsx'
 import UIContext from '../../context/UIContext.jsx'
@@ -53,8 +53,8 @@ export default function HistogramPanel({domEl}) {
 
     //TODO: Skip every other tick on mobile
 
-    const [chartMode, setChartMode] = useState('bar')
-    const [chartCurve, setChartCurve] = useState('linear')
+    const [chartMode, setChartMode] = useState('line')
+    const [chartCurve, setChartCurve] = useState('cardinal')
     const maxY = binSpacing === 'log' ? globalMaxY.logMax : globalMaxY.linearMax
 
     // show aggregate in normal chart if only series remaining
@@ -165,7 +165,7 @@ export default function HistogramPanel({domEl}) {
         const lineGenerator = line()
             .x(d => xScale(d.data.data.bin) + d.width / 2) // Center point on the bar
             .y(d => yScale(d.data.data.Aggregate))       // 'Aggregate' is calculated in chartData
-            .curve(chartCurve === 'linear' ? curveLinear : curveCardinal)
+            .curve(chartCurve === 'linear' ? curveLinear : curveCatmullRom)
         const uniqueBins = []
         const seenBins = new Set()
         bars.forEach(bar => {
@@ -192,7 +192,7 @@ export default function HistogramPanel({domEl}) {
         const lineGenerator = line()
             .x(d => xScale(d.data.x))
             .y(d => yScale(d.data.y))
-            .curve(chartCurve === 'linear' ? curveLinear : curveCardinal)
+            .curve(chartCurve === 'linear' ? curveLinear : curveCatmullRom)
         return (<g>
                 {series
                     .map(({id, data, color}) => (

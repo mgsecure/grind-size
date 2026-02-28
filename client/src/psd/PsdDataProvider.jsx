@@ -33,6 +33,8 @@ export function PsdDataProvider({children}) {
     })
     const [showTitleBar, setShowTitleBar] = useState(false)
 
+    console.log('queue', queue)
+
     const processedCount = useMemo(() => queue.reduce((acc, q) => {
         acc = acc + ((q.status === 'done' && q.result) || q.status === 'error' ? 1 : 0)
         return acc
@@ -168,6 +170,7 @@ export function PsdDataProvider({children}) {
                 id: q.id,
                 filename: q.result.filename || getFileNameWithoutExtension(q.file?.name) || '',
                 sampleName: q.sampleName || q.result.filename || getFileNameWithoutExtension(q.file?.name) || '',
+                settings: q.result.settings || {},
                 stats: q.result.stats || {},
                 histograms: q.result.histograms || {},
                 scale: q.result.scale || {},
@@ -303,10 +306,14 @@ export function PsdDataProvider({children}) {
 
                 try {
                     console.log(`Starting analysis for ${item.file?.name}`)
+
+                    const newSettings = item.file?.name.includes('candidatePipeline') ? {...settings, testPipeline: true} : settings
+
                     const result = await analyzeImageFiles(item.file, {
-                        ...settings,
-                        binSpacing
-                    }, null, overlayOptions, null)
+                        ...newSettings,
+                        binSpacing,
+                        sampleName: item.sampleName
+                    }, null, overlayOptions)
 
                     console.log('Analysis result:', result)
                     if (!result.template && !result.scale?.detectedTemplate) {
@@ -319,7 +326,7 @@ export function PsdDataProvider({children}) {
                     setQueue(prev => prev.map(p => p.id === item.id
                         ? {
                             ...p,
-                            sampleName: p.filename || getFileNameWithoutExtension(p.file?.name) || '',
+                            sampleName: p.sampleName || p.filename || getFileNameWithoutExtension(p.file?.name) || '',
                             source: p.source || 'upload',
                             status: 'done',
                             result
@@ -364,7 +371,7 @@ export function PsdDataProvider({children}) {
         const item = queue.find(q => q.id === id)
         if (!item) return
 
-        if (isCustomSettings) {
+        if (isCustomSettings && settingsList.custom) {
             settingsList.custom.params = {...PSD_DEFAULTS, ...settings}
         } else {
             delete settingsList.custom
@@ -372,12 +379,15 @@ export function PsdDataProvider({children}) {
         for (const [key, value] of Object.entries(settingsList)) {
             try {
                 const result = await analyzeImageFiles(item.file, {
-                    ...PSD_DEFAULTS, ...value.params,
-                    binSpacing
-                }, null, overlayOptions, `${item.result.filename}-${key}`)
+                    ...PSD_DEFAULTS,
+                    ...value.params,
+                    binSpacing,
+                    sampleName: `${item.sampleName || item.result.filename}-${key}`
+                }, null, overlayOptions)
                 console.log('Processed', {result})
                 const newItem = {...item, id: uuidv4(), status: 'done', result}
                 setQueue(prev => prev.concat(newItem))
+                setActiveIdList(prev => prev.concat(newItem.id))
             } catch (err) {
                 console.error('err', {err})
             }
@@ -395,7 +405,7 @@ export function PsdDataProvider({children}) {
 
         try {
             const item = queue.find(q => q.id === id)
-            const result = await analyzeImageFiles(item.file, {...settings, binSpacing}, corners, overlayOptions, null)
+            const result = await analyzeImageFiles(item.file, {...settings, binSpacing,sampleName: item.sampleName}, corners, overlayOptions)
             setQueue(prev => prev.map(p => p.id === id ? {...p, status: 'done', result} : p))
         } catch (err) {
             setQueue(prev => prev.map(p => p.id === id ? {...p, status: 'error', error: String(err)} : p))

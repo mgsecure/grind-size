@@ -32,33 +32,37 @@ export default function PsdUIProvider({children}) {
     const aggregateColor = useMemo(() => theme.palette.mode === 'dark' ? '#eeee33' : '#eeee33'
         , [theme.palette.mode])
 
-    const validIdList = useMemo(() => queue
-        .filter(item => (item.status === 'done' && item.id !== aggregateQueueItem?.id))
+    const notErrorIdList = useMemo(() => queue
+        .filter(item => (item.status !== 'error' && item.id !== aggregateQueueItem?.id))
         .map(item => item.id), [aggregateQueueItem?.id, queue])
 
     const chartColors = useMemo(() => {
-            const sampleColors = validIdList.map((id, index) => {
+            const sampleColors = notErrorIdList.map((id, index) => {
                 const color = currentColors[index]
                 if (queue.find(item => item.id === id) && activeIdList.includes(id)) return color
             }).filter(c => c)
             return [...sampleColors, aggregateColor]
-        }, [queue, activeIdList, aggregateColor, currentColors, validIdList])
+        }, [notErrorIdList, aggregateColor, currentColors, queue, activeIdList])
 
     const value = useMemo(() => ({
         theme,
         isDesktop,
         isMobile,
+        currentColors,
         chartColors,
         swapColors,
         aggregateColor,
-        altButtonColor
+        altButtonColor,
+        notErrorIdList
     }), [
         theme,
         isDesktop,
         isMobile,
+        currentColors,
         chartColors,
         swapColors,
-        aggregateColor
+        aggregateColor,
+        notErrorIdList
     ])
 
     return (

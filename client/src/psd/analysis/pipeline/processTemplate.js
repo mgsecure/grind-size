@@ -85,8 +85,6 @@ export function processTemplate({
             presentCorners
         }
 
-        console.log('Scale info:', scaleInfo)
-
         // Define ROI
         let baseRoi = null
         const innerPoints = []
@@ -108,7 +106,7 @@ export function processTemplate({
             ...scaleInfo,
             pxPerMm,
             mmPerPx: 1 / pxPerMm,
-            template,
+            template : template || {},
             templateSize: template.sizeMm,
             detectedTemplate: template.sizeMm,
             templateCorners,
