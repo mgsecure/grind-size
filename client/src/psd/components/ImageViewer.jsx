@@ -28,7 +28,7 @@ import Tooltip from '@mui/material/Tooltip'
 import useClickOrDrag from '../../util/useClickOrDrag.jsx'
 import DataContext from '../../context/DataContext.jsx'
 import ItemInformationButton from './ItemInformationButton.jsx'
-
+import ImageViewModeToggles from './ImageViewModeToggles.jsx'
 
 function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}}) {
     const [open, setOpen] = useState(true)
@@ -188,7 +188,7 @@ function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}})
                                 }
                             </Typography>
                         </Stack>
-
+                        <ImageViewModeToggles/>
                         <ItemInformationButton item={mediaItem} imageViewer={true}/>
 
                     </Stack>

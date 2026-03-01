@@ -7,7 +7,7 @@ import ShowChartIcon from '@mui/icons-material/ShowChart'
 import {useTheme} from '@mui/material/styles'
 import ScaleLinearIcon from '../resources/ScaleLinearIcon.jsx'
 import ScaleLogIcon from '../resources/ScaleLogIcon.jsx'
-import {line, curveLinear, curveCardinal, curveCatmullRom} from 'd3-shape'
+import {line, curveLinear, curveCatmullRom} from 'd3-shape'
 import DataContext from '../../context/DataContext.jsx'
 import ScreenshotElementButton from '../components/ScreenshotElementButton.jsx'
 import UIContext from '../../context/UIContext.jsx'
@@ -143,6 +143,7 @@ export default function HistogramPanel({domEl}) {
                     lowerBound: b.start,
                     upperBound: b.end,
                     seriesName: item.sampleName,
+                    itemId: item.id
                 }))
             }
         })
@@ -275,8 +276,8 @@ export default function HistogramPanel({domEl}) {
                 <Typography variant='body2' sx={{fontWeight: 'bold', mb: 1}} style={{whiteSpace: 'nowrap'}}>
                     Range: {fmtNumber(slice.points[0].data.lowerBound, 1)} – {fmtNumber(slice.points[0].data.upperBound, 1)}
                 </Typography>
-                {slice.points.map(point => (
-                    <Box key={point.id} sx={{
+                {slice.points.map((point, index) => (
+                    <Box key={index} sx={{
                         display: 'flex',
                         alignItems: 'center',
                         gap: 1,
@@ -469,8 +470,8 @@ export default function HistogramPanel({domEl}) {
                                    onClose={closeSettings}/>
 
             <Stack direction='row' flexWrap='wrap' spacing={2} justifyContent='center' sx={{mb: 1, pr: 2, pl: 4}}>
-                {legendItems.map(li => (
-                    <Box key={li.id} sx={{display: 'flex', alignItems: 'center', gap: 0.5}} style={{marginTop: 12}}>
+                {legendItems.map((li, index) => (
+                    <Box key={index} sx={{display: 'flex', alignItems: 'center', gap: 0.5}} style={{marginTop: 12}}>
                         <Box sx={{width: 14, height: 14, backgroundColor: li.color}}
                              onClick={(e) => openSettings(e, li.id)}/>
                         <Typography style={{fontSize: '0.75rem'}}>{li.id}</Typography>

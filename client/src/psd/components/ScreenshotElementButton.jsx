@@ -2,12 +2,12 @@ import IconButton from '@mui/material/IconButton'
 import CameraAltIcon from '@mui/icons-material/CameraAlt'
 import React, {useCallback, useContext} from 'react'
 import html2canvas from 'html2canvas'
-import DataContext from '../../context/DataContext.jsx'
+import UIContext from '../../context/UIContext.jsx'
 import {useHotkeys} from 'react-hotkeys-hook'
 
 export default function ScreenshotElementButton({domEl, filename, disabled}) {
 
-    const {setShowTitleBar} = useContext(DataContext)
+    const {setShowTitleBar} = useContext(UIContext)
 
     const downloadImage = useCallback(async () => {
         if (!domEl.current) return

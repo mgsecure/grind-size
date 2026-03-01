@@ -148,6 +148,23 @@ export async function renderMaskPng(maskObj, width, height, originalImageData, v
     return canvas.toDataURL('image/png')
 }
 
+export async function renderOriginalPng(imageData) {
+    const {width, height} = imageData
+    const canvas = document.createElement('canvas')
+    canvas.width = width
+    canvas.height = height
+    const ctx = canvas.getContext('2d')
+
+    // Create a temporary ImageData to avoid any risk of modifying the original
+    const tempImageData = new ImageData(
+        new Uint8ClampedArray(imageData.data),
+        width,
+        height
+    )
+    ctx.putImageData(tempImageData, 0, 0)
+    return canvas.toDataURL('image/png')
+}
+
 export async function renderOverlayPng(imageData, particles, meta = {}, options = {showParticles: true, showMarkers: true, showScale: true, showRoi: true}) {
     const {width, height} = imageData
     const canvas = document.createElement('canvas')

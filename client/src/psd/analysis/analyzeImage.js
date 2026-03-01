@@ -9,14 +9,15 @@ import {morphologyOpen} from './pipeline/morphology.js'
 import {detectParticles} from './pipeline/detectParticles.js'
 import {detectParticlesCandidate} from './pipeline/detectParticlesCandidate.js'
 import {separateOverlaps} from './pipeline/overlapSeparation.js'
+import {separateOverlapsCandidate} from './pipeline/overlapSeparationCandidate.js'
 import {buildHistograms} from './metrics/buildHistograms.js'
 import {calculateStatistics} from './metrics/calculateStatistics.js'
-import {renderMaskPng, renderOverlayPng, renderDiagnosticPng} from './render/renderOutputs.js'
+import {renderMaskPng, renderOverlayPng, renderDiagnosticPng, renderOriginalPng} from './render/renderOutputs.js'
 import {getFileNameWithoutExtension} from '../../util/stringUtils.js'
 import defineROI from './pipeline/defineROI.js'
 
 const debug = false
-const renderDiagnosticImage = true
+const renderDiagnosticImage = false
 
 export async function analyzeImageFiles(file, settings, manualCorners = null, overlayOptions = null) {
     const startedAt = new Date().toISOString()
@@ -112,7 +113,10 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
     debug && console.log('Initial particle detection:', detectResult)
 
     // Optional Overlap Separation (Watershed)
-    const overlapResult = settings.splitOverlaps ? await separateOverlaps(detectFn, detectResult, cleaned, settings) : null
+    const spearationFn = testPipeline ? separateOverlapsCandidate : separateOverlaps
+    console.log(`Using spearation function: ${testPipeline ? 'separateOverlapsCandidate' : 'separateOverlaps'}`)
+
+    const overlapResult = settings.splitOverlaps ? await spearationFn(detectFn, detectResult, mask, settings) : null
     let particles = (overlapResult && overlapResult.particles && overlapResult.particles.length > 0) ? overlapResult.particles : detectResult.particles
     let analysisLabels = (overlapResult && overlapResult.labels) ? overlapResult.labels : detectResult.labels
 
@@ -262,7 +266,19 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         console.error('Mask rendering failed', e)
     }
 
-    // We pass a clone to renderOverlayPng just in case, though it should be read-only
+    // We generate the "Original" view. 
+    // If the image was warped, we use analysisImageData (the warped one) so it matches the mask geometry.
+    let originalPngDataUrl = null
+    try {
+        originalPngDataUrl = await renderOriginalPng({
+            width: analysisImageData.width,
+            height: analysisImageData.height,
+            data: analysisImageData.data.slice()
+        })
+    } catch (e) {
+        console.error('Original rendering failed', e)
+    }
+
     let overlayPngDataUrl = null
     try {
         overlayPngDataUrl = await renderOverlayPng({
@@ -398,6 +414,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         roi,
         warnings,
         previews: {
+            originalPngDataUrl,
             maskPngDataUrl,
             overlayPngDataUrl,
             diagnosticPngDataUrl

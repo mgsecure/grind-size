@@ -6,7 +6,7 @@ export async function separateOverlaps(detectFn, detectResult, cleaned, settings
     try {
         const dt = distanceTransform(cleaned)
         const minPeakDist = 3 + (settings.splitSensitivity || 0.5) * 20
-        const watershedLabels = watershed(dt, detectResult.labels, minPeakDist)
+        const watershedLabels = watershed(dt, detectResult.labels, minPeakDist, settings.minAreaPx)
         return await detectFn(cleaned, {
             minAreaPx: settings.minAreaPx,
             externalLabels: watershedLabels
@@ -62,7 +62,7 @@ export function distanceTransform(maskObj) {
 }
 
 // Standard Watershed using a Priority Queue based on distance
-export function watershed(distObj, labels, minPeakDist = 5) {
+export function watershed(distObj, originalLabels, minPeakDist = 5, minAreaPx = 8) {
     const { width, height, dist } = distObj
 
     // 1. Find local maxima in distance transform to serve as seeds
@@ -87,7 +87,7 @@ export function watershed(distObj, labels, minPeakDist = 5) {
             if (isMax) {
                 // For seeds, we only care about distance, but we should also check
                 // if they are part of a very large component.
-                seeds.push({ x, y, val: dist[idx] })
+                seeds.push({ x, y, val: dist[idx], originalId: originalLabels[idx] })
             }
         }
     }
@@ -146,12 +146,7 @@ export function watershed(distObj, labels, minPeakDist = 5) {
             if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue
             const nidx = ny * width + nx
             // Only grow into foreground pixels that aren't labeled yet
-            // Added check: don't grow into pixels with distance larger than current to avoid moving uphill
-            // (Standard watershed doesn't necessarily need this if seeds are global maxima,
-            // but it helps stability with noisy distance transforms)
             if (dist[nidx] > 0 && seedLabels[nidx] === 0) {
-                // Potential improvement: only assign label if neighbor is "downhill" or "level"
-                // But priority queue already handles "uphill" seeds by popping them first.
                 seedLabels[nidx] = curLabel
                 pq.push(nidx)
             }
@@ -159,8 +154,6 @@ export function watershed(distObj, labels, minPeakDist = 5) {
     }
 
     // 5. Restore "lost" particles that didn't have a watershed seed
-    // We do this by finding all foreground pixels (dist > 0) that still have label 0
-    // and running a simple connected pagePanels pass on them.
     for (let i = 0; i < seedLabels.length; i++) {
         if (dist[i] > 0 && seedLabels[i] === 0) {
             nextId++
@@ -187,6 +180,99 @@ export function watershed(distObj, labels, minPeakDist = 5) {
                         seedLabels[nidx] = nextId
                         stack.push(nidx)
                     }
+                }
+            }
+        }
+    }
+
+    // 6. Post-processing: Merge segments smaller than minAreaPx
+    // We identify segments from the same original particle and merge them if too small.
+    const labelCounts = new Map()
+    for (let i = 0; i < seedLabels.length; i++) {
+        const label = seedLabels[i]
+        if (label === 0) continue
+        labelCounts.set(label, (labelCounts.get(label) || 0) + 1)
+    }
+
+    const smallLabels = []
+    for (const [label, count] of labelCounts.entries()) {
+        if (count < minAreaPx) {
+            smallLabels.push(label)
+        }
+    }
+
+    if (smallLabels.length > 0) {
+        const smallLabelSet = new Set(smallLabels)
+        // For each small label, find its neighbors
+        const neighborMap = new Map() // label -> Set of neighboring labels
+
+        for (let y = 0; y < height; y++) {
+            for (let x = 0; x < width; x++) {
+                const idx = y * width + x
+                const label = seedLabels[idx]
+                if (label === 0) continue
+
+                const neighbors = [[x + 1, y], [x, y + 1]]
+                for (const [nx, ny] of neighbors) {
+                    if (nx >= width || ny >= height) continue
+                    const nidx = ny * width + nx
+                    const nlabel = seedLabels[nidx]
+                    if (nlabel !== 0 && nlabel !== label) {
+                        if (smallLabelSet.has(label)) {
+                            if (!neighborMap.has(label)) neighborMap.set(label, new Set())
+                            neighborMap.get(label).add(nlabel)
+                        }
+                        if (smallLabelSet.has(nlabel)) {
+                            if (!neighborMap.has(nlabel)) neighborMap.set(nlabel, new Set())
+                            neighborMap.get(nlabel).add(label)
+                        }
+                    }
+                }
+            }
+        }
+
+        // Merge small labels into their largest neighbor
+        // We iterate and merge. If a small label has multiple neighbors, pick the largest one.
+        const mergeMap = new Map() // smallLabel -> largestNeighbor
+        for (const smallLabel of smallLabels) {
+            const neighbors = neighborMap.get(smallLabel)
+            if (neighbors) {
+                let largestNeighbor = -1
+                let maxCount = -1
+                for (const n of neighbors) {
+                    const c = labelCounts.get(n) || 0
+                    if (c > maxCount) {
+                        maxCount = c
+                        largestNeighbor = n
+                    }
+                }
+                if (largestNeighbor !== -1) {
+                    mergeMap.set(smallLabel, largestNeighbor)
+                    // Update count of largestNeighbor
+                    labelCounts.set(largestNeighbor, (labelCounts.get(largestNeighbor) || 0) + (labelCounts.get(smallLabel) || 0))
+                }
+            }
+        }
+
+        if (mergeMap.size > 0) {
+            // Pre-flatten the mergeMap to avoid O(D) path following in the loop (where D is depth of merge chains)
+            const flattenedMergeMap = new Map()
+            for (const startLabel of mergeMap.keys()) {
+                let target = startLabel
+                const visited = new Set()
+                while (mergeMap.has(target)) {
+                    visited.add(target)
+                    target = mergeMap.get(target)
+                    if (visited.has(target)) break // Cycle break
+                }
+                flattenedMergeMap.set(startLabel, target)
+            }
+
+            // Single pass to update all pixels
+            for (let i = 0; i < seedLabels.length; i++) {
+                const label = seedLabels[i]
+                if (flattenedMergeMap.has(label)) {
+                    seedLabels[i] = flattenedMergeMap.get(label)
                 }
             }
         }

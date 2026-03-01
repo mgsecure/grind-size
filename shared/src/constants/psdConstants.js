@@ -62,18 +62,44 @@ export const PSD_PRESETS = {
         }
     },
     fines: {
-        name: 'Fines/Macro',
+        name: 'Fines',
         params: {
             name: 'fines',
             bgSigma: 25,
-            adaptiveBlockSize: 101,
+            adaptiveBlockSize: 100,
             adaptiveC: 3,
             minAreaPx: 4,
             maxAreaMm2: 5,
             splitOverlaps: false,
             splitSensitivity: 0.6
         }
-    }
+    },
+    camera: {
+        name: 'Camera',
+        params: {
+            name: 'camera',
+            minAreaPx: 4,
+            maxAreaMm2: 8,
+            bgSigma: 25,
+            adaptiveBlockSize: 120,
+            adaptiveC: 6,
+            splitOverlaps: false,
+            splitSensitivity: 0.6
+        }
+    },
+    c1: {
+        name: 'C1',
+        params: {
+            name: 'c1',
+            minAreaPx: 4,
+            maxAreaMm2: 8,
+            bgSigma: 25,
+            adaptiveBlockSize: 120,
+            adaptiveC: 6,
+            splitOverlaps: false,
+            splitSensitivity: 0.6
+        }
+    },
 }
 
 

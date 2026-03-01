@@ -13,6 +13,9 @@ export default function PsdUIProvider({children}) {
         queue, activeIdList, aggregateQueueItem
     } = useContext(DataContext)
 
+    const [showTitleBar, setShowTitleBar] = useState(false)
+    const [imageViewMode, setImageViewMode] = useState('mask') // original | mask | overlay | diagnostic
+
     const [reverseColors, setReverseColors] = useState(false)
     const swapColors = useCallback(() => setReverseColors(!reverseColors), [reverseColors])
 
@@ -53,7 +56,9 @@ export default function PsdUIProvider({children}) {
         swapColors,
         aggregateColor,
         altButtonColor,
-        notErrorIdList
+        notErrorIdList,
+        showTitleBar, setShowTitleBar,
+        imageViewMode, setImageViewMode,
     }), [
         theme,
         isDesktop,
@@ -62,7 +67,9 @@ export default function PsdUIProvider({children}) {
         chartColors,
         swapColors,
         aggregateColor,
-        notErrorIdList
+        notErrorIdList,
+        showTitleBar, setShowTitleBar,
+        imageViewMode, setImageViewMode,
     ])
 
     return (

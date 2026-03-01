@@ -31,9 +31,6 @@ export function PsdDataProvider({children}) {
     const [overlayOptions, setOverlayOptions] = useState({
         showParticles: true, showMarkers: true, showScale: true, showRoi: true
     })
-    const [showTitleBar, setShowTitleBar] = useState(false)
-
-    console.log('queue', queue)
 
     const processedCount = useMemo(() => queue.reduce((acc, q) => {
         acc = acc + ((q.status === 'done' && q.result) || q.status === 'error' ? 1 : 0)
@@ -382,10 +379,9 @@ export function PsdDataProvider({children}) {
                     ...PSD_DEFAULTS,
                     ...value.params,
                     binSpacing,
-                    sampleName: `${item.sampleName || item.result.filename}-${key}`
                 }, null, overlayOptions)
                 console.log('Processed', {result})
-                const newItem = {...item, id: uuidv4(), status: 'done', result}
+                const newItem = {...item, id: uuidv4(), status: 'done', result, sampleName: `${item.sampleName || result.filename}-${key}`}
                 setQueue(prev => prev.concat(newItem))
                 setActiveIdList(prev => prev.concat(newItem.id))
             } catch (err) {
@@ -450,7 +446,6 @@ export function PsdDataProvider({children}) {
         processMultipleSettings,
         handleManualCorners,
         cancelManual,
-        showTitleBar, setShowTitleBar, // TODO: move to UIContext
     }), [
         settings, setSettings,
         customSettings, setCustomSettings,
@@ -482,7 +477,6 @@ export function PsdDataProvider({children}) {
         processMultipleSettings,
         handleManualCorners,
         cancelManual,
-        showTitleBar, setShowTitleBar,
     ])
 
     return (

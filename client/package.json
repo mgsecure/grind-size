@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "yarn versionFile && vite build",
     "preview": "vite preview --port 3000",
     "test": "vitest",
     "test:run": "vitest run",
-    "lint": "eslint \"src/**/*.{js,jsx}\" --max-warnings 0"
+    "lint": "eslint \"src/**/*.{js,jsx}\" --max-warnings 0",
+    "versionFile": "node ./scripts/version.js"
   },
   "author": "Neal Bayless",
   "license": "MIT",
