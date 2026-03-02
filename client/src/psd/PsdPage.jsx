@@ -10,6 +10,8 @@ import DataContext from '../context/DataContext.jsx'
 import {useTheme} from '@mui/material/styles'
 import UIContext from '../context/UIContext.jsx'
 import VersionChecker from '../app/VersionChecker.jsx'
+import OverlapPresetToggles from './components/OverlapPresetToggles.jsx'
+import DebugToggles from './components/DebugToggles.jsx'
 
 export default function PsdPage() {
     const theme = useTheme()
@@ -88,6 +90,8 @@ export default function PsdPage() {
             <ImagePanel/>
 
             <div style={{height: 100}}/>
+
+            <DebugToggles />
 
         </Stack>
     )

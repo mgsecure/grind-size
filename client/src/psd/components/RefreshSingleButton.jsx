@@ -9,31 +9,38 @@ export default function RefreshSingleButton({id}) {
     const {
         queue,
         setQueue,
-        settings
+        settings,
+        debugLevel
     } = useContext(DataContext)
 
     const item = queue.find(item => item.id === id)
     if (!item) return null
 
-    const ignore = ['name', 'bins', 'binSpacing']
+    const debugError = debugLevel > 0 && item.status === 'error'
+    //if (item.status !== 'done' && !debugError) return null
+
+    const ignore = ['name', 'bins', 'binSpacing', 'sampleName']
 
     const cleanSettings = cleanObject(settings, {ignore})
     const cleanItemSettings = cleanObject(item.result?.settings, {ignore})
-    const needsRefresh = !isDeepEqual(cleanSettings, cleanItemSettings)
+    const needsRefresh = (item.status === 'done' && !isDeepEqual(cleanSettings, cleanItemSettings))
 
     const refreshSingle = useCallback((e) => {
         e.stopPropagation()
         e.preventDefault()
-        if (!needsRefresh || item.status !== 'done') return
+        if (!needsRefresh && !debugError) return
         const newItems = [...queue].map(item => item.id === id ? {...item, status: 'queued', error: null} : item)
         setQueue(newItems)
-    }, [id, item.status, needsRefresh, queue, setQueue])
+    }, [debugError, id, needsRefresh, queue, setQueue])
 
 
     return (
-        <IconButton size='small' onClick={(e) => refreshSingle(e)}>
+        <IconButton
+            size='small'
+            disabled={item.status !== 'done' && !debugError}
+            onClick={(e) => refreshSingle(e)}>
             <SyncIcon
-                color={(needsRefresh && item.status === 'done') ? 'info' : 'disabled'}
+                color={needsRefresh ? 'info' : 'disabled'}
                 fontSize='small'/>
         </IconButton>
     )

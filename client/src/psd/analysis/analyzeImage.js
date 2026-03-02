@@ -114,7 +114,8 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
 
     // Optional Overlap Separation (Watershed)
     const spearationFn = testPipeline ? separateOverlapsCandidate : separateOverlaps
-    console.log(`Using spearation function: ${testPipeline ? 'separateOverlapsCandidate' : 'separateOverlaps'}`)
+
+    debug && console.log(`Using spearation function: ${testPipeline ? 'separateOverlapsCandidate' : 'separateOverlaps'}`)
 
     const overlapResult = settings.splitOverlaps ? await spearationFn(detectFn, detectResult, mask, settings) : null
     let particles = (overlapResult && overlapResult.particles && overlapResult.particles.length > 0) ? overlapResult.particles : detectResult.particles

@@ -112,7 +112,9 @@ export default function StatsPanel() {
         {key: 'maxAreaMm2', label: 'Max Area', unit: 'mm2'},
 
         {key: 'splitOverlaps', label: 'Split Overlaps', unit: ''},
-        {key: 'splitSensitivity', label: 'Split Sensitivity', unit: ''}
+        {key: 'splitSensitivity', label: 'Split Sensitivity', unit: ''},
+        {key: 'extraSeedSensitivity', label: 'Extra Seed Sensitivity', unit: ''},
+        {key: 'extraSeedMinDistFactor', label: 'Extra Seed Distance Factor', unit: ''},
     ]
 
     const tableData = activeItems.reduce((acc, item) => {
@@ -156,6 +158,8 @@ export default function StatsPanel() {
             chartMode: item.settings?.chartMode,
             splitOverlaps: item.settings?.splitOverlaps ? 'Enabled' : 'Disabled',
             splitSensitivity: item.settings?.splitOverlaps ? item.settings?.splitSensitivity : 'n/a',
+            extraSeedSensitivity: item.settings?.splitOverlaps ? item.settings?.extraSeedSensitivity : 'n/a',
+            extraSeedMinDistFactor: item.settings?.splitOverlaps ? item.settings?.extraSeedMinDistFactor : 'n/a',
             ellipseFactor: item.settings?.ellipseFactor,
             analysisChannel: item.settings?.analysisChannel,
             value: item.settings?.value,

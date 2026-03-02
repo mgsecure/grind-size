@@ -63,7 +63,7 @@ export default function HistogramPanel({domEl}) {
     const sampleNames = allItems.reduce((acc, item) => {
         acc[item.id] = item.sampleName
         return acc
-    },{})
+    }, {})
 
     const legendItems = allItems
         .filter(item => activeIdList.includes(item.id))
@@ -117,7 +117,7 @@ export default function HistogramPanel({domEl}) {
             const entry = {
                 bin: fmtNumber(b.center, xAxis === 'diameter' ? 1 : 0),
                 lowerBound: b.start,
-                upperBound: b.end,
+                upperBound: b.end
             }
             itemsWithHist.forEach(item => {
                 const h = binSpacing === 'log' ? item.histograms.log : item.histograms.linear
@@ -321,7 +321,11 @@ export default function HistogramPanel({domEl}) {
                     size='small'
                     value={yAxis}
                     exclusive
-                    onChange={(_, v) => {if (v) {setYAxis(v)}}}
+                    onChange={(_, v) => {
+                        if (v) {
+                            setYAxis(v)
+                        }
+                    }}
                     style={{margin: '10px 10px 10px 0'}}
                 >
                     <ToggleButton value='mass'>Mass</ToggleButton>
@@ -385,7 +389,7 @@ export default function HistogramPanel({domEl}) {
                         <ToggleButton value='linear' style={{}}>
                             <CurveLinearIcon width={16} height={16} style={{margin: '4px 5px'}}/>
                         </ToggleButton>
-                        <ToggleButton value='curve' >
+                        <ToggleButton value='curve'>
                             <CurveCardinalIcon width={16} height={16} style={{margin: '4px 5px'}}/>
                         </ToggleButton>
                     </ToggleButtonGroup>
@@ -466,8 +470,10 @@ export default function HistogramPanel({domEl}) {
                 </Box>
             )}
 
-            <ItemInformationButton item={settingsItem} noButton={true} openOverride={settingsOpen}
-                                   onClose={closeSettings}/>
+            {activeItems.length > 0 &&
+                <ItemInformationButton item={settingsItem} noButton={true} openOverride={settingsOpen}
+                                       onClose={closeSettings}/>
+            }
 
             <Stack direction='row' flexWrap='wrap' spacing={2} justifyContent='center' sx={{mb: 1, pr: 2, pl: 4}}>
                 {legendItems.map((li, index) => (

@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react'
 import DataContext from '../context/DataContext.jsx'
-import {PSD_DEFAULTS, PSD_PRESETS} from '@starter/shared'
+import {PSD_DEFAULTS, PSD_PRESETS, overlapSplitPresets} from '@starter/shared'
 import {analyzeImageFiles} from './analysis/analyzeImage.js'
 import {buildHistograms} from './analysis/metrics/buildHistograms.js'
 import {calculateStatistics} from './analysis/metrics/calculateStatistics.js'
@@ -12,6 +12,8 @@ import {setDeep, setDeepJoin, setDeepMultiple} from '../util/setDeep.js'
 
 export function PsdDataProvider({children}) {
     const {isDesktop} = useWindowSize()
+
+    const [debugLevel, setDebugLevel] = useLocalStorage('psd-debug', 0)
 
     // State from PsdPage
     const [settings, setSettings] = useState({...PSD_DEFAULTS})
@@ -31,6 +33,7 @@ export function PsdDataProvider({children}) {
     const [overlayOptions, setOverlayOptions] = useState({
         showParticles: true, showMarkers: true, showScale: true, showRoi: true
     })
+    const [overlapPreset, setOverlapPreset] = useState('low') // off | low | normal | (high)
 
     const processedCount = useMemo(() => queue.reduce((acc, q) => {
         acc = acc + ((q.status === 'done' && q.result) || q.status === 'error' ? 1 : 0)
@@ -416,6 +419,7 @@ export function PsdDataProvider({children}) {
 
 
     const value = useMemo(() => ({
+        debugLevel, setDebugLevel,
         settings, setSettings,
         customSettings, setCustomSettings,
         retainCustomSettings, setRetainCustomSettings,
@@ -446,38 +450,8 @@ export function PsdDataProvider({children}) {
         processMultipleSettings,
         handleManualCorners,
         cancelManual,
-    }), [
-        settings, setSettings,
-        customSettings, setCustomSettings,
-        retainCustomSettings, setRetainCustomSettings,
-        isCustomSettings, setIsCustomSettings,
-        queue, setQueue,
-        processingComplete,
-        droppedFiles, setDroppedFiles,
-        activeIdList, setActiveIdList,
-        xAxis, setXAxis,
-        yAxis, setYAxis,
-        binSpacing, setBinSpacing,
-        resetToggle, setResetToggle,
-        isAnalyzing, setIsAnalyzing,
-        manualSelectionId, setManualSelectionId,
-        manualSelectionUrl, setManualSelectionUrl,
-        overlayOptions, setOverlayOptions,
-        aggregateQueueItem,
-        aggregateItem,
-        queueItems,
-        allItems,
-        activeItems,
-        getItemDetails,
-        globalMaxY,
-        isDesktop,
-        onFiles,
-        analyzeAll,
-        handleQueueRemove,
-        processMultipleSettings,
-        handleManualCorners,
-        cancelManual,
-    ])
+        overlapSplitPresets, overlapPreset, setOverlapPreset
+    }), [debugLevel, setDebugLevel, settings, setSettings, customSettings, setCustomSettings, retainCustomSettings, setRetainCustomSettings, isCustomSettings, setIsCustomSettings, queue, setQueue, processingComplete, droppedFiles, setDroppedFiles, activeIdList, setActiveIdList, xAxis, setXAxis, yAxis, setYAxis, binSpacing, setBinSpacing, resetToggle, setResetToggle, isAnalyzing, setIsAnalyzing, manualSelectionId, setManualSelectionId, manualSelectionUrl, setManualSelectionUrl, overlayOptions, setOverlayOptions, aggregateQueueItem, aggregateItem, queueItems, allItems, activeItems, getItemDetails, globalMaxY, isDesktop, onFiles, analyzeAll, handleQueueRemove, processMultipleSettings, handleManualCorners, cancelManual, overlapPreset, setOverlapPreset])
 
     return (
         <DataContext.Provider value={value}>

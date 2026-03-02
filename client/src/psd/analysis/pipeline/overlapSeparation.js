@@ -1,14 +1,14 @@
 
 export async function separateOverlaps(detectFn, detectResult, cleaned, settings) {
 
-    console.log('using separateOverlaps')
-
     try {
         const dt = distanceTransform(cleaned)
         const minPeakDist = 3 + (settings.splitSensitivity || 0.5) * 20
-        const watershedLabels = watershed(dt, detectResult.labels, minPeakDist, settings.minAreaPx)
+        const watershedLabels = watershed(dt, detectResult.labels, minPeakDist, settings.minAreaPx, settings)
         return await detectFn(cleaned, {
             minAreaPx: settings.minAreaPx,
+            minSolidity: settings.minSolidity,
+            ellipseFactor: settings.ellipseFactor,
             externalLabels: watershedLabels
         })
     } catch (e) {
@@ -17,7 +17,6 @@ export async function separateOverlaps(detectFn, detectResult, cleaned, settings
         // For now, let it throw to surface the error.
         throw e
     }
-
 }
 
 export function distanceTransform(maskObj) {
@@ -30,16 +29,23 @@ export function distanceTransform(maskObj) {
         dist[i] = mask[i] > 0 ? INF : 0
     }
 
-    // Two-pass 4-connectivity distance transform (Manhattan-ish, but Euclidean-ish squared is better)
-    // For simplicity, we'll start with a 4-neighbor pass for an approximation
+    // Two-pass 8-connectivity distance transform (Euclidean approximation using Chamfer 5-7-11 or similar)
+    // We'll use a simpler but better-than-Manhattan approach: 8-connectivity with weight 1 and 1.414
+    const SQRT2 = Math.sqrt(2)
+
     // Pass 1: Top-Left to Bottom-Right
     for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
             const idx = y * width + x
             if (dist[idx] > 0) {
                 let d = dist[idx]
+                // 8 neighbors in previous scan (top-left, top, top-right, left)
                 if (x > 0) d = Math.min(d, dist[idx - 1] + 1)
-                if (y > 0) d = Math.min(d, dist[idx - width] + 1)
+                if (y > 0) {
+                    d = Math.min(d, dist[idx - width] + 1)
+                    if (x > 0) d = Math.min(d, dist[idx - width - 1] + SQRT2)
+                    if (x < width - 1) d = Math.min(d, dist[idx - width + 1] + SQRT2)
+                }
                 dist[idx] = d
             }
         }
@@ -51,8 +57,13 @@ export function distanceTransform(maskObj) {
             const idx = y * width + x
             if (dist[idx] > 0) {
                 let d = dist[idx]
+                // 8 neighbors in next scan (bottom-right, bottom, bottom-left, right)
                 if (x < width - 1) d = Math.min(d, dist[idx + 1] + 1)
-                if (y < height - 1) d = Math.min(d, dist[idx + width] + 1)
+                if (y < height - 1) {
+                    d = Math.min(d, dist[idx + width] + 1)
+                    if (x < width - 1) d = Math.min(d, dist[idx + width + 1] + SQRT2)
+                    if (x > 0) d = Math.min(d, dist[idx + width - 1] + SQRT2)
+                }
                 dist[idx] = d
             }
         }
@@ -62,11 +73,11 @@ export function distanceTransform(maskObj) {
 }
 
 // Standard Watershed using a Priority Queue based on distance
-export function watershed(distObj, originalLabels, minPeakDist = 5, minAreaPx = 8) {
+export function watershed(distObj, originalLabels, minPeakDist = 5, minAreaPx = 8, settings) {
     const { width, height, dist } = distObj
 
     // 1. Find local maxima in distance transform to serve as seeds
-    const seeds = []
+    let seeds = []
     for (let y = 1; y < height - 1; y++) {
         for (let x = 1; x < width - 1; x++) {
             const idx = y * width + x
@@ -85,8 +96,6 @@ export function watershed(distObj, originalLabels, minPeakDist = 5, minAreaPx = 
             }
 
             if (isMax) {
-                // For seeds, we only care about distance, but we should also check
-                // if they are part of a very large component.
                 seeds.push({ x, y, val: dist[idx], originalId: originalLabels[idx] })
             }
         }
@@ -94,6 +103,139 @@ export function watershed(distObj, originalLabels, minPeakDist = 5, minAreaPx = 
 
     // 2. Sort seeds by distance (highest first)
     seeds.sort((a, b) => b.val - a.val)
+
+    // 2a. Pre-filter seeds: prominence check (H-maxima-like approach)
+    // We only keep seeds that are not "too close" in value to an existing higher seed
+    // that belongs to the same original particle.
+    const hMaximaThreshold = 1.2 // Increased slightly to be more conservative on smooth peaks
+    const filteredSeedsByHeight = []
+    for (const seed of seeds) {
+        let isSuppressed = false
+        for (const existing of filteredSeedsByHeight) {
+            if (seed.originalId === existing.originalId) {
+                const dx = seed.x - existing.x
+                const dy = seed.y - existing.y
+                const distBetweenSeeds = Math.sqrt(dx * dx + dy * dy)
+
+                // If the new seed is very close to a higher peak, AND the distance value difference is small
+                // compared to the distance between them, it's likely noise on a smooth slope.
+                // We also consider the 'valley' between them for irregular clumps.
+                if (distBetweenSeeds < minPeakDist * 1.6 && (existing.val - seed.val) < hMaximaThreshold) {
+                    isSuppressed = true
+                    break
+                }
+            }
+        }
+        if (!isSuppressed) {
+            filteredSeedsByHeight.push(seed)
+        }
+    }
+    seeds = filteredSeedsByHeight
+
+    // 2b. Secondary seed detection for irregular clumps: "Prominent Local Inflexions"
+    // We use the solidity of the original particle to decide how aggressive to be.
+    // If a particle is already very solid/round, we should be conservative.
+    const originalParticleStats = new Map() // id -> { area, sumX, sumY, sumX2, sumY2, sumXY }
+    for (let i = 0; i < originalLabels.length; i++) {
+        const id = originalLabels[i]
+        if (id === 0) continue
+        if (!originalParticleStats.has(id)) {
+            originalParticleStats.set(id, { area: 0, sumX: 0, sumY: 0, sumX2: 0, sumY2: 0, sumXY: 0 })
+        }
+        const s = originalParticleStats.get(id)
+        const x = i % width
+        const y = (i / width) | 0
+        s.area++
+        s.sumX += x
+        s.sumY += y
+        s.sumX2 += x * x
+        s.sumY2 += y * y
+        s.sumXY += x * y
+    }
+
+    const ellipseFactor = settings.ellipseFactor || 5.0
+
+    const originalParticleSolidity = new Map()
+    for (const [id, s] of originalParticleStats.entries()) {
+        const mu20 = s.sumX2 / s.area - (s.sumX / s.area) ** 2
+        const mu02 = s.sumY2 / s.area - (s.sumY / s.area) ** 2
+        const mu11 = s.sumXY / s.area - (s.sumX / s.area) * (s.sumY / s.area)
+        const common = Math.sqrt(Math.max(0, (mu20 - mu02) ** 2 + 4 * mu11 ** 2))
+        const majorPx = Math.sqrt(Math.max(0, ellipseFactor * (mu20 + mu02 + common)))
+        const minorPx = Math.sqrt(Math.max(0, ellipseFactor * (mu20 + mu02 - common)))
+        const ellipseAreaPx = Math.PI * (minorPx / 2) * (majorPx / 2)
+        originalParticleSolidity.set(id, s.area / ellipseAreaPx)
+    }
+
+    const originalParticleSeedCount = new Map()
+    for (const s of seeds) {
+        originalParticleSeedCount.set(s.originalId, (originalParticleSeedCount.get(s.originalId) || 0) + 1)
+    }
+
+    // Identify particles that might need more seeds
+    const candidateParticlesForExtraSeeds = new Set()
+    for (const id of originalParticleStats.keys()) {
+        const count = originalParticleSeedCount.get(id) || 0
+        const solidity = originalParticleSolidity.get(id) || 1.0
+
+        // If it's very solid (> 0.9), only add extra seeds if it currently has NO seeds.
+        // If it's irregular (< 0.85), we are more open to extra seeds.
+        if (count === 0 || (count === 1 && solidity < 0.88)) {
+            candidateParticlesForExtraSeeds.add(id)
+        }
+    }
+
+    if (candidateParticlesForExtraSeeds.size > 0) {
+        // Tunable parameters for extra seeds
+        const extraSeedSensitivity = settings.extraSeedSensitivity ?? 0.3
+        const extraSeedMinDistFactor = settings.extraSeedMinDistFactor ?? 1.5
+
+        for (let y = 1; y < height - 1; y++) {
+            for (let x = 1; x < width - 1; x++) {
+                const idx = y * width + x
+                const origId = originalLabels[idx]
+                if (origId === 0 || !candidateParticlesForExtraSeeds.has(origId)) continue
+
+                const dVal = dist[idx]
+                if (dVal < minPeakDist && dVal > minPeakDist * extraSeedSensitivity) {
+                    let isLocalMax = true
+                    // Smaller window (3x3) for extra seeds to catch smaller nodes
+                    for (let dy = -1; dy <= 1; dy++) {
+                        for (let dx = -1; dx <= 1; dx++) {
+                            if (dx === 0 && dy === 0) continue
+                            const nidx = (y + dy) * width + (x + dx)
+                            if (dist[nidx] > dVal) {
+                                isLocalMax = false
+                                break
+                            }
+                        }
+                        if (!isLocalMax) break
+                    }
+
+                    if (isLocalMax) {
+                        const particleSeeds = seeds.filter(s => s.originalId === origId)
+                        let tooCloseToAny = false
+                        const solidity = originalParticleSolidity.get(origId) || 1.0
+
+                        // Scale minDistFactor by solidity: if highly irregular, allow seeds to be closer
+                        const effectiveDistFactor = solidity < 0.75 ? extraSeedMinDistFactor * 0.8 : extraSeedMinDistFactor
+
+                        for (const s of particleSeeds) {
+                            const d2 = (x - s.x) ** 2 + (y - s.y) ** 2
+                            if (d2 <= (minPeakDist * effectiveDistFactor) ** 2) {
+                                tooCloseToAny = true
+                                break
+                            }
+                        }
+
+                        if (!tooCloseToAny) {
+                            seeds.push({ x, y, val: dVal, originalId: origId })
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     // 3. Assign new labels to seeds
     let nextId = 0

@@ -15,21 +15,22 @@ import ErrorIcon from '@mui/icons-material/Error'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 
 export default function ItemInformationButton({item, imageViewer = false, noButton = false, openOverride = false, onClose = () => {}}) {
-    if (!item || (!item.result && !item.error)) return null
 
-    const {sampleName = 'sample', result = {}} = item
-    const {settings = {}, stats = {}, scale = {}} = result || {}
+    if (!item) return null
 
     const theme = useTheme()
     const [open, setOpen] = useState(false)
     const [name, setName] = useState(item.sampleName || 'sample')
     const [editOpen, setEditOpen] = useState(false)
-
+    const {queue, setQueue, isDesktop} = useContext(DataContext)
     useEffect(() => {
         setName(item.sampleName || 'sample')
     }, [item])
 
-    const {queue, setQueue, isDesktop} = useContext(DataContext)
+    const {sampleName = 'sample', result = {}} = item
+    const {settings = {}, stats = {}, scale = {}} = result || {}
+
+
     const queueItemNames = queue.map(item => item.sampleName)
     const queueItem = queue.find(q => q.id === item.id)
 
@@ -156,9 +157,17 @@ export default function ItemInformationButton({item, imageViewer = false, noButt
         </div>
 
     )
+
+    if (!item || !['done', 'error'].includes(item.status)) return (
+        <IconButton disabled style={{height: 36, width: 36}}>
+            <InfoOutlineIcon fontSize='small' color={'disabled'} sx={{color: 'disabled'}} />
+        </IconButton>
+    )
+
+
     return (
         <>
-            {!noButton &&
+            {!noButton && item &&
                 <IconButton onClick={(e) => openDrawer(e)} disabled={!['done', 'error'].includes(item.status)}
                             style={{height: 36, width: 36}}>
                     <InfoOutlineIcon fontSize='small'
@@ -169,7 +178,7 @@ export default function ItemInformationButton({item, imageViewer = false, noButt
                 ? <Dialog
                     anchor='left'
                     open={open || openOverride}
-                    onOpen={(e) => openDrawer(e)}
+                    //onOpen={(e) => openDrawer(e)}
                     onClose={(e) => closeDrawer(e)}
                 >
                     {titleBar}

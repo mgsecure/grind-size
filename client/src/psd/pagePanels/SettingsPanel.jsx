@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react'
-import {Paper, Stack, Typography, Slider, Divider, FormControlLabel} from '@mui/material'
+import {Paper, Stack, Typography, Slider, FormControlLabel} from '@mui/material'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import ToggleButton from '@mui/material/ToggleButton'
 import Button from '@mui/material/Button'
@@ -12,15 +12,18 @@ import CustomSettingsButtons from '../components/CustomSettingButtons.jsx'
 import ExpandButton from '../../misc/ExpandButton.jsx'
 import HelpContentDrawerButton from '../components/HelpContentDrawerButton.jsx'
 import helpSettings from '../resources/helpSettings.md?raw'
+import OverlapPresetToggles from '../components/OverlapPresetToggles.jsx'
 
 export default function SettingsPanel() {
     const {
+        debugLevel,
         queueItems,
         settings, setSettings,
         customSettings, setCustomSettings,
         retainCustomSettings,
         setResetToggle,
         isCustomSettings, setIsCustomSettings,
+        overlapSplitPresets, setOverlapPreset,
         isDesktop
     } = useContext(DataContext)
 
@@ -34,12 +37,11 @@ export default function SettingsPanel() {
         return queueItems
             .filter(item => item.status === 'done')
             .map(item => item.settings).some(
-                (itemSettings) => !isDeepEqual(itemSettings, settings, {ignore: ['name', 'bins', 'binSpacing']})
+                (itemSettings) => !isDeepEqual(itemSettings, settings, {ignore: ['name', 'bins', 'binSpacing', 'sampleName']})
             )
     }, [queueItems, settings])
 
     const handlePresetChange = (presetKey) => {
-
         setPreset(presetKey)
         const preset = PSD_PRESETS[presetKey]
         if (preset) {
@@ -59,6 +61,18 @@ export default function SettingsPanel() {
             setIsCustomSettings(false)
         }
     }
+
+    const handleOverlapPresetChange = useCallback((presetKey) => {
+        const preset = overlapSplitPresets[presetKey]
+        if (preset) {
+            setOverlapPreset(presetKey)
+            setSettings(prev => ({
+                ...prev,
+                overlapSplitPreset: presetKey,
+                ...preset
+            }))
+        }
+    }, [overlapSplitPresets, setOverlapPreset, setSettings])
 
     const handleCustomClick = useCallback(() => {
         if (isCustomSettings && showDetails) {
@@ -138,73 +152,64 @@ export default function SettingsPanel() {
             </Stack>
 
             <Collapse in={showDetails} sx={{ml: isDesktop ? 1 : 0}}>
-                <Divider sx={{mt: 2, mb: 2}}/>
 
-                <Stack direction='row' spacing={isDesktop ? 3 : 1}
-                       sx={{alignItems: 'center', width: '100%', justifyContent: 'center'}}>
-                    <FormControlLabel
-                        label='Test Pipeline'
-                        control={
-                            <Switch size='small'
-                                    checked={settings.testPipeline}
-                                    onChange={(_, v) => handleParameterChange('testPipeline', v)}
-                                    name='testPipeline'
-                            />}
-                        labelPlacement={'start'} style={{textAlign: 'right'}}
-                    />
-                    <FormControlLabel
-                        label='Correct Perspective'
-                        control={
-                            <Switch size='small'
-                                    checked={settings.correctPerspective}
-                                    onChange={(_, v) => handleParameterChange('correctPerspective', v)}
-                                    name='correctPerspective'
-                            />}
-                        labelPlacement={'start'} style={{textAlign: 'right'}}
-                    />
-                    <FormControlLabel
-                        labelPlacement={'start'}
-                        control={
-                            <Switch size='small'
-                                    checked={settings.useMorphology}
-                                    onChange={(_, v) => handleParameterChange('useMorphology', v)}
-                                    name='useMorphology'
-                            />}
-                        label='Use Morphology' style={{textAlign: 'right'}}
-                    />
-                </Stack>
+                {debugLevel >= 2 &&
+                    <Stack style={{
+                        backgroundColor: 'rgba(0,0,0,0.1)', padding: '18px 0px', margin: '18px 0px',
+                        borderTop: '1px solid #ffffff33', borderBottom: '1px solid #ffffff33', width: '100%'
+                    }}>
+                        <Stack direction='row' spacing={isDesktop ? 3 : 1}
+                               sx={{alignItems: 'center', width: '100%', justifyContent: 'center'}}>
+                            <FormControlLabel
+                                label='Test Pipeline'
+                                control={
+                                    <Switch size='small'
+                                            checked={settings.testPipeline}
+                                            onChange={(_, v) => handleParameterChange('testPipeline', v)}
+                                            name='testPipeline'
+                                    />}
+                                labelPlacement={'start'} style={{textAlign: 'right'}}
+                            />
+                            <FormControlLabel
+                                label='Correct Perspective'
+                                control={
+                                    <Switch size='small'
+                                            checked={settings.correctPerspective}
+                                            onChange={(_, v) => handleParameterChange('correctPerspective', v)}
+                                            name='correctPerspective'
+                                    />}
+                                labelPlacement={'start'} style={{textAlign: 'right'}}
+                            />
+                            <FormControlLabel
+                                labelPlacement={'start'}
+                                control={
+                                    <Switch size='small'
+                                            checked={settings.useMorphology}
+                                            onChange={(_, v) => handleParameterChange('useMorphology', v)}
+                                            name='useMorphology'
+                                    />}
+                                label='Use Morphology' style={{textAlign: 'right'}}
+                            />
+                        </Stack>
 
-                <Divider sx={{mt: 2, mb: 2}}/>
-
-                <Stack direction='row' alignItems='center' sx={{mb: 3, alignContent: 'center'}}>
-                    <Stack sx={{mr: 2}}>
-                        <ToggleButtonGroup
-                            size='small'
-                            value={settings.binsType}
-                            exclusive
-                            onChange={(_e, v) => v && setSettings(prev => ({...prev, binsType: v}))}
-                        >
-                            <ToggleButton value='default'>Default Bins</ToggleButton>
-                            <ToggleButton value='dynamic'>Dynamic</ToggleButton>
-                        </ToggleButtonGroup>
+                        <Stack direction='row'
+                               sx={{alignItems: 'center', width: '100%', justifyContent: 'center', mt: 2}}>
+                            <Stack>
+                                <ToggleButtonGroup
+                                    size='small'
+                                    value={settings.binsType}
+                                    exclusive
+                                    onChange={(_e, v) => v && setSettings(prev => ({...prev, binsType: v}))}
+                                >
+                                    <ToggleButton value='default'>Default Bins</ToggleButton>
+                                    <ToggleButton value='dynamic'>Dynamic</ToggleButton>
+                                </ToggleButtonGroup>
+                            </Stack>
+                        </Stack>
                     </Stack>
+                }
 
-                    <Stack sx={{}}>
-                        <Typography variant='body2'>
-                            Bin Count: {settings.bins}
-                        </Typography>
-                        <Slider
-                            value={settings.bins}
-                            min={10}
-                            max={50}
-                            step={1}
-                            onChange={(_, v) => setSettings(prev => ({...prev, bins: v}))}
-                            style={{marginTop: 0, width: 180}}
-                        />
-                    </Stack>
-                </Stack>
-
-                <Stack direction='row' alignItems='top' sx={{mb: 2, alignContent: 'top', flexWrap: 'wrap'}}>
+                <Stack direction='row' alignItems='top' sx={{mb: 2, mt: 2, alignContent: 'top', flexWrap: 'wrap'}}>
                     <Stack direction='row' style={{width: 350}}>
                         <Stack style={{width: sliderWidth, marginRight: 24}}>
                             <Typography variant='body2'>Min Area (px): {settings.minAreaPx}</Typography>
@@ -231,40 +236,61 @@ export default function SettingsPanel() {
                         </Stack>
                     </Stack>
 
-                    <Stack direction='row' style={{width: 350}}>
+                    <Stack sx={{mr: 2}}>
+                        <Typography variant='body2' style={{whiteSpace: 'nowrap'}}>Overlap
+                            Separation</Typography>
+                        <OverlapPresetToggles onChange={handleOverlapPresetChange}/>
+                    </Stack>
 
-                        <Stack direction='row'>
-                            <Stack sx={{mr: 2}}>
-                                <Typography variant='body2' style={{whiteSpace: 'nowrap'}}>Overlap
-                                    Separation</Typography>
-                                <Switch
-                                    onChange={(_, v) => handleParameterChange('splitOverlaps', v)}
-                                    checked={settings.splitOverlaps}
-                                    color='primary'
-                                    name='splitOverlaps'
-                                />
-                            </Stack>
-                            <Stack style={{width: sliderWidth, marginRight: 24}}>
-                                {settings.splitOverlaps && (
-                                    <>
-                                        <Typography variant='body2'>Separation
-                                            Sensitivity: {settings.splitSensitivity}</Typography>
-                                        <Slider
-                                            value={settings.splitSensitivity}
-                                            min={0.0}
-                                            max={1.0}
-                                            step={0.1}
-                                            onChange={(_, v) => handleParameterChange('splitSensitivity', v)}
-                                            style={{marginTop: 4}}
-                                        />
-                                    </>
-                                )}
+                    {debugLevel >= 1 &&
+                        <Stack style={{
+                            backgroundColor: 'rgba(0,0,0,0.1)', padding: '18px 0px', margin: '24px 0px 18px',
+                            borderTop: '1px solid #ffffff33', borderBottom: '1px solid #ffffff33', width: '100%'
+                        }}>
+                            <Stack direction='row' spacing={isDesktop ? 6 : 1}
+                                   sx={{alignItems: 'center', width: '100%', justifyContent: 'center'}}>
+                                <Stack style={{width: sliderWidth}}>
+                                    <Typography variant='body2'>Separation
+                                        Sensitivity: {settings.splitSensitivity}</Typography>
+                                    <Slider
+                                        value={settings.splitSensitivity}
+                                        min={0.0}
+                                        max={1.0}
+                                        step={0.05}
+                                        onChange={(_, v) => handleParameterChange('splitSensitivity', v)}
+                                        style={{marginTop: 4}}
+                                    />
+                                </Stack>
+                                <Stack style={{width: sliderWidth}}>
+                                    <Typography variant='body2'>Extra Seed
+                                        Sensitivity: {settings.extraSeedSensitivity}</Typography>
+                                    <Slider
+                                        value={settings.extraSeedSensitivity ?? 0.3}
+                                        min={0.0}
+                                        max={1.0}
+                                        step={0.05}
+                                        onChange={(_, v) => handleParameterChange('extraSeedSensitivity', v)}
+                                        style={{marginTop: 4}}
+                                    />
+                                </Stack>
+                                <Stack style={{width: sliderWidth}}>
+                                    <Typography variant='body2'>Extra Seed
+                                        Distance: {settings.extraSeedMinDistFactor}</Typography>
+                                    <Slider
+                                        value={settings.extraSeedMinDistFactor ?? 1.5}
+                                        min={0.5}
+                                        max={3.0}
+                                        step={0.1}
+                                        onChange={(_, v) => handleParameterChange('extraSeedMinDistFactor', v)}
+                                        style={{marginTop: 4}}
+                                    />
+                                </Stack>
                             </Stack>
                         </Stack>
-                    </Stack>
+                    }
                 </Stack>
 
-                <Stack direction='row' alignItems='top' sx={{mb: 2, alignContent: 'top'}}>
+                <Stack direction='row' alignItems='top' sx={{mb: 2, mt: 4, alignContent: 'top'}}>
                     <Stack style={{width: sliderWidth, marginRight: 24}}>
                         <Typography variant='body2'>Background Sigma: {settings.bgSigma}</Typography>
                         <Slider

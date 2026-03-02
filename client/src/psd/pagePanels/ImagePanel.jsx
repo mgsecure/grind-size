@@ -1,9 +1,8 @@
 import React, {useContext, useMemo} from 'react'
-import {Paper, Stack, Typography, alpha, Box, lighten} from '@mui/material'
+import {Paper, Typography, alpha, Box, lighten} from '@mui/material'
 import {useTheme} from '@mui/material/styles'
 import DataContext from '../../context/DataContext.jsx'
 import EntryImageGallery from '../components/EntryImageGallery.jsx'
-import ToggleButtons from '../components/ToggleButtons.jsx'
 import UIContext from '../../context/UIContext.jsx'
 import ImageViewModeToggles from '../components/ImageViewModeToggles.jsx'
 
@@ -14,26 +13,10 @@ export default function ImagePanel() {
         isDesktop
     } = useContext(DataContext)
 
-    const {imageViewMode, setImageViewMode} = useContext(UIContext) // original | mask | overlay | diagnostic
+    const {imageViewMode} = useContext(UIContext) // original | mask | overlay | diagnostic
 
     const theme = useTheme()
 
-    console.log('queue', queue)
-
-    const availableImageModes = Array.from(queue.reduce((acc, item) => {
-        item.result?.previews?.originalPngDataUrl && acc.add('original')
-        item.result?.previews?.overlayPngDataUrl && acc.add('overlay')
-        item.result?.previews?.maskPngDataUrl && acc.add('mask')
-        item.result?.previews?.diagnosticPngDataUrl && acc.add('diagnostic')
-        return acc
-    }, new Set()))
-
-    const modeMap = [
-        {key: 'mode', value: 'original', label: 'Original'},
-        {key: 'mode', value: 'overlay', label: 'Overlay'},
-        {key: 'mode', value: 'mask', label: 'Mask'},
-        {key: 'mode', value: 'diagnostic', label: 'Diagnostic'}
-    ].filter(item => availableImageModes.includes(item.value))
 
     const srcVar = useMemo(() => {
         if (imageViewMode === 'original') return 'originalPngDataUrl'

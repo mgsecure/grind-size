@@ -30,6 +30,8 @@ import DataContext from '../../context/DataContext.jsx'
 import ItemInformationButton from './ItemInformationButton.jsx'
 import ImageViewModeToggles from './ImageViewModeToggles.jsx'
 
+const zoomIncrement = 0.6
+
 function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}}) {
     const [open, setOpen] = useState(true)
     const [loading, setLoading] = useState(true)
@@ -41,10 +43,10 @@ function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}})
     const {isMobile} = useWindowSize()
 
     const {
-        queueItems
+        queue,
     } = useContext(DataContext)
 
-    const mediaItem = queueItems.find(item => item.sequenceId === media.id)
+    const mediaItem = queue.find(item => item.sequenceId === media.id)
 
     const currentMedia = media.find(m => m.sequenceId === openIndex)
     const currentMediaIndex = media.indexOf(currentMedia)
@@ -173,10 +175,10 @@ function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}})
                         <CloseIcon/>
                     </IconButton>
 
-                    <Stack direction='row' sx={{marginLeft: 2, width: '100%'}}>
+                    <Stack direction='row' alignItems='center' sx={{marginLeft: 2, width: '100%'}}>
                         <Stack direction='column' sx={{marginLeft: 2, width: '100%'}}>
                             <Typography variant='subtitle1' component='div'>
-                                {imageTitle}
+                                {imageTitle} (zoom: {zoom.toFixed(1)})
                             </Typography>
                             <Typography variant='subtitle2' component='div' style={{color: '#aaa'}}>
                                 {(subtitleUrl || licenses[subtitle])
@@ -353,7 +355,5 @@ const getCurrentPosition = event => {
         return {x: event.pageX, y: event.pageY}
     }
 }
-
-const zoomIncrement = 0.6
 
 export default ImageViewer

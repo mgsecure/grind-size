@@ -22,6 +22,7 @@ import ItemInformationButton from '../components/ItemInformationButton.jsx'
 import ExportButton from '../components/ExportButton.jsx'
 import ImportButton from '../components/ImportButton.jsx'
 import UIContext from '../../context/UIContext.jsx'
+import LoadingDisplayWhiteSmall from '../../misc/LoadingDisplayWhiteSmall.jsx'
 
 export default function UploadQueuePanel() {
     const theme = useTheme()
@@ -33,7 +34,8 @@ export default function UploadQueuePanel() {
         aggregateQueueItem = {},
         handleQueueRemove,
         activeIdList, setActiveIdList,
-        processMultipleSettings
+        processMultipleSettings,
+        debugLevel
     } = useContext(DataContext)
 
     const {currentColors, aggregateColor, isDesktop} = useContext(UIContext)
@@ -135,16 +137,19 @@ export default function UploadQueuePanel() {
                                                sx={{width: '100%'}}>
                                             <Stack direction='row' alignItems='center'
                                                    sx={{flexGrow: 1, width: '100%'}}>
+
                                                 {activeIdList.includes(item.id)
-                                                    ? <CheckBoxIcon
-                                                        fontSize='small'
-                                                        style={{
-                                                            marginRight: 8,
-                                                            color: (item.id !== aggregateQueueItem?.id
-                                                                    ? currentColors[noErrorIdList.indexOf(item.id)]
-                                                                    : aggregateColor)
-                                                                || theme.palette.primary.main
-                                                        }}/>
+                                                    ? !['done', 'error'].includes(item.status)
+                                                        ? <span style={{marginRight: 8}}><LoadingDisplayWhiteSmall/></span>
+                                                        : <CheckBoxIcon
+                                                            fontSize='small'
+                                                            style={{
+                                                                marginRight: 8,
+                                                                color: (item.id !== aggregateQueueItem?.id
+                                                                        ? currentColors[noErrorIdList.indexOf(item.id)]
+                                                                        : aggregateColor)
+                                                                    || theme.palette.primary.main
+                                                            }}/>
                                                     : <CheckBoxOutlineBlankIcon
                                                         fontSize='small'
                                                         style={{marginRight: 8, color: theme.palette.divider}}/>
@@ -181,7 +186,7 @@ export default function UploadQueuePanel() {
                                             {!item.id.includes('CurrentAggregateResults') &&
                                                 <Stack direction='row' alignItems='center'
                                                        sx={{marginLeft: 1, flexGrow: 0}}>
-                                                    {!Object.keys(PSD_PRESETS).some(s => item.filename?.includes(`-${s}`)) &&
+                                                    {debugLevel >= 1 && !Object.keys(PSD_PRESETS).some(s => item.filename?.includes(`-${s}`)) &&
                                                         item.status === 'done' &&
                                                         item.source !== 'import' &&
                                                         <IconButton
@@ -199,16 +204,15 @@ export default function UploadQueuePanel() {
                                                         </IconButton>
                                                     }
                                                     {!Object.keys(PSD_PRESETS).some(s => item.filename?.includes(`-${s}`)) &&
-                                                        item.status === 'done' &&
+                                                        //['done', 'error'].includes(item.status) &&
                                                         item.source !== 'import' &&
                                                         <Box sx={{display: 'flex', alignItems: 'center'}}>
                                                             <RefreshSingleButton id={item.id}/>
                                                         </Box>
                                                     }
 
-                                                    {['done', 'error'].includes(item.status) &&
-                                                        <ItemInformationButton item={item}/>
-                                                    }
+                                                    <ItemInformationButton item={item}/>
+
                                                     <IconButton edge='end' aria-label='delete' size='small'
                                                                 onClick={() => handleDelete(item.id)}>
                                                         <DeleteIcon fontSize='small'/>

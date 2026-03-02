@@ -1,14 +1,14 @@
 
 export async function separateOverlapsCandidate(detectFn, detectResult, cleaned, settings) {
 
-    console.log('using separateOverlaps')
-
     try {
         const dt = distanceTransform(cleaned)
         const minPeakDist = 3 + (settings.splitSensitivity || 0.5) * 20
-        const watershedLabels = watershed(dt, detectResult.labels, minPeakDist, settings.minAreaPx)
+        const watershedLabels = watershed(dt, detectResult.labels, minPeakDist, settings.minAreaPx, settings)
         return await detectFn(cleaned, {
             minAreaPx: settings.minAreaPx,
+            minSolidity: settings.minSolidity,
+            ellipseFactor: settings.ellipseFactor,
             externalLabels: watershedLabels
         })
     } catch (e) {
@@ -17,7 +17,6 @@ export async function separateOverlapsCandidate(detectFn, detectResult, cleaned,
         // For now, let it throw to surface the error.
         throw e
     }
-
 }
 
 export function distanceTransform(maskObj) {
@@ -74,7 +73,7 @@ export function distanceTransform(maskObj) {
 }
 
 // Standard Watershed using a Priority Queue based on distance
-export function watershed(distObj, originalLabels, minPeakDist = 5, minAreaPx = 8) {
+export function watershed(distObj, originalLabels, minPeakDist = 5, minAreaPx = 8, settings) {
     const { width, height, dist } = distObj
 
     // 1. Find local maxima in distance transform to serve as seeds
@@ -108,7 +107,7 @@ export function watershed(distObj, originalLabels, minPeakDist = 5, minAreaPx = 
     // 2a. Pre-filter seeds: prominence check (H-maxima-like approach)
     // We only keep seeds that are not "too close" in value to an existing higher seed
     // that belongs to the same original particle.
-    const hMaximaThreshold = 1.0 // Lowered from 1.5 to be more sensitive to real overlaps
+    const hMaximaThreshold = 1.2 // Increased slightly to be more conservative on smooth peaks
     const filteredSeedsByHeight = []
     for (const seed of seeds) {
         let isSuppressed = false
@@ -121,7 +120,7 @@ export function watershed(distObj, originalLabels, minPeakDist = 5, minAreaPx = 
                 // If the new seed is very close to a higher peak, AND the distance value difference is small
                 // compared to the distance between them, it's likely noise on a smooth slope.
                 // We also consider the 'valley' between them for irregular clumps.
-                if (distBetweenSeeds < minPeakDist * 1.5 && (existing.val - seed.val) < hMaximaThreshold) {
+                if (distBetweenSeeds < minPeakDist * 1.6 && (existing.val - seed.val) < hMaximaThreshold) {
                     isSuppressed = true
                     break
                 }
@@ -134,10 +133,40 @@ export function watershed(distObj, originalLabels, minPeakDist = 5, minAreaPx = 
     seeds = filteredSeedsByHeight
 
     // 2b. Secondary seed detection for irregular clumps: "Prominent Local Inflexions"
-    // If an original particle only has ONE seed but has low solidity, it might be a clump
-    // that the distance transform failed to split (e.g. thin dog-bone shape).
-    // We can't easily do full contour analysis here without refactoring, 
-    // but we can look for secondary maxima that were filtered out but are far from the main peak.
+    // We use the solidity of the original particle to decide how aggressive to be.
+    // If a particle is already very solid/round, we should be conservative.
+    const originalParticleStats = new Map() // id -> { area, sumX, sumY, sumX2, sumY2, sumXY }
+    for (let i = 0; i < originalLabels.length; i++) {
+        const id = originalLabels[i]
+        if (id === 0) continue
+        if (!originalParticleStats.has(id)) {
+            originalParticleStats.set(id, { area: 0, sumX: 0, sumY: 0, sumX2: 0, sumY2: 0, sumXY: 0 })
+        }
+        const s = originalParticleStats.get(id)
+        const x = i % width
+        const y = (i / width) | 0
+        s.area++
+        s.sumX += x
+        s.sumY += y
+        s.sumX2 += x * x
+        s.sumY2 += y * y
+        s.sumXY += x * y
+    }
+
+    const ellipseFactor = settings.ellipseFactor || 5.0
+
+    const originalParticleSolidity = new Map()
+    for (const [id, s] of originalParticleStats.entries()) {
+        const mu20 = s.sumX2 / s.area - (s.sumX / s.area) ** 2
+        const mu02 = s.sumY2 / s.area - (s.sumY / s.area) ** 2
+        const mu11 = s.sumXY / s.area - (s.sumX / s.area) * (s.sumY / s.area)
+        const common = Math.sqrt(Math.max(0, (mu20 - mu02) ** 2 + 4 * mu11 ** 2))
+        const majorPx = Math.sqrt(Math.max(0, ellipseFactor * (mu20 + mu02 + common)))
+        const minorPx = Math.sqrt(Math.max(0, ellipseFactor * (mu20 + mu02 - common)))
+        const ellipseAreaPx = Math.PI * (minorPx / 2) * (majorPx / 2)
+        originalParticleSolidity.set(id, s.area / ellipseAreaPx)
+    }
+
     const originalParticleSeedCount = new Map()
     for (const s of seeds) {
         originalParticleSeedCount.set(s.originalId, (originalParticleSeedCount.get(s.originalId) || 0) + 1)
@@ -145,42 +174,62 @@ export function watershed(distObj, originalLabels, minPeakDist = 5, minAreaPx = 
 
     // Identify particles that might need more seeds
     const candidateParticlesForExtraSeeds = new Set()
-    for (const [id, count] of originalParticleSeedCount.entries()) {
-        if (count === 1) candidateParticlesForExtraSeeds.add(id)
+    for (const id of originalParticleStats.keys()) {
+        const count = originalParticleSeedCount.get(id) || 0
+        const solidity = originalParticleSolidity.get(id) || 1.0
+        
+        // If it's very solid (> 0.9), only add extra seeds if it currently has NO seeds.
+        // If it's irregular (< 0.85), we are more open to extra seeds.
+        if (count === 0 || (count === 1 && solidity < 0.88)) {
+            candidateParticlesForExtraSeeds.add(id)
+        }
     }
 
     if (candidateParticlesForExtraSeeds.size > 0) {
-        // Look at the original seeds (before height filtering) and see if any 
-        // rejected seeds are actually good candidates for thin clumps.
-        for (const y = 2; y < height - 2; y++) {
-            for (const x = 2; x < width - 2; x++) {
+        // Tunable parameters for extra seeds
+        const extraSeedSensitivity = settings.extraSeedSensitivity ?? 0.3
+        const extraSeedMinDistFactor = settings.extraSeedMinDistFactor ?? 1.5
+
+        for (let y = 1; y < height - 1; y++) {
+            for (let x = 1; x < width - 1; x++) {
                 const idx = y * width + x
                 const origId = originalLabels[idx]
                 if (origId === 0 || !candidateParticlesForExtraSeeds.has(origId)) continue
                 
-                // If this is a local max but smaller than minPeakDist
-                // It might be a seed for a thin part of a clump
                 const dVal = dist[idx]
-                if (dVal < minPeakDist && dVal > minPeakDist * 0.5) {
+                if (dVal < minPeakDist && dVal > minPeakDist * extraSeedSensitivity) {
                     let isLocalMax = true
+                    // Smaller window (3x3) for extra seeds to catch smaller nodes
                     for (let dy = -1; dy <= 1; dy++) {
                         for (let dx = -1; dx <= 1; dx++) {
                             if (dx === 0 && dy === 0) continue
-                            if (dist[idx + dy * width + dx] > dVal) { isLocalMax = false; break }
+                            const nidx = (y + dy) * width + (x + dx)
+                            if (dist[nidx] > dVal) { 
+                                isLocalMax = false
+                                break
+                            }
                         }
                         if (!isLocalMax) break
                     }
                     
                     if (isLocalMax) {
-                        // Check distance to existing seed
-                        const mainSeed = seeds.find(s => s.originalId === origId)
-                        if (mainSeed) {
-                            const d2 = (x - mainSeed.x) ** 2 + (y - mainSeed.y) ** 2
-                            // If it's far enough from the main seed, it's a candidate for a thin clump split
-                            if (d2 > (minPeakDist * 2) ** 2) {
-                                seeds.push({ x, y, val: dVal, originalId: origId })
-                                candidateParticlesForExtraSeeds.delete(origId) // Only add one extra
+                        const particleSeeds = seeds.filter(s => s.originalId === origId)
+                        let tooCloseToAny = false
+                        const solidity = originalParticleSolidity.get(origId) || 1.0
+                        
+                        // Scale minDistFactor by solidity: if highly irregular, allow seeds to be closer
+                        const effectiveDistFactor = solidity < 0.75 ? extraSeedMinDistFactor * 0.8 : extraSeedMinDistFactor
+
+                        for (const s of particleSeeds) {
+                            const d2 = (x - s.x) ** 2 + (y - s.y) ** 2
+                            if (d2 <= (minPeakDist * effectiveDistFactor) ** 2) {
+                                tooCloseToAny = true
+                                break
                             }
+                        }
+
+                        if (!tooCloseToAny) {
+                            seeds.push({ x, y, val: dVal, originalId: origId })
                         }
                     }
                 }

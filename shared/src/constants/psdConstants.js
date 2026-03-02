@@ -6,14 +6,48 @@ export const PSD_TEMPLATES = {
     50: {sizeMm: 50, cornerIds: [10, 11, 12, 13]}
 }
 
+export const overlapSplitPresets = {
+    'off': {
+        overlapPresetName: 'Off',
+        splitOverlaps: false,
+        splitSensitivity: 0,
+        extraSeedSensitivity: 0,
+        extraSeedMinDistFactor: 0,
+    },
+    'low': {
+        overlapPresetName: 'Low',
+        splitOverlaps: true,
+        splitSensitivity: 0.5,
+        extraSeedSensitivity: 0.3,
+        extraSeedMinDistFactor: 1.4,
+    },
+    'normal': {
+        overlapPresetName: 'Normal',
+        splitOverlaps: true,
+        splitSensitivity: 0.3,
+        extraSeedSensitivity: 0.3,
+        extraSeedMinDistFactor: 1.2,
+    },
+    'high': {
+        overlapPresetName: 'High ?',
+        disabled: true,
+        splitOverlaps: true,
+        splitSensitivity: 0.25,
+        extraSeedSensitivity: 0.3,
+        extraSeedMinDistFactor: 0.5,
+    },
+}
+
+const defaultOverlapPreset = 'normal'
+
 // Defaults
 export const PSD_DEFAULTS = {
     name: 'default',
-    testPipeline: true,
+    testPipeline: false,
     useMorphology: true,
     correctPerspective: true,
     warpSizePx: 2000,
-    insetPx: 8,
+    insetPx: 18,
     bgSigma: 35,
     adaptiveBlockSize: 201,
     adaptiveC: 4,
@@ -26,13 +60,17 @@ export const PSD_DEFAULTS = {
     metric: 'diameter', // 'diameter' | 'surface' | 'volume'
     chartMode: 'bar', // 'bar' | 'line'
     splitOverlaps: false,
-    splitSensitivity: 0.4,
+    overlapSplitPreset: defaultOverlapPreset,
+    splitSensitivity: overlapSplitPresets[defaultOverlapPreset].splitSensitivity,
+    extraSeedSensitivity: overlapSplitPresets[defaultOverlapPreset].extraSeedSensitivity,
+    extraSeedMinDistFactor: overlapSplitPresets[defaultOverlapPreset].extraSeedMinDistFactor,
     ellipseFactor: 5.0,
     minSolidity: 0.3,
     analysisChannel: 'grayscale', // 'grayscale' | 'blue'
     value: 'mass',
     templateSize: 100,
 }
+
 
 export const PSD_PRESETS = {
     default: {

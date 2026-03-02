@@ -1,7 +1,7 @@
 import * as CV_pkg from 'js-aruco2/src/cv.js'
 const _CV = CV_pkg.CV || CV_pkg.default?.CV || CV_pkg
 
-export async function detectParticlesCandidate(maskObj, {minAreaPx = 8, minSolidity = 0.3, _maxAreaMm2=10, externalLabels = null, ellipseFactor = 5.0} = {}) {
+export async function detectParticlesCandidate(maskObj, {minAreaPx = 8, minSolidity = 0.3, _maxAreaMm2=10, externalLabels = null, ellipseFactor} = {}) {
     const {width, height, mask} = maskObj
     const labels = externalLabels || new Uint32Array(width * height)
     const particles = []

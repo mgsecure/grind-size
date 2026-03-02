@@ -13,7 +13,11 @@ export default function isDeepEqual(rawX, rawY, props) {
     else if ((typeof x === 'object' && x !== null) && (typeof y === 'object' && y !== null)) {
 
         if (Object.keys(x).length !== Object.keys(y).length) {
-            debug && console.log('not deep equal: different length', x, y)
+            debug && console.log('not deep equal: different length', x, Object.keys(x).length, y, Object.keys(y).length)
+
+            const difference = Object.keys(x).filter(element => !(Object.keys(y)).includes(element))
+            debug && console.log('missing key', difference)
+
             return false
         }
         for (const prop in x) {

@@ -1,7 +1,7 @@
 import {ToggleButton, ToggleButtonGroup} from '@mui/material'
 import React from 'react'
 
-export default function ToggleButtons({options, currentValue, onChange=(x) => {console.log('', x)}, style={}}) {
+export default function ToggleButtons({options, currentValue, onChange=(x) => {console.log('', x)}, buttonStyle={}}) {
 
     const handleChange = (newValue) => {
         onChange(newValue)
@@ -13,10 +13,9 @@ export default function ToggleButtons({options, currentValue, onChange=(x) => {c
             value={currentValue}
             exclusive
             onChange={(_, v) => v && handleChange(v)}
-            style={style}
         >{
             options.map(({key, value, label}) =>
-                <ToggleButton key={key} value={value}>{label}</ToggleButton>)
+                <ToggleButton key={key} value={value} style={buttonStyle}>{label}</ToggleButton>)
         }
         </ToggleButtonGroup>
     )
