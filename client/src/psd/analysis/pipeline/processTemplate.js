@@ -57,14 +57,24 @@ export function processTemplate({
         // Always estimate pxPerMm from markers if available,
         // regardless of whether we warp or not.
         const getDist = (p1, p2) => Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)
-        const getP = (i) => markerMap[ids[i]] ? markerMap[ids[i]].corners[i] : null
+        const getPInner = (i) => {
+            if (!markerMap[ids[i]]) return null
+            // ArUco corners are 0:TL, 1:TR, 2:BR, 3:BL
+            // For the markers to form the inner rectangle:
+            // TL marker (0): corner 2 (BR) is the inner point
+            // TR marker (1): corner 3 (BL) is the inner point
+            // BR marker (2): corner 0 (TL) is the inner point
+            // BL marker (3): corner 1 (TR) is the inner point
+            const innerCornerIdx = (i + 2) % 4
+            return markerMap[ids[i]].corners[innerCornerIdx]
+        }
         const pairs = [[0, 1], [1, 2], [2, 3], [3, 0]]
 
         let distSum = 0
         let count = 0
         pairs.forEach(([i1, i2]) => {
-            const p1 = getP(i1)
-            const p2 = getP(i2)
+            const p1 = getPInner(i1)
+            const p2 = getPInner(i2)
             if (p1 && p2) {
                 distSum += getDist(p1, p2)
                 count++
@@ -72,8 +82,7 @@ export function processTemplate({
         })
 
         if (count > 0) {
-            pxPerMm = distSum / (count * template.outerMm)
-            if (Math.abs(pxPerMm - 20) < 0.02) pxPerMm = 20
+            pxPerMm = distSum / (count * template.innerMm)
         }
 
         scaleInfo = {

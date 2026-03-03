@@ -9,12 +9,15 @@ export default function defineROI({scaleInfo, settings, correctPerspective, debu
     let roi = {...baseRoi}
 
     // update ROI if correctPerspective
-    if (presentCorners.length === 4 && correctPerspective) {
+    if (presentCorners?.length === 4 && correctPerspective) {
         const outerMm = template?.outerMm
         const innerMm = template?.innerMm
+        if (!outerMm || !innerMm) return roi
         const marginMm = (outerMm - innerMm) / 2
-        const sizePx = settings.warpSizePx || 2000
-        const marginPx = marginMm * (sizePx / outerMm)
+        // If we want 20 px/mm as target
+        const targetPxPerMm = 20
+        const sizePx = Math.round(outerMm * targetPxPerMm)
+        const marginPx = marginMm * targetPxPerMm
         roi = {
             ...roi,
             actualBounds: {

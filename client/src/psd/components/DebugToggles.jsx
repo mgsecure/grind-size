@@ -12,10 +12,19 @@ export default function DebugToggles() {
     const modeMap = [
         {key: 'debug', value: '0', label: '0'},
         {key: 'debug', value: '1', label: '1'},
-        {key: 'debug', value: '2', label: '2'},
+        {key: 'debug', value: '2', label: '2'}
     ]
 
-    const buttonStyle = {padding: '3px 10px',marginTop: 4}
+    const buttonStyle = {
+        fontSize: '0.8rem',
+        height: 22, width: 22,
+        padding: '0px 0px',
+        marginTop: 4,
+        borderRadius: '50%',
+        marginLeft: 4,
+        color: '#444',
+        border: '1px solid #444'
+    }
 
     return (
         <Stack direction='row' style={{}}>

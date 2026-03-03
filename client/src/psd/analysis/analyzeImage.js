@@ -64,12 +64,17 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
     let warpSize = settings.warpSizePx || 2000
 
     if (template) {
-        let updatedPxPerMm
         if (presentCorners.length === 4) {
             analysisImageData = imageData
             if (correctPerspective) try {
+                // Determine target warpSize based on detected scale if we want to preserve it,
+                // or use a default that hits 20 px/mm for standard templates.
+                // 130mm * 20 px/mm = 2600px
+                // 70mm * 20 px/mm = 1400px
+                const targetPxPerMm = 20
+                warpSize = Math.round(template.outerMm * targetPxPerMm)
+
                 analysisImageData = warpPerspective(imageData, templateCorners, warpSize)
-                updatedPxPerMm = warpSize / template.outerMm
             } catch (e) {
                 console.error('Perspective warp failed', e)
                 // Fallback to original image if warp fails
@@ -79,12 +84,13 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         }
         scaleInfo = {
             ...scaleInfo,
-            pxPerMm: updatedPxPerMm || pxPerMm,
-            mmPerPx: 1 / (updatedPxPerMm || pxPerMm),
+            pxPerMm: correctPerspective && presentCorners.length === 4 ? warpSize / template.outerMm : pxPerMm,
+            mmPerPx: 1 / (correctPerspective && presentCorners.length === 4 ? warpSize / template.outerMm : pxPerMm),
             templateSize: template.sizeMm,
             detectedTemplate: template.sizeMm,
             markerCount: template.markers.length,
-            isWarped: correctPerspective && presentCorners.length === 4
+            isWarped: correctPerspective && presentCorners.length === 4,
+            warpSize: correctPerspective && presentCorners.length === 4 ? warpSize : null
         }
         debug && console.log('Scale info:', scaleInfo)
     }
@@ -117,7 +123,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
 
     debug && console.log(`Using spearation function: ${testPipeline ? 'separateOverlapsCandidate' : 'separateOverlaps'}`)
 
-    const overlapResult = settings.splitOverlaps ? await spearationFn(detectFn, detectResult, mask, settings) : null
+    const overlapResult = settings.overlapSplitPreset !== 'off' ? await spearationFn(detectFn, detectResult, mask, settings) : null
     let particles = (overlapResult && overlapResult.particles && overlapResult.particles.length > 0) ? overlapResult.particles : detectResult.particles
     let analysisLabels = (overlapResult && overlapResult.labels) ? overlapResult.labels : detectResult.labels
 
@@ -207,14 +213,14 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
     let overlayParticles = particles
     try {
         if (scaleInfo.isWarped && templateCorners && correctPerspective) {
-            const warpSize = settings.warpSizePx || 2000
+            const actualWarpSize = scaleInfo.warpSize || 2000
             overlayParticles = particles.map(p => {
-                const center = getUnwarpedPoint({x: p.cxPx, y: p.cyPx}, templateCorners, warpSize)
-                const rawScale = (warpSize - 1) / Math.max(imageData.width, imageData.height)
+                const center = getUnwarpedPoint({x: p.cxPx, y: p.cyPx}, templateCorners, actualWarpSize)
+                const rawScale = (actualWarpSize - 1) / Math.max(imageData.width, imageData.height)
 
                 let unwarpedContour = null
                 if (p.contour) {
-                    unwarpedContour = p.contour.map(pt => getUnwarpedPoint(pt, templateCorners, warpSize))
+                    unwarpedContour = p.contour.map(pt => getUnwarpedPoint(pt, templateCorners, actualWarpSize))
                 }
 
                 return {

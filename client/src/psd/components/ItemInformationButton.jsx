@@ -71,7 +71,7 @@ export default function ItemInformationButton({item, imageViewer = false, noButt
         ['Min Area (px)', settings.minAreaPx],
         ['Max Surface (mm²)', settings.maxAreaMm2],
         ['', ''],
-        ['Split Overlaps', settings.splitOverlaps ? 'Enabled' : 'Disabled'],
+        ['Split Overlaps', settings.overlapSplitPreset],
         ['Split Sensitivity', settings.splitSensitivity],
         ['', ''],
         ['Test Pipeline', settings.testPipeline ? 'Enabled' : 'Disabled'],

@@ -161,7 +161,14 @@ function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}})
         <Dialog
             open={open}
             onClose={handleClose}
-            TransitionComponent={Transition}
+            //TransitionComponent={Transition}
+            slots={{ transition: Transition }} // Specify the component
+            slotProps={{
+                transition: { // Pass props to the component
+                    unmountOnExit: true, // Example prop
+                },
+            }}
+
             fullScreen
         >
             <AppBar sx={{position: 'relative'}}>
@@ -177,8 +184,8 @@ function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}})
 
                     <Stack direction='row' alignItems='center' sx={{marginLeft: 2, width: '100%'}}>
                         <Stack direction='column' sx={{marginLeft: 2, width: '100%'}}>
-                            <Typography variant='subtitle1' component='div'>
-                                {imageTitle} (zoom: {zoom.toFixed(1)})
+                            <Typography component='div' sx={{fontWeight: 600}}>
+                                {imageTitle} <span style={{fontWeight: 400, fontSize: '0.9rem', marginLeft: 8}}>({zoom.toFixed(1)}x)</span>
                             </Typography>
                             <Typography variant='subtitle2' component='div' style={{color: '#aaa'}}>
                                 {(subtitleUrl || licenses[subtitle])

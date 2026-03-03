@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react'
 import DataContext from '../context/DataContext.jsx'
-import {PSD_DEFAULTS, PSD_PRESETS, overlapSplitPresets} from '@starter/shared'
+import {PSD_DEFAULTS, PSD_PRESETS, overlapSplitPresets, defaultOverlapPreset} from '@starter/shared'
 import {analyzeImageFiles} from './analysis/analyzeImage.js'
 import {buildHistograms} from './analysis/metrics/buildHistograms.js'
 import {calculateStatistics} from './analysis/metrics/calculateStatistics.js'
@@ -13,6 +13,7 @@ import {setDeep, setDeepJoin, setDeepMultiple} from '../util/setDeep.js'
 export function PsdDataProvider({children}) {
     const {isDesktop} = useWindowSize()
 
+    console.log('defaultOverlapPreset', defaultOverlapPreset)
     const [debugLevel, setDebugLevel] = useLocalStorage('psd-debug', 0)
 
     // State from PsdPage
@@ -23,6 +24,7 @@ export function PsdDataProvider({children}) {
     const [queue, setQueue] = useState([]) // {id, file, status, error, result}
     const [droppedFiles, setDroppedFiles] = useState([])
     const [activeIdList, setActiveIdList] = useState([])
+    const [preserveActiveIdList, setPreserveActiveIdList] = useState(false)
     const [xAxis, setXAxis] = useState(settings.metric || 'diameter')
     const [yAxis, setYAxis] = useState(settings.value || 'mass')
     const [binSpacing, setBinSpacing] = useState(settings.binSpacing || 'log')
@@ -33,7 +35,7 @@ export function PsdDataProvider({children}) {
     const [overlayOptions, setOverlayOptions] = useState({
         showParticles: true, showMarkers: true, showScale: true, showRoi: true
     })
-    const [overlapPreset, setOverlapPreset] = useState('low') // off | low | normal | (high)
+    const [overlapPreset, setOverlapPreset] = useState(defaultOverlapPreset) // off | low | normal | (high)
 
     const processedCount = useMemo(() => queue.reduce((acc, q) => {
         acc = acc + ((q.status === 'done' && q.result) || q.status === 'error' ? 1 : 0)
@@ -285,6 +287,7 @@ export function PsdDataProvider({children}) {
     useEffect(() => {
         if (resetToggle) {
             console.log('Resetting queue', {settings})
+            setPreserveActiveIdList(true)
             analyzeAll()
             setResetToggle(false)
         }
@@ -322,7 +325,7 @@ export function PsdDataProvider({children}) {
                         setIsAnalyzing(false)
                         return
                     }
-                    setActiveIdList(prev => prev.concat(item.id))
+                    !preserveActiveIdList && setActiveIdList(prev => prev.concat(item.id))
                     setQueue(prev => prev.map(p => p.id === item.id
                         ? {
                             ...p,
@@ -348,9 +351,10 @@ export function PsdDataProvider({children}) {
                 }
             }
             setIsAnalyzing(false)
+            setPreserveActiveIdList(false)
         }
         startAnalysis().then()
-    }, [queue, settings, binSpacing, isAnalyzing, manualSelectionId, overlayOptions])
+    }, [queue, settings, binSpacing, isAnalyzing, manualSelectionId, overlayOptions, preserveActiveIdList])
 
     const handleQueueRemove = useCallback((id) => {
         if (!id) return

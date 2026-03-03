@@ -1,15 +1,15 @@
-import {getUnwarpedPoint} from '../pipeline/warpPerspective.js'
+import {getUnwarpedPoint, getWarpedPoint} from '../pipeline/warpPerspective.js'
 
 export async function renderMaskPng(maskObj, width, height, originalImageData, validParticleIds = null, particles = [], meta = {}, options = {showParticles: true, showMarkers: true, showScale: true, showRoi: true}) {
     const canvas = document.createElement('canvas')
     canvas.width = width
     canvas.height = height
     const ctx = canvas.getContext('2d')
-    
+
     // Use maskObj width/height if available, otherwise fallback to parameters
     const w = maskObj.width || width
     const h = maskObj.height || height
-    
+
     if (canvas.width !== w || canvas.height !== h) {
         canvas.width = w
         canvas.height = h
@@ -37,7 +37,7 @@ export async function renderMaskPng(maskObj, width, height, originalImageData, v
             )
             ctx.putImageData(tempImageData, 0, 0)
         }
-        
+
         // Overlay red particles
         const labels = maskObj.labels
         const img = ctx.getImageData(0, 0, w, h)
@@ -61,7 +61,7 @@ export async function renderMaskPng(maskObj, width, height, originalImageData, v
         const img = ctx.createImageData(w, h)
         const labels = maskObj.labels
         const validSet = validParticleIds ? new Set(validParticleIds) : null
-        
+
         for (let i = 0; i < labels.length; i++) {
             const label = labels[i]
             let v = 0
@@ -80,18 +80,25 @@ export async function renderMaskPng(maskObj, width, height, originalImageData, v
     }
 
     // --- NEW OVERLAYS FOR MASK VIEW ---
-    
-    // 1. Draw ArUco markers (magenta #ff3399, 3px wide)
-    // eslint-disable-next-line no-constant-condition
-    if (meta.markers && options.showMarkers && false) {
-        ctx.lineWidth = 3
-        ctx.strokeStyle = '#ff3399'
+
+    const markerStroke = 3
+    // 1. Draw ArUco markers
+    if (meta.markers && options.showMarkers) {
+        ctx.lineWidth = markerStroke
+        ctx.strokeStyle = '#000'
+        const isWarped = meta?.scaleInfo?.isWarped
+        const warpSize = meta?.scaleInfo?.warpSize
+        const cornersRef = meta?.templateCorners
         for (const m of meta.markers) {
+            const pts = m.corners
+            const drawPts = (isWarped && cornersRef && warpSize)
+                ? pts.map(p => getWarpedPoint(p, cornersRef, warpSize))
+                : pts
             ctx.beginPath()
-            ctx.moveTo(m.corners[0].x, m.corners[0].y)
-            ctx.lineTo(m.corners[1].x, m.corners[1].y)
-            ctx.lineTo(m.corners[2].x, m.corners[2].y)
-            ctx.lineTo(m.corners[3].x, m.corners[3].y)
+            ctx.moveTo(drawPts[0].x+markerStroke/2, drawPts[0].y+markerStroke/2)
+            ctx.lineTo(drawPts[1].x-markerStroke/2, drawPts[1].y+markerStroke/2)
+            ctx.lineTo(drawPts[2].x-markerStroke/2, drawPts[2].y-markerStroke/2)
+            ctx.lineTo(drawPts[3].x+markerStroke/2, drawPts[3].y-markerStroke/2)
             ctx.closePath()
             ctx.stroke()
         }
@@ -125,7 +132,7 @@ export async function renderMaskPng(maskObj, width, height, originalImageData, v
             const radiusX = (p.longAxisPx || p.eqDiameterPx) / 2
             const radiusY = (p.shortAxisPx || p.eqDiameterPx) / 2
             const rotation = p.angleRad || 0
-            
+
             ctx.strokeStyle = '#0033ff'
             ctx.beginPath()
             ctx.ellipse(p.cxPx, p.cyPx, radiusX, radiusY, rotation, 0, Math.PI * 2)
@@ -144,7 +151,7 @@ export async function renderMaskPng(maskObj, width, height, originalImageData, v
             }
         }
     }
-    
+
     return canvas.toDataURL('image/png')
 }
 
@@ -171,7 +178,7 @@ export async function renderOverlayPng(imageData, particles, meta = {}, options 
     canvas.width = width
     canvas.height = height
     const ctx = canvas.getContext('2d')
-    
+
     // Create a temporary ImageData to avoid any risk of modifying the original
     const tempImageData = new ImageData(
         new Uint8ClampedArray(imageData.data),
@@ -179,17 +186,26 @@ export async function renderOverlayPng(imageData, particles, meta = {}, options 
         height
     )
     ctx.putImageData(tempImageData, 0, 0)
-    
+
     // 1. Draw ArUco markers (magenta #ff3399, 3px wide)
     if (meta.markers && options.showMarkers) {
-        ctx.lineWidth = 5
+        ctx.lineWidth = 3
         ctx.strokeStyle = '#ff3399'
+        const isWarped = meta?.scaleInfo?.isWarped
+        const cornersRef = meta?.templateCorners
+        const actualWarpSize = meta?.scaleInfo?.warpSize || 2000
+
         for (const m of meta.markers) {
+            const pts = m.corners
+            const drawPts = (isWarped && cornersRef)
+                ? pts.map(p => getUnwarpedPoint(p, cornersRef, actualWarpSize))
+                : pts
+
             ctx.beginPath()
-            ctx.moveTo(m.corners[0].x, m.corners[0].y)
-            ctx.lineTo(m.corners[1].x, m.corners[1].y)
-            ctx.lineTo(m.corners[2].x, m.corners[2].y)
-            ctx.lineTo(m.corners[3].x, m.corners[3].y)
+            ctx.moveTo(drawPts[0].x, drawPts[0].y)
+            ctx.lineTo(drawPts[1].x, drawPts[1].y)
+            ctx.lineTo(drawPts[2].x, drawPts[2].y)
+            ctx.lineTo(drawPts[3].x, drawPts[3].y)
             ctx.closePath()
             ctx.stroke()
         }
@@ -213,13 +229,13 @@ export async function renderOverlayPng(imageData, particles, meta = {}, options 
     if (meta.roi && meta.templateCorners && options.showRoi) {
         // Map warped ROI bounds back to original coordinates
         const {minX, maxX, minY, maxY} = meta.roi.actualBounds
-        const warpSize = (meta.scaleInfo && meta.scaleInfo.isWarped) ? 2000 : null
+        const actualWarpSize = (meta.scaleInfo && meta.scaleInfo.isWarped) ? (meta.scaleInfo.warpSize || 2000) : null
 
-        if (warpSize) {
-            const p1 = getUnwarpedPoint({x: minX, y: minY}, meta.templateCorners, warpSize)
-            const p2 = getUnwarpedPoint({x: maxX, y: minY}, meta.templateCorners, warpSize)
-            const p3 = getUnwarpedPoint({x: maxX, y: maxY}, meta.templateCorners, warpSize)
-            const p4 = getUnwarpedPoint({x: minX, y: maxY}, meta.templateCorners, warpSize)
+        if (actualWarpSize) {
+            const p1 = getUnwarpedPoint({x: minX, y: minY}, meta.templateCorners, actualWarpSize)
+            const p2 = getUnwarpedPoint({x: maxX, y: minY}, meta.templateCorners, actualWarpSize)
+            const p3 = getUnwarpedPoint({x: maxX, y: maxY}, meta.templateCorners, actualWarpSize)
+            const p4 = getUnwarpedPoint({x: minX, y: maxY}, meta.templateCorners, actualWarpSize)
 
             ctx.lineWidth = 3
             ctx.strokeStyle = '#0033ff'
@@ -230,7 +246,7 @@ export async function renderOverlayPng(imageData, particles, meta = {}, options 
             ctx.lineTo(p4.x, p4.y)
             ctx.closePath()
             //ctx.stroke()
-            
+
             // Draw dashed safe zone if requested or useful
             ctx.setLineDash([10, 5])
             ctx.stroke()
@@ -269,26 +285,26 @@ export async function renderOverlayPng(imageData, particles, meta = {}, options 
             const radiusX = (p.longAxisPx || p.eqDiameterPx) / 2
             const radiusY = (p.shortAxisPx || p.eqDiameterPx) / 2
             const rotation = p.angleRad || 0
-            
-            ctx.strokeStyle = '#0033ffaa'
+
+            ctx.strokeStyle = '#0033ff66'
             ctx.beginPath()
             ctx.ellipse(p.cxPx, p.cyPx, radiusX, radiusY, rotation, 0, Math.PI * 2)
             ctx.stroke()
 
             // Draw exact contour if available (slightly dimmer or different color)
             if (p.contour && p.contour.length > 0) {
-                ctx.strokeStyle = 'rgb(243,17,17)' // Semi-transparent
+                ctx.strokeStyle = '#00ff0066'
                 ctx.beginPath()
                 ctx.moveTo(p.contour[0].x, p.contour[0].y)
                 for (let i = 1; i < p.contour.length; i++) {
                     ctx.lineTo(p.contour[i].x, p.contour[i].y)
                 }
                 ctx.closePath()
-                //ctx.stroke()
+                ctx.stroke()
             }
         }
     }
-    
+
     return canvas.toDataURL('image/png')
 }
 
@@ -356,7 +372,7 @@ export async function renderDiagnosticPng(imageData, particles, maskObj, validPa
             const radiusX = (p.longAxisPx || p.eqDiameterPx) / 2
             const radiusY = (p.shortAxisPx || p.eqDiameterPx) / 2
             const rotation = p.angleRad || 0
-            
+
             ctx.strokeStyle = '#0000ffcc'
             ctx.beginPath()
             ctx.ellipse(p.cxPx, p.cyPx, radiusX, radiusY, rotation, 0, Math.PI * 2)
@@ -375,6 +391,6 @@ export async function renderDiagnosticPng(imageData, particles, maskObj, validPa
             }
         }
     }
-    
+
     return canvas.toDataURL('image/png')
 }

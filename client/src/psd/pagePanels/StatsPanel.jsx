@@ -1,4 +1,4 @@
-import React, {useContext, useRef, useState} from 'react'
+import React, {useContext, useMemo, useRef, useState} from 'react'
 import {
     alpha,
     Box,
@@ -15,14 +15,24 @@ import {useTheme} from '@mui/material/styles'
 import Stack from '@mui/material/Stack'
 import DataContext from '../../context/DataContext.jsx'
 import Switch from '@mui/material/Switch'
+import UIContext from '../../context/UIContext.jsx'
 
 export default function StatsPanel() {
-    const {activeItems, isDesktop} = useContext(DataContext)
+    const {activeItems, queue} = useContext(DataContext)
+    const {currentColors, isDesktop} = useContext(UIContext)
+
     const domEl = useRef(null)
     const theme = useTheme()
     const disabledStyle = {opacity: 0.5, pointerEvents: 'none'}
 
     const [showSettings, setShowSettings] = useState(false)
+
+    const noErrorIdList = useMemo(() => {
+        return queue
+            .filter(item => (item.status === 'done'))
+            .map(item => item.id)
+    }, [queue])
+
 
     if (!activeItems.length || activeItems[0].status !== 'done') return (
         <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
@@ -114,7 +124,7 @@ export default function StatsPanel() {
         {key: 'splitOverlaps', label: 'Split Overlaps', unit: ''},
         {key: 'splitSensitivity', label: 'Split Sensitivity', unit: ''},
         {key: 'extraSeedSensitivity', label: 'Extra Seed Sensitivity', unit: ''},
-        {key: 'extraSeedMinDistFactor', label: 'Extra Seed Distance Factor', unit: ''},
+        {key: 'extraSeedMinDistFactor', label: 'Extra Seed Distance Factor', unit: ''}
     ]
 
     const tableData = activeItems.reduce((acc, item) => {
@@ -134,7 +144,7 @@ export default function StatsPanel() {
             max: item.stats.max?.toFixed(0),
             avgShortAxis: parseFloat(item.stats?.avgShortAxis).toFixed(0),
             avgLongAxis: item.stats.avgLongAxis?.toFixed(0),
-            pixelScale: item.scale.detectedTemplate !== 'Multiple' ? `${parseFloat(item.scale.pxPerMm).toFixed(2)} px/mm` : 'N/A',
+            pixelScale: item.scale.detectedTemplate !== 'Multiple' ? `${parseFloat(item.scale.pxPerMm).toFixed(2)} px/mm` : 'n/a',
             avgRoundness: item.stats.avgRoundness?.toFixed(1),
             efficiency: item.stats.efficiency?.toFixed(2),
             span: item.stats.span?.toFixed(2),
@@ -156,10 +166,10 @@ export default function StatsPanel() {
             weighting: item.settings?.weighting,
             metric: item.settings?.metric,
             chartMode: item.settings?.chartMode,
-            splitOverlaps: item.settings?.splitOverlaps ? 'Enabled' : 'Disabled',
-            splitSensitivity: item.settings?.splitOverlaps ? item.settings?.splitSensitivity : 'n/a',
-            extraSeedSensitivity: item.settings?.splitOverlaps ? item.settings?.extraSeedSensitivity : 'n/a',
-            extraSeedMinDistFactor: item.settings?.splitOverlaps ? item.settings?.extraSeedMinDistFactor : 'n/a',
+            splitOverlaps: item.settings?.overlapSplitPreset,
+            splitSensitivity: (item.settings?.overlapSplitPreset !== 'off') ? item.settings?.splitSensitivity : 'n/a',
+            extraSeedSensitivity: (item.settings?.overlapSplitPreset !== 'off') ? item.settings?.extraSeedSensitivity : 'n/a',
+            extraSeedMinDistFactor: (item.settings?.overlapSplitPreset !== 'off') ? item.settings?.extraSeedMinDistFactor : 'n/a',
             ellipseFactor: item.settings?.ellipseFactor,
             analysisChannel: item.settings?.analysisChannel,
             value: item.settings?.value,
@@ -170,6 +180,36 @@ export default function StatsPanel() {
 
     const breakTables = activeItems.length < 2 && isDesktop && !showSettings
     const dataOne = !breakTables ? metricData : metricDataOne
+
+    const HeaderRow = ({isSettings}) => {
+        return (
+            <>
+                <TableRow key={`sampleName-${isSettings ? 'settings' : '0'}`}>
+                    <TableCell sx={{
+                        p: '0px 12px 0px 0px', width: '180px',
+                        position: 'sticky',
+                        left: 0,
+                        zIndex: 10,
+                        backgroundColor: theme.palette.background.paper,
+                        fontWeight: 600,
+                        borderRight: `1px solid ${theme.palette.divider}`
+                    }}>{isSettings ? 'SETTINGS' : ''}</TableCell>
+                    {activeItems.map(item => {
+                        return <TableCell sx={{
+                            p: '4px 8px',
+                            fontWeight: 'bold',
+                            backgroundColor: theme.palette.background.paper,
+                            whiteSpace: 'nowrap',
+                            color: currentColors[noErrorIdList.indexOf(item.id)],
+                            borderBottom: `2px solid ${currentColors[noErrorIdList.indexOf(item.id)]}`
+                        }} key={item.id}>
+                            {tableData[item.id]?.sampleName}
+                        </TableCell>
+                    })}
+                </TableRow>
+            </>
+        )
+    }
 
     return (
         <Paper sx={{p: isDesktop ? 2 : 1}} ref={domEl}>
@@ -185,7 +225,7 @@ export default function StatsPanel() {
                                 name='showSettings'
                         />}
                     label={
-                    <span style={{ fontSize: '0.9rem' }}>
+                        <span style={{fontSize: '0.9rem'}}>
                         Show Settings
                     </span>
                     }
@@ -199,31 +239,7 @@ export default function StatsPanel() {
                         <TableBody>
 
                             {!breakTables &&
-                                <TableRow key={'sampleName'}>
-                                    <TableCell sx={{
-                                        p: '0px 12px 0px 0px', width: '180px',
-                                        position: 'sticky',
-                                        left: 0,
-                                        zIndex: 10,
-                                        backgroundColor: theme.palette.background.paper,
-                                        borderRight: `1px solid ${theme.palette.divider}`
-                                    }}/>
-                                    {activeItems.map(item => {
-                                        const data = tableData[item.id]?.sampleName
-                                        return <TableCell sx={{
-                                            p: '6px 8px',
-                                            fontWeight: 'bold',
-                                            backgroundColor: theme.palette.background.paper,
-                                            whiteSpace: 'nowrap'
-                                        }}
-                                                          key={item.id}>{data !== undefined ? data : 'N/A'}</TableCell>
-                                    })}
-                                    <TableCell sx={{
-                                        p: '6px 8px',
-                                        width: '100%',
-                                        backgroundColor: theme.palette.background.paper
-                                    }}/>
-                                </TableRow>
+                                <HeaderRow/>
                             }
                             {dataOne.map(({key, label, unit}) => (
                                 <TableRow key={key} sx={{
@@ -244,41 +260,20 @@ export default function StatsPanel() {
                                     </TableCell>
 
                                     {activeItems.map((item, index) => {
+                                        const data = tableData[item.id]?.[key] !== undefined ? tableData[item.id]?.[key] : 'n/a'
                                         return <TableCell sx={{p: '6px 24px 6px 8px'}} key={item.id}
-                                                          style={{whiteSpace: 'nowrap'}}>
-                                            {tableData[item.id]?.[key] !== undefined ? tableData[item.id]?.[key] : 'N/A'} {(index === activeItems.length - 1 && unit) ? unit : ''}
+                                                          style={{
+                                                              whiteSpace: 'nowrap',
+                                                              color: data === 'n/a' ? theme.palette.text.disabled : undefined
+                                                          }}>
+                                            {data} {(index === activeItems.length - 1 && unit) ? unit : ''}
                                         </TableCell>
                                     })}
-                                    <TableCell sx={{p: '6px 8px', width: 'auto'}}/>
                                 </TableRow>
                             ))}
 
                             {showSettings &&
-                                <TableRow key={'settingsSampleName'}>
-                                    <TableCell sx={{
-                                        p: '0px 12px 0px 0px', width: '180px',
-                                        position: 'sticky',
-                                        left: 0,
-                                        zIndex: 10,
-                                        backgroundColor: theme.palette.background.paper,
-                                        borderRight: `1px solid ${theme.palette.divider}`,
-                                        fontWeight: 700
-                                    }}>SETTINGS</TableCell>
-                                    {activeItems.map(item => {
-                                        const data = tableData[item.id]?.sampleName
-                                        return <TableCell sx={{
-                                            p: '6px 8px',
-                                            fontWeight: 'bold',
-                                            backgroundColor: theme.palette.background.paper
-                                        }}
-                                                          key={item.id}>{data !== undefined ? data : 'N/A'}</TableCell>
-                                    })}
-                                    <TableCell sx={{
-                                        p: '6px 8px',
-                                        width: 'auto',
-                                        backgroundColor: theme.palette.background.paper
-                                    }}/>
-                                </TableRow>
+                                <HeaderRow isSettings/>
                             }
 
                             {showSettings && settingsMetricData.map(({key, label, unit}) => (
@@ -300,12 +295,15 @@ export default function StatsPanel() {
                                     </TableCell>
 
                                     {activeItems.map((item, index) => {
-                                        return <TableCell sx={{p: '6px 8px'}} key={item.id}
-                                                          style={{whiteSpace: 'nowrap'}}>
-                                            {tableData[item.id]?.[key] !== undefined ? tableData[item.id]?.[key] : 'N/A'} {(index === activeItems.length - 1 && unit) ? unit : ''}
+                                        const data = tableData[item.id]?.[key] !== undefined ? tableData[item.id]?.[key] : 'n/a'
+                                        return <TableCell sx={{p: '6px 24px 6px 8px'}} key={item.id}
+                                                          style={{
+                                                              whiteSpace: 'nowrap',
+                                                              color: data === 'n/a' ? theme.palette.text.disabled : undefined
+                                                          }}>
+                                            {data} {(index === activeItems.length - 1 && unit) ? unit : ''}
                                         </TableCell>
                                     })}
-                                    <TableCell sx={{p: '6px 8px', width: 'auto'}}/>
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -328,9 +326,8 @@ export default function StatsPanel() {
                                     {activeItems.map(item => {
                                         const data = tableData[item.id]?.sampleName
                                         return <TableCell sx={{p: '6px 8px', fontWeight: 'bold'}}
-                                                          key={item.id}>{data !== undefined ? data : 'N/A'}</TableCell>
+                                                          key={item.id}>{data !== undefined ? data : 'n/a'}</TableCell>
                                     })}
-                                    <TableCell sx={{p: '6px 8px', width: 'auto'}}/>
                                 </TableRow>
                             }
                             {metricDataTwo.map(({key, label, unit}) => (
@@ -349,10 +346,9 @@ export default function StatsPanel() {
                                         {label}</TableCell>
                                     {activeItems.map((item, index) => {
                                         return <TableCell sx={{p: '6px 8px'}} key={item.id}>
-                                            {tableData[item.id]?.[key] !== undefined ? tableData[item.id]?.[key] : 'N/A'} {(index === activeItems.length - 1 && unit) ? unit : ''}
+                                            {tableData[item.id]?.[key] !== undefined ? tableData[item.id]?.[key] : 'n/a'} {(index === activeItems.length - 1 && unit) ? unit : ''}
                                         </TableCell>
                                     })}
-                                    <TableCell sx={{p: '6px 8px', width: 'auto'}}/>
                                 </TableRow>
                             ))}
                         </TableBody>

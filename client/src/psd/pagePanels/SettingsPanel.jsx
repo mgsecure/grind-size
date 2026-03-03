@@ -4,7 +4,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import ToggleButton from '@mui/material/ToggleButton'
 import Button from '@mui/material/Button'
 import Switch from '@mui/material/Switch'
-import {PSD_PRESETS} from '@starter/shared'
+import {defaultOverlapPreset, PSD_PRESETS} from '@starter/shared'
 import Collapse from '@mui/material/Collapse'
 import DataContext from '../../context/DataContext.jsx'
 import isDeepEqual from '../../util/isDeepEqual.js'
@@ -23,8 +23,8 @@ export default function SettingsPanel() {
         retainCustomSettings,
         setResetToggle,
         isCustomSettings, setIsCustomSettings,
-        overlapSplitPresets, setOverlapPreset,
-        isDesktop
+        defaultOverlapPreset, overlapSplitPresets, setOverlapPreset,
+        isDesktop,
     } = useContext(DataContext)
 
     // TODO: implement save/load custom settings from local storage

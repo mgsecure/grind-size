@@ -7,28 +7,28 @@ export const PSD_TEMPLATES = {
 }
 
 export const overlapSplitPresets = {
-    'off': {
+    'Off': {
         overlapPresetName: 'Off',
         splitOverlaps: false,
         splitSensitivity: 0,
         extraSeedSensitivity: 0,
         extraSeedMinDistFactor: 0,
     },
-    'low': {
+    'Low': {
         overlapPresetName: 'Low',
         splitOverlaps: true,
         splitSensitivity: 0.5,
         extraSeedSensitivity: 0.3,
         extraSeedMinDistFactor: 1.4,
     },
-    'normal': {
+    'Normal': {
         overlapPresetName: 'Normal',
         splitOverlaps: true,
         splitSensitivity: 0.3,
         extraSeedSensitivity: 0.3,
         extraSeedMinDistFactor: 1.2,
     },
-    'high': {
+    'High': {
         overlapPresetName: 'High ?',
         disabled: true,
         splitOverlaps: true,
@@ -38,7 +38,7 @@ export const overlapSplitPresets = {
     },
 }
 
-const defaultOverlapPreset = 'normal'
+export const defaultOverlapPreset = 'Normal'
 
 // Defaults
 export const PSD_DEFAULTS = {

@@ -7,11 +7,9 @@ import UIContext from '../../context/UIContext.jsx'
 import ImageViewModeToggles from '../components/ImageViewModeToggles.jsx'
 
 export default function ImagePanel() {
-    const {
-        queue,
-        activeIdList,
-        isDesktop
-    } = useContext(DataContext)
+
+    const {queue, activeIdList,} = useContext(DataContext)
+    const {currentColors, isDesktop} = useContext(UIContext)
 
     const {imageViewMode} = useContext(UIContext) // original | mask | overlay | diagnostic
 

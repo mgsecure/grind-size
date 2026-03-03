@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react'
+import React, {useCallback, useContext, useEffect, useMemo, useState} from 'react'
 import ImageList from '@mui/material/ImageList'
 import ImageListItem from '@mui/material/ImageListItem'
 import ImageListItemBar from '@mui/material/ImageListItemBar'
@@ -6,9 +6,10 @@ import Tooltip from '@mui/material/Tooltip'
 import licenses from '../../data/licenses.js'
 import IconButton from '@mui/material/IconButton'
 import LaunchIcon from '@mui/icons-material/Launch'
-import useWindowSize from '../../util/useWindowSize.jsx'
 import ytIcon from '../../resources/yt.png'
 import ImageViewer from './ImageViewer.jsx'
+import UIContext from '../../context/UIContext.jsx'
+import DataContext from '../../context/DataContext.jsx'
 
 function ImageGallery(props) {
     const {
@@ -23,7 +24,17 @@ function ImageGallery(props) {
         shareParams
     } = props
 
-    const {isMobile} = useWindowSize()
+    console.log('media', media)
+
+    const {queue} = useContext(DataContext)
+    const {currentColors, isDesktop} = useContext(UIContext)
+    const noErrorIdList = useMemo(() => {
+        return queue
+            .filter(item => (item.status === 'done'))
+            .map(item => item.id)
+    }, [queue])
+
+
     const [open, setOpen] = useState(initiallyOpen)
 
     const fullMedia = allMedia ?? media
@@ -55,7 +66,7 @@ function ImageGallery(props) {
         return () => removeEventListener('hashchange', handler)
     })
 
-    const cols = columns ?? (isMobile ? 2 : 4)
+    const cols = columns ?? (isDesktop ? 4 : 2)
 
     return (
         <React.Fragment>
@@ -69,7 +80,7 @@ function ImageGallery(props) {
                 />
             }
             <ImageList variant='masonry' cols={cols} sx={{marginTop: 2}}>
-                {media.map(({title, subtitle, thumbnailUrl, fullUrl, subtitleUrl, sequenceId}, index) =>
+                {media.map(({title, subtitle, thumbnailUrl, fullUrl, subtitleUrl, sequenceId, id}, index) =>
                     <ImageListItem key={index} style={{marginBottom: 8}}>
                         <img
                             src={thumbnailUrl}
@@ -95,6 +106,20 @@ function ImageGallery(props) {
                             />
                         }
                         <ImageListItemBar
+                            sx={{
+                                '& .MuiImageListItemBar-titleWrap': {
+                                    padding: '6px 12px'
+                                },
+                                '& .MuiImageListItemBar-title': {
+                                    color: currentColors[noErrorIdList.indexOf(id)],
+                                    fontWeight: 500,
+                                    borderBottom: `1px solid ${currentColors[noErrorIdList.indexOf(id)]}`
+                                },
+                                '& .MuiImageListItemBar-subtitle': {
+                                    lineHeight: '1.4rem'
+                                }
+                            }}
+
                             title={title}
                             subtitle={
                                 subtitle &&

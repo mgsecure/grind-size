@@ -76,6 +76,46 @@ export function getUnwarpedPoint(p, corners, targetSize = 2000) {
     }
 }
 
+// Inverse mapping: Map a point from original coordinates to warped square (0..targetSize)
+export function getWarpedPoint(p, corners, targetSize = 2000) {
+    if (!corners || corners.length < 4 || corners.some(c => c === null)) {
+        console.warn('getWarpedPoint: Invalid corners provided', corners)
+        return p
+    }
+    // Same matrix as above (square -> quad); we need its inverse (quad -> square)
+    const m = _CV.getPerspectiveTransform(corners, targetSize - 1)
+
+    // Invert 3x3 homography
+    const det =
+        m[0] * (m[4] * m[8] - m[5] * m[7]) -
+        m[1] * (m[3] * m[8] - m[5] * m[6]) +
+        m[2] * (m[3] * m[7] - m[4] * m[6])
+
+    if (Math.abs(det) < 1e-12) {
+        console.warn('getWarpedPoint: Homography is singular; returning input point')
+        return p
+    }
+
+    const inv = new Array(9)
+    inv[0] =  (m[4] * m[8] - m[5] * m[7]) / det
+    inv[1] = -(m[1] * m[8] - m[2] * m[7]) / det
+    inv[2] =  (m[1] * m[5] - m[2] * m[4]) / det
+    inv[3] = -(m[3] * m[8] - m[5] * m[6]) / det
+    inv[4] =  (m[0] * m[8] - m[2] * m[6]) / det
+    inv[5] = -(m[0] * m[5] - m[2] * m[3]) / det
+    inv[6] =  (m[3] * m[7] - m[4] * m[6]) / det
+    inv[7] = -(m[0] * m[7] - m[1] * m[6]) / det
+    inv[8] =  (m[0] * m[4] - m[1] * m[3]) / det
+
+    const x = p.x
+    const y = p.y
+    const den = inv[6] * x + inv[7] * y + inv[8]
+    return {
+        x: (inv[0] * x + inv[1] * y + inv[2]) / den,
+        y: (inv[3] * x + inv[4] * y + inv[5]) / den
+    }
+}
+
 // Optional: Warp to a canvas if we are in a browser environment
 export function warpToCanvas(imageData, corners, targetSize = 2000) {
     const warped = warpPerspective(imageData, corners, targetSize)
