@@ -1,5 +1,5 @@
-import React, {useContext, useRef} from 'react'
-import {Stack, Paper, Typography, Alert, AlertTitle} from '@mui/material'
+import React from 'react'
+import {Stack} from '@mui/material'
 import DebugToggles from './DebugToggles.jsx'
 
 export default function Footer() {

@@ -35,12 +35,16 @@ export function convertStatsToCsv(stats) {
     return header + rows
 }
 
-export function convertHistogramToCsv(histogram) {
-    const header = 'binStart,binEnd,binCenter,value,percent\n'
-    const rows = histogram.bins.map((b, i) => {
-        const v = histogram.values[i]
-        return `${b.start.toFixed(1)},${b.end.toFixed(1)},${b.center.toFixed(1)},${v.value.toFixed(3)},${v.percent.toFixed(2)}`
-    }).join('\n')
+export function convertHistogramToCsv(histograms) {
+    const header = 'binSpacing,binStart,binEnd,binCenter,value,percent,count\n'
+    const rows = ['linear', 'log'].reduce((acc, spacing) => {
+        histograms[spacing].bins.map((b, i) => {
+            const v = histograms[spacing].values[i]
+            const c = histograms[spacing].counts[i].count
+            acc += `${spacing},${b.start.toFixed(1)},${b.end.toFixed(1)},${b.center.toFixed(1)},${v.value.toFixed(2)},${v.percent.toFixed(2)},${c}` + '\n'
+        }).join('\n')
+        return acc
+    },'')
     return header + rows
 }
 

@@ -24,8 +24,6 @@ function ImageGallery(props) {
         shareParams
     } = props
 
-    console.log('media', media)
-
     const {queue} = useContext(DataContext)
     const {currentColors, isDesktop} = useContext(UIContext)
     const noErrorIdList = useMemo(() => {

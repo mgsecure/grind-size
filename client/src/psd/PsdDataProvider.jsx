@@ -13,7 +13,6 @@ import {setDeep, setDeepJoin, setDeepMultiple} from '../util/setDeep.js'
 export function PsdDataProvider({children}) {
     const {isDesktop} = useWindowSize()
 
-    console.log('defaultOverlapPreset', defaultOverlapPreset)
     const [debugLevel, setDebugLevel] = useLocalStorage('psd-debug', 0)
 
     // State from PsdPage

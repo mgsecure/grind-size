@@ -10,7 +10,6 @@ import DataContext from '../context/DataContext.jsx'
 import {useTheme} from '@mui/material/styles'
 import UIContext from '../context/UIContext.jsx'
 import VersionChecker from '../app/VersionChecker.jsx'
-import DebugToggles from './components/DebugToggles.jsx'
 import Footer from './components/Footer.jsx'
 
 export default function PsdPage() {

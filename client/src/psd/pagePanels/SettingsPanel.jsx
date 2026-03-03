@@ -4,7 +4,7 @@ import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import ToggleButton from '@mui/material/ToggleButton'
 import Button from '@mui/material/Button'
 import Switch from '@mui/material/Switch'
-import {defaultOverlapPreset, PSD_PRESETS} from '@starter/shared'
+import {PSD_PRESETS} from '@starter/shared'
 import Collapse from '@mui/material/Collapse'
 import DataContext from '../../context/DataContext.jsx'
 import isDeepEqual from '../../util/isDeepEqual.js'
@@ -23,7 +23,7 @@ export default function SettingsPanel() {
         retainCustomSettings,
         setResetToggle,
         isCustomSettings, setIsCustomSettings,
-        defaultOverlapPreset, overlapSplitPresets, setOverlapPreset,
+        overlapSplitPresets, setOverlapPreset,
         isDesktop,
     } = useContext(DataContext)
 

@@ -79,7 +79,8 @@ function buildHistogram(particles,
         edges = buildEdges(min, max, numBins, spacing)
     }
 
-    const values = new Array(numBins).fill(0.01)
+    const values = new Array(numBins).fill(0)
+    const counts = new Array(numBins).fill(0)
 
     const weights = particles.map(p => {
         if (weighting === 'surface') return (p.surfaceAreaPx || 0) * (factor ** 2)
@@ -91,11 +92,15 @@ function buildHistogram(particles,
     for (let i = 0; i < ms.length; i++) {
         const val = ms[i]
         const b = findBin(edges, val)
-        if (b >= 0) values[b] += weights[i]
+        if (b >= 0) {
+            values[b] += weights[i]
+            counts[b] += 1
+        }
     }
 
     const binsOut = []
     const valsOut = []
+    const countsOut = []
     for (let i = 0; i < numBins; i++) {
         const start = edges[i]
         const end = edges[i + 1]
@@ -103,6 +108,7 @@ function buildHistogram(particles,
         const value = values[i]
         binsOut.push({start, end, center})
         valsOut.push({value, percent: (value / total) * 100})
+        countsOut.push({count: counts[i], percent: (counts[i] / ms.length) * 100})
     }
 
     const maxY = Math.max(...valsOut.map(v => v.value)) / total
@@ -110,6 +116,7 @@ function buildHistogram(particles,
     return {
         bins: binsOut,
         values: valsOut,
+        counts: countsOut,
         maxY,
         weighting,
         spacing,

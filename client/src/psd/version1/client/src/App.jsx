@@ -474,8 +474,8 @@ function App() {
                                         <Typography variant='h6' gutterBottom>Image Details</Typography>
                                         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 3 }}>
                                             {selectedResultIndices.map(idx => {
-                                                const res = results[idx];
-                                                if (!res) return null;
+                                                const res = results[idx]
+                                                if (!res) return null
                                                 return (
                                                     <TableContainer key={idx} component={Paper} sx={{ flex: 1, minWidth: 300 }}>
                                                         <Table size='small'>
@@ -497,7 +497,7 @@ function App() {
                                                             </TableBody>
                                                         </Table>
                                                     </TableContainer>
-                                                );
+                                                )
                                             })}
                                         </Box>
                                     </>
@@ -528,8 +528,8 @@ function App() {
                                 {(viewMode === 'single' || viewMode === 'comparison') && selectedResultIndices.length > 0 && (
                                     <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                                         {selectedResultIndices.map(idx => {
-                                            const res = results[idx];
-                                            if (!res) return null;
+                                            const res = results[idx]
+                                            if (!res) return null
                                             return (
                                                 <TableContainer key={idx} component={Paper} sx={{ flex: 1, minWidth: 300 }}>
                                                     <Table size='small'>
@@ -583,7 +583,7 @@ function App() {
                                                         </TableBody>
                                                     </Table>
                                                 </TableContainer>
-                                            );
+                                            )
                                         })}
                                     </Box>
                                 )}

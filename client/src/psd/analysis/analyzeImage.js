@@ -98,8 +98,9 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
     const gray = normalizeLighting(analysisImageData, {bgSigma: settings.bgSigma, channel: settings.analysisChannel})
     const mask = adaptiveThreshold(gray, {blockSize: settings.adaptiveBlockSize, C: settings.adaptiveC})
 
+    // WHY ISN'T THIS USED?
     // use morphology to remove noise
-    const cleaned = useMorphology ? morphologyOpen(mask) : mask
+    // const cleaned = useMorphology ? morphologyOpen(mask) : mask
 
     // Filter particles by ROI and size if present
     const detectFn = testPipeline ? detectParticlesCandidate : detectParticles

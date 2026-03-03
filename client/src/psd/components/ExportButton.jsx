@@ -22,10 +22,10 @@ import genHexString from '../../util/genHexString.js'
 
 export default function ExportButton({text}) {
 
-    const {queue, activeIdList, processingComplete, binSpacing, isDesktop, aggregateQueueItem} = useContext(DataContext)
+    const {queue, activeItems, activeIdList, processingComplete, binSpacing, isDesktop, aggregateQueueItem} = useContext(DataContext)
     const {altButtonColor} = useContext(UIContext)
 
-    //console.log('aggregateQueueItem', aggregateQueueItem)
+    console.log('activeItems', activeItems)
 
     const cleanedQueue = queue
         .filter(item => activeIdList.includes(item.id))
@@ -33,6 +33,7 @@ export default function ExportButton({text}) {
             const newResult = {...item.result}
             newResult.previews = {}
             newResult.particles = newResult.particles?.map(p => ({...p, contour: []}))
+            newResult.histograms = activeItems?.find(i => i.id === item.id).histograms
             return {...item, result: newResult, source: 'export', file: {}}
         })
 
@@ -46,7 +47,7 @@ export default function ExportButton({text}) {
     const handleExportCsvFiles = useCallback((result) => {
         const histogram = binSpacing === 'log' ? result.histograms?.log : result.histograms?.linear
         if (histogram) {
-            downloadFile(`${result.filename}_histogram.csv`, convertHistogramToCsv(histogram))
+            downloadFile(`${result.filename}_histogram.csv`, convertHistogramToCsv(result.histograms))
         }
         downloadFile(`${result.filename}_stats.csv`, convertStatsToCsv(result.stats))
         downloadFile(`${result.filename}_particles.csv`, convertParticlesToCsv(result.particles, result.scale.pxPerMm))

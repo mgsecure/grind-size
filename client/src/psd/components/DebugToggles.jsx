@@ -23,7 +23,7 @@ export default function DebugToggles() {
         borderRadius: '50%',
         marginLeft: 4,
         color: '#444',
-        border: '1px solid #444'
+        border: '1px solid #444',
     }
 
     return (
@@ -33,6 +33,7 @@ export default function DebugToggles() {
                 currentValue={debugLevel}
                 onChange={(v) => setDebugLevel(parseInt(v))}
                 buttonStyle={buttonStyle}
+                selectedBackground={'#292929'}
             />
         </Stack>
     )

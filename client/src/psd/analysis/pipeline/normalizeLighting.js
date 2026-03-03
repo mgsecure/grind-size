@@ -1,6 +1,6 @@
 // Background correction: large blur approximation using a separable box blur on grayscale
 export function normalizeLighting(imageData, {bgSigma = 35, channel = 'grayscale'} = {}) {
-    const {width, height, data} = imageData
+    const {width, height} = imageData
     const gray = new Uint8ClampedArray(width * height)
     const iData = imageData.data
     for (let i = 0, p = 0; i < gray.length; i++, p += 4) {
