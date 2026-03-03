@@ -25,8 +25,6 @@ export default function ExportButton({text}) {
     const {queue, activeItems, activeIdList, processingComplete, binSpacing, isDesktop, aggregateQueueItem} = useContext(DataContext)
     const {altButtonColor} = useContext(UIContext)
 
-    console.log('activeItems', activeItems)
-
     const cleanedQueue = queue
         .filter(item => activeIdList.includes(item.id))
         .map(item => {
