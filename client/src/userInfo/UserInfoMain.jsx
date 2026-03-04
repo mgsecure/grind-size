@@ -6,7 +6,7 @@ import Card from '@mui/material/Card'
 import FilterContext from '../context/FilterContext.jsx'
 import JsonDisplay from '../util/JsonDisplay.jsx'
 import DBContext from '../app/DBContext.jsx'
-import ExportButton from '../espressoBeans/ExportButton.jsx'
+import ExportButton from './ExportButton.jsx'
 
 export default function UserInfoMain({user}) {
 

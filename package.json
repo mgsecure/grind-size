@@ -19,7 +19,7 @@
     "server": "yarn workspace @starter/server dev",
     "build": "yarn workspace @starter/client build",
     "build-all": "yarn workspaces foreach -A -v -t --exclude new-project run build",
-    "lint": "yarn workspaces foreach -A -v -t run lint",
+    "lint": "yarn workspaces foreach -A -v -t run lint --ignore-pattern '/client/src/psd/version1/'",
     "test": "yarn workspaces foreach -A -v -t run test",
     "test:run": "yarn workspaces foreach -A -v -t run test:run",
     "test:ui": "vitest --ui",

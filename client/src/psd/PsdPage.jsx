@@ -11,6 +11,8 @@ import {useTheme} from '@mui/material/styles'
 import UIContext from '../context/UIContext.jsx'
 import VersionChecker from '../app/VersionChecker.jsx'
 import Footer from './components/Footer.jsx'
+import IntroCopy from '../misc/IntroCopy.jsx'
+import introCopyMarkdown from './components/introCopyMarkdown.md?raw'
 
 export default function PsdPage() {
     const theme = useTheme()
@@ -31,7 +33,7 @@ export default function PsdPage() {
     return (
         <Stack spacing={isDesktop ? 2 : 1} sx={{width: '100%'}}>
             {manualSelectionId && (
-                <Paper sx={{p: 2}}>
+                <Paper sx={{p: isDesktop ? 2 : 1}}>
                     <ManualCornerSelector
                         imageUrl={manualSelectionUrl}
                         onCornersSelected={handleManualCorners}
@@ -39,9 +41,9 @@ export default function PsdPage() {
                     />
                 </Paper>
             )}
-            <Paper sx={{p: 2, width: '100%'}}>
+            <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
                 <Stack direction='row' spacing={1} alignItems='center' justifyContent='space-between'>
-                    <Typography style={{fontSize: '1.5rem', fontWeight: 700, lineHeight: '1.2em'}}>
+                    <Typography style={{fontSize: '1.5rem', fontWeight: 700, lineHeight: '1.2em', marginTop: 8}}>
                         COFFEE GRINDS
                         {!isDesktop && <br/>}
                         <span style={{fontWeight: 300}}> PARTICLE SIZE DISTRIBUTION</span>
@@ -49,9 +51,7 @@ export default function PsdPage() {
                     <VersionChecker/>
 
                 </Stack>
-                <Typography variant='body2' color='text.secondary' style={{marginTop: 4}}>
-                    Intro copy and help links will go here.
-                </Typography>
+                <IntroCopy introCopy={{markdown: introCopyMarkdown}} style={{fontSize: '0.95rem', padding: '0px 0px 0px 0px'}}/>
             </Paper>
 
             <UploadQueuePanel/>
@@ -88,7 +88,7 @@ export default function PsdPage() {
 
             <ImagePanel/>
 
-            <Footer />
+            <Footer/>
 
         </Stack>
     )

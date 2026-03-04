@@ -9,6 +9,7 @@ import {v4 as uuidv4} from 'uuid'
 import useWindowSize from '../util/useWindowSize.jsx'
 import {useLocalStorage} from 'usehooks-ts'
 import {setDeep, setDeepJoin, setDeepMultiple} from '../util/setDeep.js'
+import {enqueueSnackbar} from 'notistack'
 
 export function PsdDataProvider({children}) {
     const {isDesktop} = useWindowSize()
@@ -351,6 +352,7 @@ export function PsdDataProvider({children}) {
             }
             setIsAnalyzing(false)
             setPreserveActiveIdList(false)
+            queue.length > 1 && enqueueSnackbar('Analysis complete', {autoHideDuration: 1500, variant: 'info'})
         }
         startAnalysis().then()
     }, [queue, settings, binSpacing, isAnalyzing, manualSelectionId, overlayOptions, preserveActiveIdList])

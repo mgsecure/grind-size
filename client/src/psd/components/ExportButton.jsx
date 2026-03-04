@@ -32,6 +32,7 @@ export default function ExportButton({text}) {
             newResult.previews = {}
             newResult.particles = newResult.particles?.map(p => ({...p, contour: []}))
             newResult.histograms = activeItems?.find(i => i.id === item.id).histograms
+            newResult.sampleName = activeItems?.find(i => i.id === item.id).sampleName
             return {...item, result: newResult, source: 'export', file: {}}
         })
 
@@ -45,10 +46,10 @@ export default function ExportButton({text}) {
     const handleExportCsvFiles = useCallback((result) => {
         const histogram = binSpacing === 'log' ? result.histograms?.log : result.histograms?.linear
         if (histogram) {
-            downloadFile(`${result.filename}_histogram.csv`, convertHistogramToCsv(result.histograms))
+            downloadFile(`${result.sampleName || result.filename}_histogram.csv`, convertHistogramToCsv(result.histograms))
         }
-        downloadFile(`${result.filename}_stats.csv`, convertStatsToCsv(result.stats))
-        downloadFile(`${result.filename}_particles.csv`, convertParticlesToCsv(result.particles, result.scale.pxPerMm))
+        downloadFile(`${result.sampleName || result.filename}_stats.csv`, convertStatsToCsv(result.stats))
+        downloadFile(`${result.sampleName || result.filename}_particles.csv`, convertParticlesToCsv(result.particles, result.scale.pxPerMm))
     }, [binSpacing])
 
     const handleExportJson = useCallback((object, filename = 'json-export') => {
