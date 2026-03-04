@@ -22,7 +22,7 @@ import ItemInformationButton from '../components/ItemInformationButton.jsx'
 import ExportButton from '../components/ExportButton.jsx'
 import ImportButton from '../components/ImportButton.jsx'
 import UIContext from '../../context/UIContext.jsx'
-import LoadingDisplayWhiteSmall from '../../misc/LoadingDisplayWhiteSmall.jsx'
+import LoadingDisplaySmall from '../../misc/LoadingDisplaySmall.jsx'
 
 export default function UploadQueuePanel() {
     const theme = useTheme()
@@ -89,7 +89,7 @@ export default function UploadQueuePanel() {
         <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
             <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{width: '100%'}}>
                 <Typography style={{fontSize: '1.1rem', fontWeight: 500}}>IMAGE QUEUE</Typography>
-                <ImportButton text={true}/>
+                <ImportButton iconOnly={false}/>
             </Stack>
             <Stack direction='column' spacing={1} sx={{width: '100%'}}>
                 <Stack direction={isDesktop ? 'row' : 'column'} spacing={1} sx={{width: '100%'}}>
@@ -140,7 +140,7 @@ export default function UploadQueuePanel() {
 
                                                 {activeIdList.includes(item.id)
                                                     ? !['done', 'error'].includes(item.status)
-                                                        ? <span style={{marginRight: 8}}><LoadingDisplayWhiteSmall/></span>
+                                                        ? <span style={{marginRight: 8}}><LoadingDisplaySmall/></span>
                                                         : <CheckBoxIcon
                                                             fontSize='small'
                                                             style={{
@@ -206,6 +206,7 @@ export default function UploadQueuePanel() {
                                                     {!Object.keys(PSD_PRESETS).some(s => item.filename?.includes(`-${s}`)) &&
                                                         //['done', 'error'].includes(item.status) &&
                                                         item.source !== 'import' &&
+                                                        item.file.path &&
                                                         <Box sx={{display: 'flex', alignItems: 'center'}}>
                                                             <RefreshSingleButton id={item.id}/>
                                                         </Box>

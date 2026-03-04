@@ -1,5 +1,5 @@
 import React, {Suspense} from 'react'
-import {Outlet, redirect} from 'react-router-dom'
+import {Outlet, redirect, Navigate} from 'react-router-dom'
 
 import ErrorBoundary from './ErrorBoundary'
 import LoadingDisplay from '../misc/LoadingDisplay.jsx'
@@ -33,7 +33,7 @@ export default [{
     children: [
         {
             path: '/',
-            loader: () => redirect('/psd')
+            element: <Navigate replace to="/psd" />,
         },
         {
             path: '/psd',

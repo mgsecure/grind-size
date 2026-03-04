@@ -5,9 +5,6 @@ import DataProvider from './PsdDataProvider.jsx'
 import UIProvider from './PsdUIProvider.jsx'
 
 export default function PsdParentRoute() {
-
-    console.log('Grind Size PSD Loading...')
-
     return (
         <FilterProvider filterFields={[]}>
             <DataProvider>

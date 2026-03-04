@@ -171,6 +171,7 @@ export function PsdDataProvider({children}) {
             return {
                 id: q.id,
                 filename: q.result.filename || getFileNameWithoutExtension(q.file?.name) || '',
+                hasFile: !!q.file?.path,
                 sampleName: q.sampleName || q.result.filename || getFileNameWithoutExtension(q.file?.name) || '',
                 settings: q.result.settings || {},
                 stats: q.result.stats || {},
@@ -273,7 +274,7 @@ export function PsdDataProvider({children}) {
     const analyzeAll = useCallback(() => {
         setQueue(prevQueue => {
             return prevQueue
-                .map(item => item.source !== 'import'
+                .map(item => item.file?.path
                     ? ({
                         ...item,
                         status: 'queued',

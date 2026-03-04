@@ -1,3 +1,4 @@
+// Candidate functions for testing new overlap separation methods, DO NOT DELETE
 
 export async function separateOverlapsCandidate(detectFn, detectResult, cleaned, settings) {
 

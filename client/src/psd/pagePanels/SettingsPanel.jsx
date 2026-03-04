@@ -35,7 +35,7 @@ export default function SettingsPanel() {
 
     const needsRefresh = useMemo(() => {
         return queueItems
-            .filter(item => item.status === 'done')
+            .filter(item => (item.status === 'done' && !!item.hasFile))
             .map(item => item.settings).some(
                 (itemSettings) => !isDeepEqual(itemSettings, settings, {ignore: ['name', 'bins', 'binSpacing', 'sampleName']})
             )

@@ -12,6 +12,7 @@ import UIContext from '../context/UIContext.jsx'
 import VersionChecker from '../app/VersionChecker.jsx'
 import Footer from './components/Footer.jsx'
 import IntroCopy from '../misc/IntroCopy.jsx'
+import ImportButton from './components/ImportButton.jsx'
 import introCopyMarkdown from './components/introCopyMarkdown.md?raw'
 
 export default function PsdPage() {
@@ -51,7 +52,10 @@ export default function PsdPage() {
                     <VersionChecker/>
 
                 </Stack>
-                <IntroCopy introCopy={{markdown: introCopyMarkdown}} style={{fontSize: '0.95rem', padding: '0px 0px 0px 0px'}}/>
+                <IntroCopy introCopy={{markdown: introCopyMarkdown}} style={{fontSize: '0.9rem', padding: '0px 0px 0px 0px'}}/>
+
+                <span style={{fontSize: '0.9rem'}}>Or, you can click here to <ImportButton linkOnly={true}/> directly.</span>
+
             </Paper>
 
             <UploadQueuePanel/>

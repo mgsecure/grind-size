@@ -4,7 +4,8 @@
 import * as CV_pkg from 'js-aruco2/src/cv.js'
 
 // Legacy library uses non-standard exports. We resolve CV based on environment.
-const _CV = CV_pkg.CV || CV_pkg.default?.CV || CV_pkg
+// In Vite/Rollup production, CV might not be exported as a named export.
+const _CV = CV_pkg.CV || (typeof window !== 'undefined' ? window.CV : null) || CV_pkg.default?.CV || CV_pkg
 
 export function warpPerspective(imageData, corners, targetSize = 2000) {
     const { width, height, data } = imageData

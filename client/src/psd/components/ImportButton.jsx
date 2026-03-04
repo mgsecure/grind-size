@@ -14,10 +14,12 @@ import ListItemText from '@mui/material/ListItemText'
 import CodeIcon from '@mui/icons-material/Code'
 import Menu from '@mui/material/Menu'
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload'
+import {Link} from '@mui/material'
+import LoadingDisplaySmall from '../../misc/LoadingDisplaySmall.jsx'
 
 const demoDataURL = 'https://grind.mygiantsquid.com/data/M47-POB-demo-export.json'
 
-export default function ImportButton({text}) {
+export default function ImportButton({iconOnly = false, linkOnly = false}) {
 
     const {queue, setQueue, setActiveIdList} = useContext(DataContext)
     const {altButtonColor} = useContext(UIContext)
@@ -25,7 +27,10 @@ export default function ImportButton({text}) {
     const [anchorEl, setAnchorEl] = useState(null)
     const open = Boolean(anchorEl)
     const handleOpen = useCallback(event => setAnchorEl(event.currentTarget), [])
-    const handleClose = useCallback(() => setAnchorEl(null), [])
+    const handleClose = useCallback(() => {
+        document.activeElement.blur()
+        setAnchorEl(null)
+    }, [])
 
     const hiddenFileInput = useRef(null)
     const handleClick = useCallback(() => {
@@ -52,7 +57,15 @@ export default function ImportButton({text}) {
         setQueue(prev => [...prev, ...importQueueClean])
         setActiveIdList(prev => [...prev, ...nonDuplicateIds])
 
-        enqueueSnackbar(`${cleanCount(importQueueClean.length, 'sample', false)} imported`)
+        enqueueSnackbar(`${cleanCount(importQueueClean.length, 'sample', false)} imported`, {
+            variant: 'success',
+            autoHideDuration: 1500
+        })
+        console.log(
+            `Imported ${cleanCount(importQueueClean.length, 'sample', false)}: ${importQueueClean
+                .map(item => item.id)
+                .join(', ')}`
+        )
     }, [queue, setActiveIdList, setQueue])
 
     const handleChange = useCallback((event) => {
@@ -82,7 +95,7 @@ export default function ImportButton({text}) {
             setLoading(true)
             try {
                 // If this still fails with 'Failed to fetch', it's most likely a CORS issue
-                const response = await fetch(url)
+                const response = await fetch(url, {cache: 'no-store'})
                 if (!response.ok) {
                     setError(true)
                     setErrorMessage(`HTTP error! status: ${response.status}`)
@@ -109,27 +122,37 @@ export default function ImportButton({text}) {
 
     return (
         <React.Fragment>
-            {text
-                ? <Button
-                    variant='text'
-                    size='small'
-                    onClick={handleOpen}
-                    startIcon={<UploadIcon style={{color: altButtonColor}}/>}
-                    style={{color: altButtonColor}}>
-                    Import Data
-                </Button>
-                : <Tooltip title='Import Data' arrow disableFocusListener>
+            {iconOnly &&
+                <Tooltip title='Import Data' arrow disableFocusListener>
                     <IconButton onClick={handleOpen}>
                         <UploadIcon style={{color: altButtonColor}}/>
                     </IconButton>
                 </Tooltip>
             }
+
+            {linkOnly &&
+                <Link onClick={handleOpen}>import demo data</Link>
+            }
+
+            {!iconOnly && !linkOnly &&
+                <Button
+                    variant='text'
+                    size='small'
+                    onClick={handleOpen}
+                    startIcon={loading
+                        ? <span style={{marginRight: 0}}><LoadingDisplaySmall size='xsmall'/></span>
+                        : <UploadIcon style={{color: altButtonColor}}/>}
+                    style={{color: altButtonColor}}>
+                    Import Data
+                </Button>
+            }
+
             <Menu
                 anchorEl={anchorEl}
                 open={open}
                 onClose={handleClose}
             >
-                {!text &&
+                {iconOnly &&
                     <MenuItem disabled>
                         <ListItemIcon>
                             <FileDownloadIcon fontSize='small'/>
@@ -138,12 +161,14 @@ export default function ImportButton({text}) {
                     </MenuItem>
                 }
 
-                <MenuItem style={menuItemStyle} onClick={handleClick}>
-                    <ListItemIcon>
-                        <CodeIcon fontSize='small'/>
-                    </ListItemIcon>
-                    <ListItemText>Import Data from JSON file</ListItemText>
-                </MenuItem>
+                {!linkOnly &&
+                    <MenuItem style={menuItemStyle} onClick={handleClick}>
+                        <ListItemIcon>
+                            <CodeIcon fontSize='small'/>
+                        </ListItemIcon>
+                        <ListItemText>Import Data from JSON file</ListItemText>
+                    </MenuItem>
+                }
                 <MenuItem style={menuItemStyle} onClick={loadDemoData}>
                     <ListItemIcon>
                         <CloudDownloadIcon fontSize='small'/>

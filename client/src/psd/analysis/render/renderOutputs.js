@@ -197,9 +197,6 @@ export async function renderOverlayPng(imageData, particles, meta = {}, options 
     )
     ctx.putImageData(tempImageData, 0, 0)
 
-
-    console.log('renderOverlayPng meta', meta)
-
     /* BROKEN
     // 1. Draw ArUco markers (magenta #ff3399, 3px wide)
     if (meta.markers && options.showMarkers) {
@@ -226,7 +223,7 @@ export async function renderOverlayPng(imageData, particles, meta = {}, options 
     }
     */
 
-    // updated markers
+    // updated Draw ArUco markers
     if (meta.template && (meta.markers || meta.warpMarkers) && options.showMarkers) {
         const markers = meta.markers || meta.warpMarkers
         ctx.lineWidth = 5
