@@ -3,6 +3,7 @@ import {Stack, Paper, Typography, Button} from '@mui/material'
 import DownloadIcon from '@mui/icons-material/Download'
 import {convertHistogramToCsv, convertParticlesToCsv, convertStatsToCsv, downloadFile} from '../analysis/exportCsv.js'
 import DataContext from '../../context/DataContext.jsx'
+import UIContext from '../../context/UIContext.jsx'
 import Collapse from '@mui/material/Collapse'
 import TextField from '@mui/material/TextField'
 import IconButton from '@mui/material/IconButton'
@@ -13,7 +14,8 @@ import SelectBox from '../../formUtils/SelectBox.jsx'
 export default function ExportPanel({result}) {
     const theme = useTheme()
 
-    const {queue, binSpacing, isDesktop} = useContext(DataContext)
+    const {queue, binSpacing} = useContext(DataContext)
+    const {isDesktop} = useContext(UIContext)
     //const queue = useMemo( () => allDone ? getQueue() : [], [allDone, getQueue])
     const queueItemNames = queue.map(item => item.filename)
 

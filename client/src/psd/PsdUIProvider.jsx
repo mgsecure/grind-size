@@ -17,7 +17,7 @@ export default function PsdUIProvider({children}) {
     const [imageViewMode, setImageViewMode] = useState('mask') // original | mask | overlay | diagnostic
 
     const [reverseColors, setReverseColors] = useState(false)
-    const swapColors = useCallback(() => setReverseColors(!reverseColors), [reverseColors])
+    const swapColors = useCallback(() => setReverseColors(prev => !prev), [])
 
     const allColors = useMemo(() => theme.palette.mode === 'dark'
             ? ['#a6cee3', '#1f78b4', '#e8c1a0', '#f47560', '#b2df8a', '#33a02c']

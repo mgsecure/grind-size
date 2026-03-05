@@ -24,12 +24,11 @@ export default function PsdPage() {
         processedActive,
         handleManualCorners,
         cancelManual,
-        isDesktop,
         settings,
         setSettings
     } = useContext(DataContext)
 
-    const {showTitleBar} = useContext(UIContext)
+    const {showTitleBar, isDesktop} = useContext(UIContext)
 
     const domEl = useRef(null)
 

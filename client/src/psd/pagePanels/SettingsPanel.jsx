@@ -7,6 +7,7 @@ import Switch from '@mui/material/Switch'
 import {PSD_PRESETS} from '@starter/shared'
 import Collapse from '@mui/material/Collapse'
 import DataContext from '../../context/DataContext.jsx'
+import UIContext from '../../context/UIContext.jsx'
 import isDeepEqual from '../../util/isDeepEqual.js'
 import CustomSettingsButtons from '../components/CustomSettingButtons.jsx'
 import ExpandButton from '../../misc/ExpandButton.jsx'
@@ -24,8 +25,9 @@ export default function SettingsPanel() {
         setResetToggle,
         isCustomSettings, setIsCustomSettings,
         overlapSplitPresets, setOverlapPreset,
-        isDesktop,
     } = useContext(DataContext)
+
+    const {isDesktop} = useContext(UIContext)
 
     // TODO: implement save/load custom settings from local storage
     // console.log('customSettings', customSettings)

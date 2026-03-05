@@ -6,14 +6,11 @@ import {buildHistograms} from './analysis/metrics/buildHistograms.js'
 import {calculateStatistics} from './analysis/metrics/calculateStatistics.js'
 import {getFileNameWithoutExtension} from '../util/stringUtils.js'
 import {v4 as uuidv4} from 'uuid'
-import useWindowSize from '../util/useWindowSize.jsx'
 import {useLocalStorage} from 'usehooks-ts'
 import {setDeep, setDeepJoin, setDeepMultiple} from '../util/setDeep.js'
 import {enqueueSnackbar} from 'notistack'
 
 export function PsdDataProvider({children}) {
-    const {isDesktop} = useWindowSize()
-
     const [debugLevel, setDebugLevel] = useLocalStorage('psd-debug', 0)
 
     // State from PsdPage
@@ -37,10 +34,9 @@ export function PsdDataProvider({children}) {
     })
     const [overlapPreset, setOverlapPreset] = useState(defaultOverlapPreset) // off | low | normal | (high)
 
-    const processedCount = useMemo(() => queue.reduce((acc, q) => {
-        acc = acc + ((q.status === 'done' && q.result) || q.status === 'error' ? 1 : 0)
-        return acc
-    }, 0), [queue])
+    const processedCount = useMemo(() =>
+        queue.filter(q => (q.status === 'done' && q.result) || q.status === 'error').length
+    , [queue])
 
     const processingComplete = useMemo(() => {
         return (queue.length === processedCount)
@@ -72,13 +68,13 @@ export function PsdDataProvider({children}) {
             setDeepMultiple(acc, ['error'], sample.error)
             setDeepMultiple(acc, ['status'], sample.status)
             setDeepMultiple(acc, ['result', 'analysisVersion'], sample.result.analysisVersion)
-            Object.keys(sample.result.parameters || {}).map(p => {
+            Object.keys(sample.result.parameters || {}).forEach(p => {
                 setDeepMultiple(acc, ['result', 'parameters', p], sample.result.parameters[p])
             })
-            Object.keys(sample.result.scale || {}).map(p => {
+            Object.keys(sample.result.scale || {}).forEach(p => {
                 setDeepMultiple(acc, ['result', 'scale', p], sample.result.scale[p])
             })
-            Object.keys(sample.result.settings || {}).map(p => {
+            Object.keys(sample.result.settings || {}).forEach(p => {
                 setDeepMultiple(acc, ['result', 'settings', p], sample.result.settings[p])
             })
             setDeepMultiple(acc, ['result', 'testPipeline'], sample.result.testPipeline)
@@ -189,10 +185,8 @@ export function PsdDataProvider({children}) {
     }, [queue, processItems])
 
     const aggregateItem = useMemo(() => {
-        const baseItem =  processItems([aggregateQueueItem]).length > 0
-            ? processItems([aggregateQueueItem])[0]
-            : {}
-        return {...baseItem}
+        const results = processItems([aggregateQueueItem])
+        return results.length > 0 ? {...results[0]} : {}
     }, [aggregateQueueItem, processItems])
 
     const allItems = useMemo(() => (queueItems.length > 1 && aggregateItem)
@@ -256,20 +250,20 @@ export function PsdDataProvider({children}) {
             return
         }
         const candidateFiles = Array.from(files).slice(0, 6)
-        const unprocessedFiles = candidateFiles
-            .filter(file => !queue.find(q => (q.file.relativePath === file.path && q.status === 'done')))
-
-        const next = unprocessedFiles.map(file => ({
-            id: uuidv4(),
-            file,
-            status: 'queued',
-            error: null,
-            result: null
-        }))
-        setQueue(prev => [...prev, ...next])
+        setQueue(prev => {
+            const unprocessedFiles = candidateFiles
+                .filter(file => !prev.find(q => q.file.relativePath === file.path && q.status === 'done'))
+            const next = unprocessedFiles.map(file => ({
+                id: uuidv4(),
+                file,
+                status: 'queued',
+                error: null,
+                result: null
+            }))
+            return [...prev, ...next]
+        })
         setDroppedFiles([])
-
-    }, [queue])
+    }, [])
 
     const analyzeAll = useCallback(() => {
         setQueue(prevQueue => {
@@ -300,6 +294,7 @@ export function PsdDataProvider({children}) {
             const toProcess = queue.filter(q => q.status === 'queued')
             if (toProcess.length === 0) return
 
+            const capturedPreserveActiveIdList = preserveActiveIdList
             setIsAnalyzing(true)
             for (const item of toProcess) {
                 setQueue(prev => {
@@ -326,7 +321,7 @@ export function PsdDataProvider({children}) {
                         setIsAnalyzing(false)
                         return
                     }
-                    !preserveActiveIdList && setActiveIdList(prev => prev.concat(item.id))
+                    !capturedPreserveActiveIdList && setActiveIdList(prev => prev.concat(item.id))
                     setQueue(prev => prev.map(p => p.id === item.id
                         ? {
                             ...p,
@@ -360,13 +355,19 @@ export function PsdDataProvider({children}) {
 
     const handleQueueRemove = useCallback((id) => {
         if (!id) return
-        setDroppedFiles(prev => prev.filter(f => f.path !== queue.find(q => q.id === id)?.file.path))
 
-        let newQueue = [...queue].filter(q => q.id !== id)
+        if (id === 'all') {
+            setQueue([])
+            setDroppedFiles([])
+            setActiveIdList([])
+            return
+        }
+
+        setDroppedFiles(prev => prev.filter(f => f.path !== queue.find(q => q.id === id)?.file.path))
+        const newQueue = queue.filter(q => q.id !== id)
         setQueue(newQueue)
 
-        if (id === 'all' || newQueue.length === 0) {
-            setQueue([])
+        if (newQueue.length === 0) {
             setDroppedFiles([])
             setActiveIdList([])
         }
@@ -449,7 +450,6 @@ export function PsdDataProvider({children}) {
         activeItems,
         getItemDetails,
         globalMaxY,
-        isDesktop,
         onFiles,
         analyzeAll,
         handleQueueRemove,
@@ -457,7 +457,7 @@ export function PsdDataProvider({children}) {
         handleManualCorners,
         cancelManual,
         overlapSplitPresets, overlapPreset, setOverlapPreset
-    }), [debugLevel, setDebugLevel, settings, setSettings, customSettings, setCustomSettings, retainCustomSettings, setRetainCustomSettings, isCustomSettings, setIsCustomSettings, queue, setQueue, processingComplete, droppedFiles, setDroppedFiles, activeIdList, setActiveIdList, xAxis, setXAxis, yAxis, setYAxis, binSpacing, setBinSpacing, resetToggle, setResetToggle, isAnalyzing, setIsAnalyzing, manualSelectionId, setManualSelectionId, manualSelectionUrl, setManualSelectionUrl, overlayOptions, setOverlayOptions, aggregateQueueItem, aggregateItem, queueItems, allItems, activeItems, getItemDetails, globalMaxY, isDesktop, onFiles, analyzeAll, handleQueueRemove, processMultipleSettings, handleManualCorners, cancelManual, overlapPreset, setOverlapPreset])
+    }), [debugLevel, setDebugLevel, settings, setSettings, customSettings, setCustomSettings, retainCustomSettings, setRetainCustomSettings, isCustomSettings, setIsCustomSettings, queue, setQueue, processingComplete, droppedFiles, setDroppedFiles, activeIdList, setActiveIdList, xAxis, setXAxis, yAxis, setYAxis, binSpacing, setBinSpacing, resetToggle, setResetToggle, isAnalyzing, setIsAnalyzing, manualSelectionId, setManualSelectionId, manualSelectionUrl, setManualSelectionUrl, overlayOptions, setOverlayOptions, aggregateQueueItem, aggregateItem, queueItems, allItems, activeItems, getItemDetails, globalMaxY, onFiles, analyzeAll, handleQueueRemove, processMultipleSettings, handleManualCorners, cancelManual, overlapPreset, setOverlapPreset])
 
     return (
         <DataContext.Provider value={value}>

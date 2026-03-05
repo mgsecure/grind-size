@@ -1,6 +1,7 @@
 import IconButton from '@mui/material/IconButton'
 import React, {useCallback, useContext, useEffect, useMemo, useState} from 'react'
 import DataContext from '../../context/DataContext.jsx'
+import UIContext from '../../context/UIContext.jsx'
 import {useTheme, alpha} from '@mui/material/styles'
 import InfoOutlineIcon from '@mui/icons-material/InfoOutline'
 import EditIcon from '@mui/icons-material/Edit'
@@ -22,7 +23,8 @@ export default function ItemInformationButton({item, imageViewer = false, noButt
     const [open, setOpen] = useState(false)
     const [name, setName] = useState(item.sampleName || 'sample')
     const [editOpen, setEditOpen] = useState(false)
-    const {queue, setQueue, isDesktop} = useContext(DataContext)
+    const {queue, setQueue} = useContext(DataContext)
+    const {isDesktop} = useContext(UIContext)
     useEffect(() => {
         setName(item.sampleName || 'sample')
     }, [item])

@@ -22,8 +22,8 @@ import genHexString from '../../util/genHexString.js'
 
 export default function ExportButton({text}) {
 
-    const {queue, activeItems, activeIdList, processingComplete, binSpacing, isDesktop, aggregateQueueItem} = useContext(DataContext)
-    const {altButtonColor} = useContext(UIContext)
+    const {queue, activeItems, activeIdList, processingComplete, binSpacing, aggregateQueueItem} = useContext(DataContext)
+    const {altButtonColor, isDesktop} = useContext(UIContext)
 
     const cleanedQueue = queue
         .filter(item => activeIdList.includes(item.id))
