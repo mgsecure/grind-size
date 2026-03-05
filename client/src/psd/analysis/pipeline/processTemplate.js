@@ -43,12 +43,20 @@ export function processTemplate({
         })
 
         const ids = template.config.cornerIds
+        const imgCx = width / 2
+        const imgCy = width / 2 // templates are square; height not passed, use width
 
         if (!templateCorners) {
-            // Use outer corners for perspective warp
-            // corners: [TL, TR, BR, BL]
-            templateCorners = ids.map((id, i) => {
-                return markerMap[id] ? markerMap[id].corners[i] : null
+            // Use outer corners for perspective warp: farthest corner from image center
+            templateCorners = ids.map((id) => {
+                if (!markerMap[id]) return null
+                const corners = markerMap[id].corners
+                let best = corners[0], bestDist = -1
+                corners.forEach(c => {
+                    const d = (c.x - imgCx) ** 2 + (c.y - imgCy) ** 2
+                    if (d > bestDist) { bestDist = d; best = c }
+                })
+                return best
             })
         }
 
@@ -59,14 +67,14 @@ export function processTemplate({
         const getDist = (p1, p2) => Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)
         const getPInner = (i) => {
             if (!markerMap[ids[i]]) return null
-            // ArUco corners are 0:TL, 1:TR, 2:BR, 3:BL
-            // For the markers to form the inner rectangle:
-            // TL marker (0): corner 2 (BR) is the inner point
-            // TR marker (1): corner 3 (BL) is the inner point
-            // BR marker (2): corner 0 (TL) is the inner point
-            // BL marker (3): corner 1 (TR) is the inner point
-            const innerCornerIdx = (i + 2) % 4
-            return markerMap[ids[i]].corners[innerCornerIdx]
+            // Find the corner closest to the image center — that is the inner corner
+            const corners = markerMap[ids[i]].corners
+            let best = corners[0], bestDist = Infinity
+            corners.forEach(c => {
+                const d = (c.x - imgCx) ** 2 + (c.y - imgCy) ** 2
+                if (d < bestDist) { bestDist = d; best = c }
+            })
+            return best
         }
         const pairs = [[0, 1], [1, 2], [2, 3], [3, 0]]
 
@@ -97,10 +105,9 @@ export function processTemplate({
         // Define ROI
         let baseRoi = null
         const innerPoints = []
-        if (markerMap[ids[0]]) innerPoints.push(markerMap[ids[0]].corners[2])
-        if (markerMap[ids[1]]) innerPoints.push(markerMap[ids[1]].corners[3])
-        if (markerMap[ids[2]]) innerPoints.push(markerMap[ids[2]].corners[0])
-        if (markerMap[ids[3]]) innerPoints.push(markerMap[ids[3]].corners[1])
+        ids.forEach(id => {
+            if (markerMap[id]) innerPoints.push(getPInner(ids.indexOf(id)))
+        })
 
         if (innerPoints.length >= 3) {
             const validPoints = innerPoints.filter(p => p !== null)

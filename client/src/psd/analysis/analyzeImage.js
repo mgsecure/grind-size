@@ -1,7 +1,9 @@
 import {PSD_ANALYSIS_VERSION} from '@starter/shared'
 import {decodeImageToImageData} from './pipeline/decodeImage.js'
 import {detectMarkers} from './pipeline/detectMarkers.js'
+import {detectMarkersCandidate} from './pipeline/detectMarkersCandidate.js'
 import {processTemplate} from './pipeline/processTemplate.js'
+import {processTemplateCandidate} from './pipeline/processTemplateCandidate.js'
 import {warpPerspective, getUnwarpedPoint} from './pipeline/warpPerspective.js'
 import {normalizeLighting} from './pipeline/normalizeLighting.js'
 import {adaptiveThreshold} from './pipeline/thresholdAdaptive.js'
@@ -27,15 +29,22 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
     const imageData = await decodeImageToImageData(file)
     const {width, height} = imageData
 
+    console.log('width, height:', {width, height})
+
     // detectMarkers might modify imageData.data (grayscale/threshold in js-aruco2)
     // We use slice() to ensure a deep copy of the buffer.
-    const markers = detectMarkers({
+
+    const markerFn = testPipeline ? detectMarkersCandidate : detectMarkers
+    const markers = markerFn({
         width,
         height,
         data: imageData.data.slice()
     })
 
-    let scaleInfo = processTemplate({
+    console.log(`Markers detected: ${markers.length}`)
+
+    const processTemplateFn = testPipeline ? processTemplateCandidate : processTemplate
+    let scaleInfo = processTemplateFn({
         width,
         height,
         markers,
@@ -67,10 +76,9 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         if (presentCorners.length === 4) {
             analysisImageData = imageData
             if (correctPerspective) try {
-                // Determine target warpSize based on detected scale if we want to preserve it,
-                // or use a default that hits 20 px/mm for standard templates.
-                // 130mm * 20 px/mm = 2600px
-                // 70mm * 20 px/mm = 1400px
+                // Use a fixed target px/mm so that both high-res and low-res images of the
+                // same physical template produce the same warp output size and therefore
+                // the same measurement scale. 20 px/mm is a good default for all templates.
                 const targetPxPerMm = 20
                 warpSize = Math.round(template.outerMm * targetPxPerMm)
 
@@ -274,7 +282,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         console.error('Mask rendering failed', e)
     }
 
-    // We generate the "Original" view. 
+    // We generate the "Original" view.
     // If the image was warped, we use analysisImageData (the warped one) so it matches the mask geometry.
     let originalPngDataUrl = null
     try {

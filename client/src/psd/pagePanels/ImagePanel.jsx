@@ -9,9 +9,15 @@ import ImageViewModeToggles from '../components/ImageViewModeToggles.jsx'
 export default function ImagePanel() {
     const theme = useTheme()
 
-    const {queue, activeIdList} = useContext(DataContext)
+    const {queue, allItems, activeIdList} = useContext(DataContext)
     const {isDesktop, imageViewMode} = useContext(UIContext) // original | mask | overlay | diagnostic
     const isAllImports = queue.every(item => ['import', 'demo'].includes(item.source))
+
+const sampleNames = useMemo(() => allItems.reduce((acc, item, idx) => {
+    acc[item.id] = item.sampleName || `Sample ${idx}`
+    return acc
+}, []), [allItems])
+
 
     const srcVar = useMemo(() => {
         if (imageViewMode === 'original') return 'originalPngDataUrl'
@@ -26,7 +32,7 @@ export default function ImagePanel() {
             .map((item, index) => {
                 if (item.result) {
                     return {
-                        title: item.result?.filename || `Image ${index + 1}`,
+                        title: sampleNames[item.id] || `Sample ${index}`,
                         subtitle: item.result?.settings?.name || '',
                         thumbnailUrl: item.result?.previews?.[srcVar],
                         sequenceId: index + 1,

@@ -2,8 +2,9 @@ export const PSD_ANALYSIS_VERSION = '1.0.0'
 
 // Template signatures: unique corner ID sets per template size (mm)
 export const PSD_TEMPLATES = {
-    100: {sizeMm: 100, cornerIds: [0, 1, 2, 3]},
-    50: {sizeMm: 50, cornerIds: [10, 11, 12, 13]}
+    100: {sizeMm: 100, cornerIds: [0, 1, 2, 3], outerMm: 130, innerMm: 100},
+    75: {sizeMm: 75, cornerIds: [20, 21, 22, 23], outerMm: 105, innerMm: 75},
+    50: {sizeMm: 50, cornerIds: [10, 11, 12, 13], outerMm: 70, innerMm: 50} // 10mm margins
 }
 
 export const overlapSplitPresets = {
@@ -43,7 +44,7 @@ export const defaultOverlapPreset = 'Normal'
 // Defaults
 export const PSD_DEFAULTS = {
     name: 'default',
-    testPipeline: false,
+    testPipeline: true,
     useMorphology: true,
     correctPerspective: true,
     warpSizePx: 2000,
