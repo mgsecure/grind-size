@@ -94,6 +94,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
             ...scaleInfo,
             pxPerMm: correctPerspective && presentCorners.length === 4 ? warpSize / template.outerMm : pxPerMm,
             mmPerPx: 1 / (correctPerspective && presentCorners.length === 4 ? warpSize / template.outerMm : pxPerMm),
+            detectedPxPerMm: pxPerMm,
             templateSize: template.sizeMm,
             detectedTemplate: template.sizeMm,
             markerCount: template.markers.length,

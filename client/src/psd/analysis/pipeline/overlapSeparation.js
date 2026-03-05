@@ -1,4 +1,3 @@
-
 export async function separateOverlaps(detectFn, detectResult, cleaned, settings) {
 
     try {

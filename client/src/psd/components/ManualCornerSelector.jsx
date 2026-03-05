@@ -1,7 +1,7 @@
 import React, {useState, useRef} from 'react'
-import {Box, Typography, Button, Stack} from '@mui/material'
+import {Box, Typography, Button, Stack, ToggleButtonGroup, ToggleButton} from '@mui/material'
 
-export default function ManualCornerSelector({imageUrl, onCornersSelected, onCancel}) {
+export default function ManualCornerSelector({imageUrl, onCornersSelected, onCancel, templateSize, onTemplateSizeChange}) {
     const [corners, setCorners] = useState([]) // Array of {x, y}
     const containerRef = useRef(null)
     const imgRef = useRef(null)
@@ -36,10 +36,24 @@ export default function ManualCornerSelector({imageUrl, onCornersSelected, onCan
     return (
         <Box sx={{p: 2, textAlign: 'center'}}>
             <Typography variant="h6">Manual Corner Selection</Typography>
-            <Typography variant="body2" color="text.secondary" sx={{mb: 2}}>
+            <Typography variant="body2" color="text.secondary" sx={{mb: 1}}>
                 Marker detection failed. Please click the four outer corners of the template in clockwise order:
                 <strong> {labels[corners.length] || 'Done'}</strong>
             </Typography>
+
+            <Stack direction="row" spacing={1} justifyContent="center" alignItems="center" sx={{mb: 2}}>
+                <Typography variant="body2">Template Size (mm):</Typography>
+                <ToggleButtonGroup
+                    size="small"
+                    value={templateSize}
+                    exclusive
+                    onChange={(_, v) => v && onTemplateSizeChange(v)}
+                >
+                    <ToggleButton value={100}>100</ToggleButton>
+                    <ToggleButton value={75}>75</ToggleButton>
+                    <ToggleButton value={50}>50</ToggleButton>
+                </ToggleButtonGroup>
+            </Stack>
 
             <Box 
                 ref={containerRef}

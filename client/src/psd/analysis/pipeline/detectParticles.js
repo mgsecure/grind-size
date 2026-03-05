@@ -25,7 +25,7 @@ export async function detectParticles(maskObj, {minAreaPx = 8, minSolidity = 0.3
             }
         }
     } else {
-        // Collect pagePanels from existing external labels (e.g. from Watershed)
+        // Collect pagePanels from existing external labels (e,g, from Watershed)
         const comps = new Map()
         for (let i = 0; i < externalLabels.length; i++) {
             const label = externalLabels[i]
@@ -167,7 +167,7 @@ function finalizeParticle(comp, particleId, k = 5.0) {
     const solidity = comp.area / ellipseAreaPx
 
     // Feret diameters (caliper-style measurements)
-    // For an ellipse, minFeret is the minor axis and maxFeret is the major axis.
+    // For an ellipse, minFeret is the minor axis, and maxFeret is the major axis.
     // For irregular particles, these are robustly represented by the moment-based axes.
     const minFeretPx = minorPx
     const maxFeretPx = majorPx

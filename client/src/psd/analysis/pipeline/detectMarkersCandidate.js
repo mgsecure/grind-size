@@ -19,13 +19,11 @@ export function detectMarkersCandidate(imageData) {
     const maxDim = 2000
     const fullScale = Math.min(1, maxDim / Math.max(width, height))
 
-    // Build a set of scaled images to search across
-    // Include 1.0 explicitly so high-res images are also tried at native resolution
-    const scales = [...new Set([1.0, fullScale, fullScale * 0.5, fullScale * 0.25])].filter(s => s > 0 && s <= 1)
+    // Two scales: capped and half-capped. 1.0 only if image is already small.
+    const scales = [...new Set([fullScale, fullScale * 0.5, 1.0])].filter(s => s > 0 && s <= 1)
 
-    const dictionaries = ['ARUCO', 'ARUCO_MIP_36h12']
-    const blockSizes = [41, 61, 101]
-    const cValues = [4, 10, 1]
+    const blockSizes = [41, 61]
+    const cValues = [4, 1]
 
     let bestMarkers = []
     let bestScore = -1
@@ -60,68 +58,42 @@ export function detectMarkersCandidate(imageData) {
             gray[i] = dData[p + 2]
         }
 
-        for (const dictName of dictionaries) {
-            const detector = new _AR.Detector({dictionaryName: dictName})
+        // Create detector once per scale
+        const detector = new _AR.Detector({dictionaryName: 'ARUCO'})
 
-            for (const blockSize of blockSizes) {
-                for (const C of cValues) {
-                    // Pre-threshold the image for robust detection
-                    const {mask} = adaptiveThreshold({width: sw, height: sh, gray}, {blockSize, C})
-                    const preThresholded = new ImageData(sw, sh)
-                    for (let i = 0, p = 0; i < mask.length; i++, p += 4) {
-                        const v = 255 - mask[i]
-                        preThresholded.data[p] = v
-                        preThresholded.data[p + 1] = v
-                        preThresholded.data[p + 2] = v
-                        preThresholded.data[p + 3] = 255
-                    }
-
-                    let candidates = []
-                    try {
-                        candidates = detector.detect(preThresholded)
-                    } catch (e) {
-                        continue
-                    }
-
-                    // Also try raw grayscale
-                    let greyMarkers = []
-                    try {
-                        const greyImg = new ImageData(sw, sh)
-                        for (let i = 0, p = 0; i < gray.length; i++, p += 4) {
-                            const v = gray[i]
-                            greyImg.data[p] = v
-                            greyImg.data[p + 1] = v
-                            greyImg.data[p + 2] = v
-                            greyImg.data[p + 3] = 255
-                        }
-                        greyMarkers = detector.detect(greyImg)
-                    } catch (e) {
-                        // ignore
-                    }
-
-                    // Pick whichever set has more template matches
-                    const score = (markers) => {
-                        const deduped = deduplicate(markers)
-                        const templateMatches = deduped.filter(m => ALL_TEMPLATE_IDS.has(m.id)).length
-                        return {deduped, templateMatches}
-                    }
-
-                    const s1 = score(candidates)
-                    const s2 = score(greyMarkers)
-                    const best = s1.templateMatches >= s2.templateMatches ? s1 : s2
-
-                    if (best.templateMatches > bestScore) {
-                        bestScore = best.templateMatches
-                        // Scale corners back to original coordinates
-                        bestMarkers = best.deduped.map(m => ({
-                            ...m,
-                            corners: m.corners.map(c => ({x: c.x / scale, y: c.y / scale}))
-                        }))
-                    }
-
-                    // Early exit if we found all 4 corners of any template
-                    if (bestScore >= 4) break
+        for (const blockSize of blockSizes) {
+            for (const C of cValues) {
+                // Pre-threshold the image for robust detection
+                const {mask} = adaptiveThreshold({width: sw, height: sh, gray}, {blockSize, C})
+                const preThresholded = new ImageData(sw, sh)
+                for (let i = 0, p = 0; i < mask.length; i++, p += 4) {
+                    const v = 255 - mask[i]
+                    preThresholded.data[p] = v
+                    preThresholded.data[p + 1] = v
+                    preThresholded.data[p + 2] = v
+                    preThresholded.data[p + 3] = 255
                 }
+
+                let candidates = []
+                try {
+                    candidates = detector.detect(preThresholded)
+                } catch (_e) {
+                    continue
+                }
+
+                const deduped = deduplicate(candidates)
+                const templateMatches = deduped.filter(m => ALL_TEMPLATE_IDS.has(m.id)).length
+
+                if (templateMatches > bestScore) {
+                    bestScore = templateMatches
+                    // Scale corners back to original coordinates
+                    bestMarkers = deduped.map(m => ({
+                        ...m,
+                        corners: m.corners.map(c => ({x: c.x / scale, y: c.y / scale}))
+                    }))
+                }
+
+                // Early exit if we found all 4 corners of any template
                 if (bestScore >= 4) break
             }
             if (bestScore >= 4) break

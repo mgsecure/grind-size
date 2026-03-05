@@ -27,7 +27,7 @@ export async function detectParticlesCandidate(maskObj, {minAreaPx = 8, minSolid
             }
         }
     } else {
-        // Collect pagePanels from existing external labels (e.g. from Watershed)
+        // Collect pagePanels from existing external labels (e,g, from Watershed)
         const comps = new Map()
         for (let i = 0; i < externalLabels.length; i++) {
             const label = externalLabels[i]
@@ -81,7 +81,7 @@ export async function detectParticlesCandidate(maskObj, {minAreaPx = 8, minSolid
     for (let i = 0; i < mask.length; i++) {
         binaryData[i] = mask[i] === 0 ? 0 : 1
     }
-    
+
     let contours = []
     try {
         // CV.findContours might crash or enter a `while(true)` loop if passed an array as the borderBuffer.
@@ -94,10 +94,10 @@ export async function detectParticlesCandidate(maskObj, {minAreaPx = 8, minSolid
     // 3. Match Contours to Particle Labels
     contours.forEach(c => {
         if (c.length === 0) return
-        
+
         const labelCounts = new Map()
         const step = c.length > 200 ? Math.floor(c.length / 50) : 1
-        
+
         for (let i = 0; i < c.length; i += step) {
             const pt = c[i]
             // Robust 3x3 window check around contour point
@@ -113,7 +113,7 @@ export async function detectParticlesCandidate(maskObj, {minAreaPx = 8, minSolid
                 }
             }
         }
-        
+
         if (labelCounts.size > 0) {
             // Pick the label with the most votes
             let bestLabel = -1
@@ -124,7 +124,7 @@ export async function detectParticlesCandidate(maskObj, {minAreaPx = 8, minSolid
                     bestLabel = label
                 }
             }
-            
+
             if (bestLabel !== -1) {
                 const particle = particles.find(p => p.id === bestLabel)
                 if (particle && !particle.contour) {
@@ -169,7 +169,7 @@ function finalizeParticle(comp, particleId, k = 5.0) {
     const solidity = comp.area / ellipseAreaPx
 
     // Feret diameters (caliper-style measurements)
-    // For an ellipse, minFeret is the minor axis and maxFeret is the major axis.
+    // For an ellipse, minFeret is the minor axis, and maxFeret is the major axis.
     // For irregular particles, these are robustly represented by the moment-based axes.
     const minFeretPx = minorPx
     const maxFeretPx = majorPx

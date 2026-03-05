@@ -236,20 +236,6 @@ export default function SettingsPanel() {
                         </Stack>
                     </Stack>
 
-                    <Stack style={{width: sliderWidth, marginRight: 24, marginBottom: 16}}>
-                        <Typography variant='body2'>Template Size (mm): {settings.templateSize}</Typography>
-                        <ToggleButtonGroup
-                            size='small'
-                            value={settings.templateSize}
-                            exclusive
-                            onChange={(_, v) => v && handleParameterChange('templateSize', v)}
-                            style={{marginTop: 8}}
-                        >
-                            <ToggleButton value={100}>100</ToggleButton>
-                            <ToggleButton value={75}>75</ToggleButton>
-                            <ToggleButton value={50}>50</ToggleButton>
-                        </ToggleButtonGroup>
-                    </Stack>
 
                     <Stack sx={{mr: 2}}>
                         <Typography variant='body2' style={{whiteSpace: 'nowrap'}}>Overlap

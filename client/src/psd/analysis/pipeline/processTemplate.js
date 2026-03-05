@@ -1,11 +1,12 @@
 import {PSD_TEMPLATES} from '@starter/shared'
 
 export function processTemplate({
-                                    markers,
-                                    width,
-                                    settings,
-                                    manualCorners = null
-                                }) {
+                                             markers,
+                                             width,
+                                             height,
+                                             settings,
+                                             manualCorners = null
+                                         }) {
 
     // Filter duplicate markers (keep lowest hammingDistance)
     const uniqueMarkers = []
@@ -17,16 +18,20 @@ export function processTemplate({
     })
     Object.values(markerById).forEach(m => uniqueMarkers.push(m))
 
-    // Identify template
+    // Identify template by finding the best match across all defined templates
     let template = null
     try {
-        const matched100 = uniqueMarkers.filter(m => PSD_TEMPLATES[100].cornerIds.includes(m.id))
-        const matched50 = uniqueMarkers.filter(m => PSD_TEMPLATES[50].cornerIds.includes(m.id))
-
-        if (matched100.length >= matched50.length && (matched100.length >= 3 || manualCorners)) {
-            template = {sizeMm: 100, outerMm: 130, innerMm: 100, markers: matched100, config: PSD_TEMPLATES[100]}
-        } else if (matched50.length >= 3 || manualCorners) {
-            template = {sizeMm: 50, outerMm: 70, innerMm: 50, markers: matched50, config: PSD_TEMPLATES[50]}
+        let bestMatch = null
+        let bestCount = 0
+        for (const [_key, tmpl] of Object.entries(PSD_TEMPLATES)) {
+            const matched = uniqueMarkers.filter(m => tmpl.cornerIds.includes(m.id))
+            if (matched.length > bestCount || (matched.length === bestCount && bestMatch && tmpl.sizeMm > bestMatch.sizeMm)) {
+                bestCount = matched.length
+                bestMatch = {sizeMm: tmpl.sizeMm, outerMm: tmpl.outerMm, innerMm: tmpl.innerMm, markers: matched, config: tmpl}
+            }
+        }
+        if (bestCount >= 3 || manualCorners) {
+            template = bestMatch
         }
     } catch (e) {
         console.error('Template identification failed', e)
@@ -44,7 +49,7 @@ export function processTemplate({
 
         const ids = template.config.cornerIds
         const imgCx = width / 2
-        const imgCy = width / 2 // templates are square; height not passed, use width
+        const imgCy = (height || width) / 2
 
         if (!templateCorners) {
             // Use outer corners for perspective warp: farthest corner from image center

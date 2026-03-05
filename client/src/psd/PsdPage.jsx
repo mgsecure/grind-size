@@ -24,7 +24,9 @@ export default function PsdPage() {
         processedActive,
         handleManualCorners,
         cancelManual,
-        isDesktop
+        isDesktop,
+        settings,
+        setSettings
     } = useContext(DataContext)
 
     const {showTitleBar} = useContext(UIContext)
@@ -39,6 +41,8 @@ export default function PsdPage() {
                         imageUrl={manualSelectionUrl}
                         onCornersSelected={handleManualCorners}
                         onCancel={cancelManual}
+                        templateSize={settings.templateSize}
+                        onTemplateSizeChange={(v) => setSettings(prev => ({...prev, templateSize: v}))}
                     />
                 </Paper>
             )}

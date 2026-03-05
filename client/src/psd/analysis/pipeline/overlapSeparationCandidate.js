@@ -117,7 +117,7 @@ export function watershed(distObj, originalLabels, minPeakDist = 5, minAreaPx = 
                 const dx = seed.x - existing.x
                 const dy = seed.y - existing.y
                 const distBetweenSeeds = Math.sqrt(dx * dx + dy * dy)
-                
+
                 // If the new seed is very close to a higher peak, AND the distance value difference is small
                 // compared to the distance between them, it's likely noise on a smooth slope.
                 // We also consider the 'valley' between them for irregular clumps.
@@ -178,7 +178,7 @@ export function watershed(distObj, originalLabels, minPeakDist = 5, minAreaPx = 
     for (const id of originalParticleStats.keys()) {
         const count = originalParticleSeedCount.get(id) || 0
         const solidity = originalParticleSolidity.get(id) || 1.0
-        
+
         // If it's very solid (> 0.9), only add extra seeds if it currently has NO seeds.
         // If it's irregular (< 0.85), we are more open to extra seeds.
         if (count === 0 || (count === 1 && solidity < 0.88)) {
@@ -196,7 +196,7 @@ export function watershed(distObj, originalLabels, minPeakDist = 5, minAreaPx = 
                 const idx = y * width + x
                 const origId = originalLabels[idx]
                 if (origId === 0 || !candidateParticlesForExtraSeeds.has(origId)) continue
-                
+
                 const dVal = dist[idx]
                 if (dVal < minPeakDist && dVal > minPeakDist * extraSeedSensitivity) {
                     let isLocalMax = true
@@ -205,19 +205,19 @@ export function watershed(distObj, originalLabels, minPeakDist = 5, minAreaPx = 
                         for (let dx = -1; dx <= 1; dx++) {
                             if (dx === 0 && dy === 0) continue
                             const nidx = (y + dy) * width + (x + dx)
-                            if (dist[nidx] > dVal) { 
+                            if (dist[nidx] > dVal) {
                                 isLocalMax = false
                                 break
                             }
                         }
                         if (!isLocalMax) break
                     }
-                    
+
                     if (isLocalMax) {
                         const particleSeeds = seeds.filter(s => s.originalId === origId)
                         let tooCloseToAny = false
                         const solidity = originalParticleSolidity.get(origId) || 1.0
-                        
+
                         // Scale minDistFactor by solidity: if highly irregular, allow seeds to be closer
                         const effectiveDistFactor = solidity < 0.75 ? extraSeedMinDistFactor * 0.8 : extraSeedMinDistFactor
 
