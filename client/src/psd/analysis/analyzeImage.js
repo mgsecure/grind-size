@@ -24,7 +24,7 @@ const renderDiagnosticImage = false
 export async function analyzeImageFiles(file, settings, manualCorners = null, overlayOptions = null) {
     const startedAt = new Date().toISOString()
 
-    const {testPipeline=false, correctPerspective=true, useMorphology=true, sampleName=null} = settings
+    const {testPipeline = false, correctPerspective = true, useMorphology = true, sampleName = null} = settings
 
     const imageData = await decodeImageToImageData(file)
     const {width, height} = imageData
@@ -43,6 +43,16 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
 
     console.log(`Markers detected: ${markers.length}`)
 
+    if (markers.length < 3) return {
+        filename: sampleName || getFileNameWithoutExtension(file.name),
+        analysisVersion: PSD_ANALYSIS_VERSION,
+        testPipeline,
+        settings,
+        startedAt,
+        image: {width, height},
+        markers: markers,
+    }
+
     const processTemplateFn = testPipeline ? processTemplateCandidate : processTemplate
     let scaleInfo = processTemplateFn({
         width,
@@ -59,11 +69,13 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
     // Filter duplicate markers (keep lowest hammingDistance)
     // Identify template
 
-    const {template,
+    const {
+        template,
         templateCorners,
         presentCorners,
         uniqueMarkers,
-        pxPerMm} = scaleInfo || {}
+        pxPerMm
+    } = scaleInfo || {}
 
     debug && console.log('Template scaleInfo:', scaleInfo)
 
@@ -352,7 +364,9 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
 
                 const ids = template?.config.cornerIds
                 const markerMap = {}
-                template?.markers.forEach(m => { markerMap[m.id] = m })
+                template?.markers.forEach(m => {
+                    markerMap[m.id] = m
+                })
                 const innerPoints = []
                 if (markerMap[ids[0]]) innerPoints.push(markerMap[ids[0]].corners[2])
                 if (markerMap[ids[1]]) innerPoints.push(markerMap[ids[1]].corners[3])
@@ -422,7 +436,7 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         startedAt,
         image: {width, height},
         scale: scaleInfo,
-        parameters: { ...settings, overlayOptions },
+        parameters: {...settings, overlayOptions},
         particles,
         histograms: hist,
         stats,

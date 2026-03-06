@@ -17,7 +17,7 @@ import CloudDownloadIcon from '@mui/icons-material/CloudDownload'
 import {Link} from '@mui/material'
 import LoadingDisplaySmall from '../../misc/LoadingDisplaySmall.jsx'
 
-const demoDataURL = 'https://grind.mygiantsquid.com/data/M47-POB-demo-export.json'
+const demoDataURL = 'https://coffee-grind.com/data/M47-POB-demo-export.json'
 
 export default function ImportButton({iconOnly = false, linkOnly = false}) {
 

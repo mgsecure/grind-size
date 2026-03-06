@@ -115,6 +115,7 @@ export const PSD_PRESETS = {
     },
     camera: {
         name: 'Camera',
+        debugOnly: false,
         params: {
             name: 'camera',
             minAreaPx: 4,
@@ -128,6 +129,7 @@ export const PSD_PRESETS = {
     },
     c1: {
         name: 'C1',
+        debugOnly: true,
         params: {
             name: 'c1',
             minAreaPx: 4,

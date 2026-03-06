@@ -315,9 +315,10 @@ export function PsdDataProvider({children}) {
                     }, null, overlayOptions)
 
                     console.log('Analysis result:', result)
+
                     if (!result.template && !result.scale?.detectedTemplate) {
                         setManualSelectionId(item.id)
-                        setQueue(prev => prev.map(p => p.id === item.id ? {...p, status: 'manual_needed'} : p))
+                        setQueue(prev => prev.map(p => p.id === item.id ? {...p, status: 'no template'} : p))
                         setIsAnalyzing(false)
                         return
                     }

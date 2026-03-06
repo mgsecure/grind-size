@@ -1,7 +1,7 @@
 import React, {useCallback, useState} from 'react'
 import Drawer from '@mui/material/Drawer'
 import useWindowSize from '../../util/useWindowSize.jsx'
-import {useTheme} from '@mui/material/styles'
+import {useTheme, lighten, darken} from '@mui/material/styles'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import ReactMarkdown from 'react-markdown'
 import rehypeExternalLinks from 'rehype-external-links'
@@ -35,7 +35,7 @@ export default function HelpContentDrawerButton({markdown = 'content tk', title 
                 open={open}
                 onClose={handleClose}
                 slotProps={{
-                    paper: {sx: {backgroundColor: theme.palette.text.paper, maxWidth: isMobile ? '90vw' : '600px'}},
+                    paper: {sx: {backgroundColor: lighten(theme.palette.background.paper, 0.05), maxWidth: isMobile ? '90vw' : '600px'}},
                     transition: {
                         direction: 'right'
                     }
@@ -47,7 +47,7 @@ export default function HelpContentDrawerButton({markdown = 'content tk', title 
                             display: 'flex',
                             padding: '15px 15px',
                             height: 64,
-                            backgroundColor: theme.palette.card?.add
+                            backgroundColor: darken(theme.palette.background.paper, 0.05),
                         }} onClick={() => setOpen(false)}>
                             <div
                                 style={{

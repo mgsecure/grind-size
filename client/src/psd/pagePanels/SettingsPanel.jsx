@@ -24,12 +24,11 @@ export default function SettingsPanel() {
         retainCustomSettings,
         setResetToggle,
         isCustomSettings, setIsCustomSettings,
-        overlapSplitPresets, setOverlapPreset,
+        overlapSplitPresets, setOverlapPreset
     } = useContext(DataContext)
 
     const {isDesktop} = useContext(UIContext)
 
-    // TODO: implement save/load custom settings from local storage
     // console.log('customSettings', customSettings)
 
     const [showDetails, setShowDetails] = useState(false)
@@ -111,34 +110,56 @@ export default function SettingsPanel() {
                 <HelpContentDrawerButton markdown={String(helpSettings)}/>
             </Stack>
 
-
             <Stack direction='row' flexWrap='wrap' alignItems='center' justifyContent='space-between'>
                 <Stack direction='row' alignItems='center' justifyContent='space-between' style={{flexGrow: 1}}>
                     <Stack direction='row' flexWrap='wrap' alignItems='center'>
                         <ToggleButtonGroup
                             size='small'
                             value={preset}
+                            key={'presets'}
                             exclusive
                             onChange={(_, v) => v && handlePresetChange(v)}
                             style={{margin: '10px 10px 10px 0'}}
                         >
-                            {Object.entries(PSD_PRESETS).map(([key, preset]) => (
-                                <ToggleButton key={key} value={key}>{preset.name}</ToggleButton>
-                            ))}
+                            {Object.entries(PSD_PRESETS)
+                                .filter(([_key, preset]) => preset.debugOnly !== true)
+                                .map(([key, preset]) => (
+                                    <ToggleButton key={key} value={key}>{preset.name}</ToggleButton>
+                                ))}
                         </ToggleButtonGroup>
 
-                        <ToggleButtonGroup
-                            size='small'
-                            value={preset}
-                            exclusive
-                            onChange={(_, v) => v && handlePresetChange(v)}
-                            style={{margin: isDesktop ? '10px 8px 10px 20px' : 0}}
-                        >
-                            <ToggleButton key='custom' value='custom' onClick={handleCustomClick}>Custom</ToggleButton>
-                        </ToggleButtonGroup>
-                        <CustomSettingsButtons/>
+                        {debugLevel >= 1 && Object.entries(PSD_PRESETS).find(([_key, preset]) => preset.debugOnly) &&
+                            <ToggleButtonGroup
+                                size='small'
+                                value={preset}
+                                key={'debugPresets'}
+                                exclusive
+                                onChange={(_, v) => v && handlePresetChange(v)}
+                                style={{margin: '10px 10px 10px 0'}}
+                            >
+                                {Object.entries(PSD_PRESETS)
+                                    .filter(([_key, preset]) => preset.debugOnly)
+                                    .map(([key, preset]) => (
+                                        <ToggleButton key={key} value={key}>{preset.name}</ToggleButton>
+                                    ))}
+                            </ToggleButtonGroup>
+                        }
+
+                        <Stack direction='row' alignItems='center'>
+                            <ToggleButtonGroup
+                                size='small'
+                                value={preset}
+                                key={'custom'}
+                                exclusive
+                                onChange={(_, v) => v && handlePresetChange(v)}
+                                style={{margin: isDesktop ? '10px 8px 10px 20px' : 0}}
+                            >
+                                <ToggleButton key='custom' value='custom' onClick={handleCustomClick}>Custom</ToggleButton>
+                            </ToggleButtonGroup>
+                            <CustomSettingsButtons/>
+                        </Stack>
+
                     </Stack>
-                    <ExpandButton expanded={showDetails} onChange={() => setShowDetails(!showDetails)}/>
                 </Stack>
 
                 {queueItems.length > 0 &&
@@ -151,6 +172,8 @@ export default function SettingsPanel() {
                         </Button>
                     </Stack>
                 }
+                <ExpandButton expanded={showDetails} onChange={() => setShowDetails(!showDetails)}/>
+
             </Stack>
 
             <Collapse in={showDetails} sx={{ml: isDesktop ? 1 : 0}}>

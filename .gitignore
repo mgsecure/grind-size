@@ -32,10 +32,11 @@ scripts/*.md
 *.njsproj
 *.sln
 *.sw?
-/stats.html
 client/public/version.json
 client/public/sitemap.txt
 client/public/sitemap.xml
 client/public/data/*
 client/.env.keys
 client/stats.html
+/client/stats.html
+stats.html

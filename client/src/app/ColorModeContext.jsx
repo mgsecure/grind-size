@@ -1,15 +1,11 @@
-import React, {createContext, useMemo, useState} from 'react'
+import React, {createContext, useCallback, useMemo, useState} from 'react'
 import {ThemeProvider, createTheme} from '@mui/material/styles'
 import CssBaseline from '@mui/material/CssBaseline'
-import {lightOverrides} from './themeOverride'
+//import {_lightOverrides} from './themeOverride'
 
-const ColorModeContext = createContext({
-    toggleColorMode: () => {
-    }
-})
+const ColorModeContext = createContext({})
 
 export function ColorModeProvider({children}) {
-
     const baseTheme = createTheme({
         typography: {fontFamily: 'Roboto, sans-serif'},
         breakpoints: {
@@ -54,19 +50,59 @@ export function ColorModeProvider({children}) {
                 add: '#805046'
             },
             'background': {
-                'default': '#291915',
-                'paper': '#3a2018'
+                'default': '#111',
+                'paper': '#131313'
             }
         }
     })
 
     const lightTheme = createTheme({
         ...baseTheme,
+        //shadows: Array(25).fill('none'),
         palette: {
             mode: 'light',
             card: {
                 main: '#efc5c0',
                 add: '#e3afa4'
+            },
+            'backgroundGrays': {
+                'default': '#f6f6f6',
+                'paper': '#e3e3e3'
+            },
+            'background': {
+                'default': '#fff',
+                'paper': '#f6f6f6'
+            },
+        },
+        components: {
+            MuiPaper: {
+                defaultProps: {
+                    elevation: 0,
+                },
+            },
+            MuiButton: {
+                defaultProps: {
+                    //disableElevation: true,
+                },
+            },
+        },
+    })
+
+
+    const _darkBrownTheme = createTheme({
+        ...baseTheme,
+        palette: {
+            mode: 'dark',
+            secondary: {
+                main: '#2d49bc'
+            },
+            card: {
+                main: '#563028',
+                add: '#805046'
+            },
+            'background': {
+                'default': '#291915',
+                'paper': '#3a2018'
             }
         }
     })
@@ -81,6 +117,11 @@ export function ColorModeProvider({children}) {
         []
     )
 
+    const toggleColorMode = useCallback(() => {
+        console.log('toggleColorMode')
+        setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'))
+    }, [])
+
     const theme = useMemo(() =>
             mode === 'light'
                 ? lightTheme
@@ -92,10 +133,11 @@ export function ColorModeProvider({children}) {
 
     const value = useMemo(() => ({
         colorMode,
+        toggleColorMode,
         lightTheme,
         darkTheme,
         theme
-    }), [colorMode, darkTheme, lightTheme, theme])
+    }), [colorMode, darkTheme, lightTheme, theme, toggleColorMode])
 
     return (
         <ColorModeContext.Provider value={value}>

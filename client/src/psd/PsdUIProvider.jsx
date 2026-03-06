@@ -21,11 +21,13 @@ export default function PsdUIProvider({children}) {
 
     const allColors = useMemo(() => theme.palette.mode === 'dark'
             ? ['#a6cee3', '#1f78b4', '#e8c1a0', '#f47560', '#b2df8a', '#33a02c']
-            : ['#a6cee3', '#1f78b4', '#e8c1a0', '#f47560', '#b2df8a', '#33a02c']
+            : ['#5eb9e3', '#1186d7', '#ffb670', '#f47560',
+                '#8ad743', '#0fad04']
         , [theme.palette.mode])
     const swappedColors = useMemo(() => theme.palette.mode === 'dark'
             ? ['#1f78b4', '#a6cee3', '#f47560', '#e8c1a0', '#33a02c', '#b2df8a']
-            : ['#1f78b4', '#a6cee3', '#f47560', '#e8c1a0', '#33a02c', '#b2df8a']
+            : ['#1186d7', '#5eb9e3', '#f47560', '#ffb670',
+                '#0fad04', '#8ad743']
         , [theme.palette.mode])
     const currentColors = useMemo(() => reverseColors
             ? [...swappedColors, ...swappedColors]
@@ -40,12 +42,12 @@ export default function PsdUIProvider({children}) {
         .map(item => item.id), [aggregateQueueItem?.id, queue])
 
     const chartColors = useMemo(() => {
-            const sampleColors = notErrorIdList.map((id, index) => {
-                const color = currentColors[index]
-                if (queue.find(item => item.id === id) && activeIdList.includes(id)) return color
-            }).filter(c => c)
-            return [...sampleColors, aggregateColor]
-        }, [notErrorIdList, aggregateColor, currentColors, queue, activeIdList])
+        const sampleColors = notErrorIdList.map((id, index) => {
+            const color = currentColors[index]
+            if (queue.find(item => item.id === id) && activeIdList.includes(id)) return color
+        }).filter(c => c)
+        return [...sampleColors, aggregateColor]
+    }, [notErrorIdList, aggregateColor, currentColors, queue, activeIdList])
 
     const value = useMemo(() => ({
         theme,
@@ -58,7 +60,7 @@ export default function PsdUIProvider({children}) {
         altButtonColor,
         notErrorIdList,
         showTitleBar, setShowTitleBar,
-        imageViewMode, setImageViewMode,
+        imageViewMode, setImageViewMode
     }), [
         theme,
         isDesktop,
@@ -69,7 +71,7 @@ export default function PsdUIProvider({children}) {
         aggregateColor,
         notErrorIdList,
         showTitleBar, setShowTitleBar,
-        imageViewMode, setImageViewMode,
+        imageViewMode, setImageViewMode
     ])
 
     return (

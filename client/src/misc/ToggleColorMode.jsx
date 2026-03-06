@@ -8,7 +8,7 @@ import AuthContext from '../app/AuthContext.jsx'
 
 function ToggleColorMode() {
     const {isAdmin} = useContext(AuthContext)
-    const colorMode = React.useContext(ColorModeContext)
+    const {toggleColorMode} = useContext(ColorModeContext)
     const theme = useTheme()
 
     if (!isAdmin) return null
@@ -16,7 +16,7 @@ function ToggleColorMode() {
     return (
         <Tooltip title={`Toggle color mode to ${theme.palette.mode === 'dark' ? 'light' : 'dark'}`} arrow
                  disableFocusListener>
-            <IconButton onClick={colorMode.toggleColorMode} color='inherit'>
+            <IconButton onClick={toggleColorMode} color='inherit'>
                 <LightModeIcon fontSize='small'  style={{color: theme.palette.text.secondary}}/>
             </IconButton>
         </Tooltip>

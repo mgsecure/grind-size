@@ -10,11 +10,9 @@ export default function ManualCornerSelector({imageUrl, onCornersSelected, onCan
 
     const handleClick = (e) => {
         if (corners.length >= 4) return
-
         const rect = imgRef.current.getBoundingClientRect()
         const x = (e.clientX - rect.left) / rect.width
         const y = (e.clientY - rect.top) / rect.height
-        
         setCorners(prev => [...prev, {x, y}])
     }
 
@@ -36,26 +34,13 @@ export default function ManualCornerSelector({imageUrl, onCornersSelected, onCan
     return (
         <Box sx={{p: 2, textAlign: 'center'}}>
             <Typography variant="h6">Manual Corner Selection</Typography>
-            <Typography variant="body2" color="text.secondary" sx={{mb: 1}}>
-                Marker detection failed. Please click the four outer corners of the template in clockwise order:
-                <strong> {labels[corners.length] || 'Done'}</strong>
+            <Typography variant="body2" color="text.secondary" sx={{mb: 2}}>
+                Template detection failed.<br/>
+                Please click the four outer corners of the template in clockwise order<br />
+                <div style={{marginTop: 8, fontSize: '1.0rem'}}>Please indicate: <strong> {labels[corners.length] || 'Done'}</strong></div>
             </Typography>
 
-            <Stack direction="row" spacing={1} justifyContent="center" alignItems="center" sx={{mb: 2}}>
-                <Typography variant="body2">Template Size (mm):</Typography>
-                <ToggleButtonGroup
-                    size="small"
-                    value={templateSize}
-                    exclusive
-                    onChange={(_, v) => v && onTemplateSizeChange(v)}
-                >
-                    <ToggleButton value={100}>100</ToggleButton>
-                    <ToggleButton value={75}>75</ToggleButton>
-                    <ToggleButton value={50}>50</ToggleButton>
-                </ToggleButtonGroup>
-            </Stack>
-
-            <Box 
+            <Box
                 ref={containerRef}
                 sx={{
                     position: 'relative', 
@@ -90,7 +75,21 @@ export default function ManualCornerSelector({imageUrl, onCornersSelected, onCan
                 ))}
             </Box>
 
-            <Stack direction="row" spacing={2} justifyContent="center" sx={{mt: 2}}>
+            <Stack direction="row" spacing={1} justifyContent="center" alignItems="center" sx={{my: 2}}>
+                <Typography variant="body2" style={{fontWeight: 700}}>Template Size (mm):</Typography>
+                <ToggleButtonGroup
+                    size="small"
+                    value={templateSize}
+                    exclusive
+                    onChange={(_, v) => v && onTemplateSizeChange(v)}
+                >
+                    <ToggleButton value={100} style={{width: 40}}>100</ToggleButton>
+                    <ToggleButton value={75} style={{width: 40}}>75</ToggleButton>
+                    <ToggleButton value={50} style={{width: 40}}>50</ToggleButton>
+                </ToggleButtonGroup>
+            </Stack>
+
+            <Stack direction="row" spacing={2} justifyContent="center" sx={{mt: 3}}>
                 <Button variant="outlined" onClick={handleReset}>Reset</Button>
                 <Button variant="outlined" color="error" onClick={onCancel}>Cancel</Button>
                 <Button 

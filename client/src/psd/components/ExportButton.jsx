@@ -19,8 +19,10 @@ import Divider from '@mui/material/Divider'
 import UIContext from '../../context/UIContext.jsx'
 import {setDeep} from '../../util/setDeep.js'
 import genHexString from '../../util/genHexString.js'
+import {useTheme} from '@mui/material/styles'
 
 export default function ExportButton({text}) {
+    const theme = useTheme()
 
     const {queue, activeItems, activeIdList, processingComplete, binSpacing, aggregateQueueItem} = useContext(DataContext)
     const {altButtonColor, isDesktop} = useContext(UIContext)
@@ -52,11 +54,14 @@ export default function ExportButton({text}) {
         downloadFile(`${result.sampleName || result.filename}_particles.csv`, convertParticlesToCsv(result.particles, result.scale.pxPerMm))
     }, [binSpacing])
 
-    const handleExportJson = useCallback((object, filename = 'json-export') => {
+    const handleExportJson = useCallback((object, filename) => {
         if (isDesktop) {
+            const exportName = object.length > 1
+                ? 'multiple-samples'
+                : filename || object[0]?.sampleName || object[0]?.filename || 'psd'
             const data = JSON.stringify(object)
-            download(`${filename}.json`, data)
-            enqueueSnackbar(`Current list downloaded as ${filename}.json`)
+            download(`${exportName}-export.json`, data)
+            enqueueSnackbar(`Current list downloaded as ${exportName}.json`)
         } else {
             enqueueSnackbar('Exports only available on desktop at this time.', {variant: 'warning'})
         }
@@ -93,18 +98,20 @@ export default function ExportButton({text}) {
 
     const menuItemStyle = {padding: '10px 16px'}
 
+    const disabled = !activeIdList.length || !processingComplete
+
     return (
         <React.Fragment>
             {text
                 ? <Button variant='text' size='small' onClick={handleOpen}
-                          disabled={!activeIdList.length || !processingComplete}
-                          startIcon={<FileDownloadIcon style={{color: altButtonColor}}/>}
-                          style={{color: altButtonColor}}>
+                          disabled={disabled}
+                          startIcon={<FileDownloadIcon style={{color: !disabled ? altButtonColor : theme.palette.action.disabled}}/>}
+                          style={{color: !disabled ? altButtonColor : theme.palette.action.disabled}}>
                     Export Selected
                 </Button>
                 : <Tooltip title='Export' arrow disableFocusListener>
-                    <IconButton onClick={handleOpen} disabled={!activeIdList.length || !processingComplete}>
-                        <FileDownloadIcon style={{color: altButtonColor}}/>
+                    <IconButton onClick={handleOpen} disabled={disabled}>
+                        <FileDownloadIcon style={{color: !disabled ? altButtonColor : theme.palette.action.disabled}}/>
                     </IconButton>
                 </Tooltip>
             }
