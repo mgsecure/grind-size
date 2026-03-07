@@ -138,6 +138,34 @@ export function processTemplateCandidate({
             baseRoi
         }
 
+    } else if (manualCorners && manualCorners.length === 4) {
+        // No markers detected but user provided manual corners — compute scale from corner geometry
+        const tmplConfig = PSD_TEMPLATES[settings.templateSize]
+        const outerMm = tmplConfig ? tmplConfig.outerMm : settings.templateSize
+
+        const getDist = (p1, p2) => Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2)
+        const sides = [
+            getDist(manualCorners[0], manualCorners[1]),
+            getDist(manualCorners[1], manualCorners[2]),
+            getDist(manualCorners[2], manualCorners[3]),
+            getDist(manualCorners[3], manualCorners[0]),
+        ]
+        const avgSidePx = sides.reduce((a, b) => a + b, 0) / sides.length
+        pxPerMm = avgSidePx / outerMm
+
+        return {
+            pxPerMm,
+            mmPerPx: 1 / pxPerMm,
+            templateSize: settings.templateSize,
+            detectedTemplate: null,
+            template: tmplConfig ? {sizeMm: tmplConfig.sizeMm, outerMm, innerMm: tmplConfig.innerMm, markers: [], config: tmplConfig} : {},
+            templateCorners: manualCorners,
+            uniqueMarkers,
+            markerCount: 0,
+            markerMap: {},
+            presentCorners: manualCorners,
+            baseRoi: null
+        }
     }
 
 }

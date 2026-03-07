@@ -18,8 +18,8 @@ import Switch from '@mui/material/Switch'
 import UIContext from '../../context/UIContext.jsx'
 
 export default function StatsPanel() {
-    const {activeItems, queue} = useContext(DataContext)
-    const {currentColors, isDesktop} = useContext(UIContext)
+    const {activeItems, queue, aggregateQueueItem = {}} = useContext(DataContext)
+    const {currentColors, isDesktop, aggregateColor} = useContext(UIContext)
 
     const domEl = useRef(null)
     const theme = useTheme()
@@ -200,8 +200,8 @@ export default function StatsPanel() {
                             fontWeight: 'bold',
                             backgroundColor: theme.palette.background.paper,
                             whiteSpace: 'nowrap',
-                            color: currentColors[noErrorIdList.indexOf(item.id)],
-                            borderBottom: `2px solid ${currentColors[noErrorIdList.indexOf(item.id)]}`
+                            color: item.id === aggregateQueueItem?.id ? aggregateColor : currentColors[noErrorIdList.indexOf(item.id)],
+                            borderBottom: `2px solid ${item.id === aggregateQueueItem?.id ? aggregateColor : currentColors[noErrorIdList.indexOf(item.id)]}`
                         }} key={item.id}>
                             {tableData[item.id]?.sampleName}
                         </TableCell>

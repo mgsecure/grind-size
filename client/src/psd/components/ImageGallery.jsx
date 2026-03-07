@@ -79,13 +79,14 @@ function ImageGallery(props) {
             }
             <ImageList variant='masonry' cols={cols} sx={{marginTop: 2}}>
                 {media.map(({title, subtitle, thumbnailUrl, fullUrl, subtitleUrl, sequenceId, id}, index) =>
-                    <ImageListItem key={index} style={{marginBottom: 8}}>
-                        <img
-                            src={thumbnailUrl}
-                            alt={title}
-                            style={{paddingBottom: subtitle ? 60 : 48, cursor: 'pointer'}}
-                            onClick={handleOpen(sequenceId)}
-                        />
+                    <Tooltip key={index} title={title} arrow disableFocusListener>
+                        <ImageListItem key={index} style={{marginBottom: 8}}>
+                            <img
+                                src={thumbnailUrl}
+                                alt={title}
+                                style={{paddingBottom: subtitle ? 60 : 48, cursor: 'pointer'}}
+                                onClick={handleOpen(sequenceId)}
+                            />
                         {
                             fullUrl?.match(/youtube\.com/) &&
                             <img
@@ -103,6 +104,7 @@ function ImageGallery(props) {
                                 onClick={handleVideoClick(fullUrl)}
                             />
                         }
+
                         <ImageListItemBar
                             sx={{
                                 '& .MuiImageListItemBar-titleWrap': {
@@ -133,19 +135,18 @@ function ImageGallery(props) {
                             }
                             actionIcon={
                                 fullUrl &&
-                                <Tooltip title='View Full Size' arrow disableFocusListener>
-                                    <IconButton
-                                        href={fullUrl}
-                                        style={{color: '#ccc'}}
-                                        target='_blank'
-                                        rel='noopener noreferrer'
-                                    >
-                                        <LaunchIcon/>
-                                    </IconButton>
-                                </Tooltip>
+                                <IconButton
+                                    href={fullUrl}
+                                    style={{color: '#ccc'}}
+                                    target='_blank'
+                                    rel='noopener noreferrer'
+                                >
+                                    <LaunchIcon/>
+                                </IconButton>
                             }
                         />
                     </ImageListItem>
+                    </Tooltip>
                 )}
             </ImageList>
         </React.Fragment>

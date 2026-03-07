@@ -118,7 +118,6 @@ export function ColorModeProvider({children}) {
     )
 
     const toggleColorMode = useCallback(() => {
-        console.log('toggleColorMode')
         setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'))
     }, [])
 

@@ -29,10 +29,16 @@ import useClickOrDrag from '../../util/useClickOrDrag.jsx'
 import DataContext from '../../context/DataContext.jsx'
 import ItemInformationButton from './ItemInformationButton.jsx'
 import ImageViewModeToggles from './ImageViewModeToggles.jsx'
+import UIContext from '../../context/UIContext.jsx'
+import FilterContext from '../../context/FilterContext.jsx'
 
 const zoomIncrement = 0.6
 
 function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}}) {
+    const {queue} = useContext(DataContext)
+    const {isDesktop} = useContext(UIContext)
+    const {removeFilters} = useContext(FilterContext)
+
     const [open, setOpen] = useState(true)
     const [loading, setLoading] = useState(true)
     const [{x: initX, y: initY}, setInitXY] = useState({x: 0, y: 0})
@@ -41,10 +47,6 @@ function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}})
     const [zoom, setZoom] = useState(1)
     const [moving, setMoving] = useState(false)
     const {isMobile} = useWindowSize()
-
-    const {
-        queue,
-    } = useContext(DataContext)
 
     const mediaItem = queue.find(item => item.sequenceId === media.id)
 
@@ -56,15 +58,16 @@ function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}})
 
     const handleLoaded = useCallback(() => setLoading(false), [])
     const handleClose = useCallback(() => {
+        removeFilters(['image'])
         setOpen(false)
         setTimeout(() => onClose(), 200)
-    }, [onClose])
+    }, [onClose, removeFilters])
 
     const handlers = useClickOrDrag({
         onClick: e => handleClick(e),
         onDragStart: e => handleMoveStart(e),
-        onDragMove: (e, {dx, dy}) => handleMoveDuring(e, {dx, dy}),
-        onDragEnd: (e, {wasDragging}) => handleMoveEnd(e, {wasDragging})
+        onDragMove: e => handleMoveDuring(e),
+        onDragEnd: () => handleMoveEnd()
     })
 
     const getClickCoords = useCallback((e) => {
@@ -161,12 +164,11 @@ function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}})
         <Dialog
             open={open}
             onClose={handleClose}
-            //TransitionComponent={Transition}
-            slots={{ transition: Transition }} // Specify the component
+            slots={{transition: Transition}}
             slotProps={{
-                transition: { // Pass props to the component
-                    unmountOnExit: true, // Example prop
-                },
+                transition: {
+                    unmountOnExit: true
+                }
             }}
 
             fullScreen
@@ -182,10 +184,11 @@ function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}})
                         <CloseIcon/>
                     </IconButton>
 
-                    <Stack direction='row' alignItems='center' sx={{marginLeft: 2, width: '100%'}}>
-                        <Stack direction='column' sx={{marginLeft: 2, width: '100%'}}>
-                            <Typography component='div' sx={{fontWeight: 600}}>
-                                {imageTitle} <span style={{fontWeight: 400, fontSize: '0.9rem', marginLeft: 8}}>({zoom.toFixed(1)}x)</span>
+                    <Stack direction={ isDesktop ? 'row' : 'column'} alignItems='center' sx={{marginLeft: 2, width: '100%'}}>
+                        <Stack direction='column' sx={{marginLeft: 0, width: '100%'}}>
+                            <Typography component='div' sx={{fontWeight: 600, mt: 0.5}}>
+                                {imageTitle} <span
+                                style={{fontWeight: 400, fontSize: '0.9rem', marginLeft: 8}}>({zoom.toFixed(1)}x)</span>
                             </Typography>
                             <Typography variant='subtitle2' component='div' style={{color: '#aaa'}}>
                                 {(subtitleUrl || licenses[subtitle])
@@ -197,9 +200,10 @@ function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}})
                                 }
                             </Typography>
                         </Stack>
-                        <ImageViewModeToggles/>
-                        <ItemInformationButton item={mediaItem} imageViewer={true}/>
-
+                        <Stack direction='row' alignItems='center'>
+                            <ImageViewModeToggles/>
+                            <ItemInformationButton item={mediaItem} imageViewer={true}/>
+                        </Stack>
                     </Stack>
                     {fullUrl &&
                         <Tooltip title='View Full Size' arrow disableFocusListener>
@@ -218,8 +222,7 @@ function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}})
 
             {loading && <LinearProgress color='secondary'/>}
 
-            {
-                !isMobile && media.length > 1 &&
+            {!isMobile && media.length > 1 &&
                 <React.Fragment>
                     <Tooltip title='Previous Image' arrow disableFocusListener>
                         <Fab

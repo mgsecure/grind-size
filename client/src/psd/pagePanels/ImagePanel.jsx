@@ -13,10 +13,10 @@ export default function ImagePanel() {
     const {isDesktop, imageViewMode} = useContext(UIContext) // original | mask | overlay | diagnostic
     const isAllImports = queue.every(item => ['import', 'demo'].includes(item.source))
 
-const sampleNames = useMemo(() => allItems.reduce((acc, item, idx) => {
-    acc[item.id] = item.sampleName || `Sample ${idx}`
-    return acc
-}, []), [allItems])
+    const sampleNames = useMemo(() => allItems.reduce((acc, item, idx) => {
+        acc[item.id] = item.sampleName || `Sample ${idx}`
+        return acc
+    }, []), [allItems])
 
 
     const srcVar = useMemo(() => {
@@ -28,7 +28,9 @@ const sampleNames = useMemo(() => allItems.reduce((acc, item, idx) => {
 
     const entry = {
         media: queue
-            .filter(item => item.status === 'done' && item.result?.previews?.[srcVar] !== undefined)
+            .filter(item => item.status === 'done'
+                && item.result?.previews?.[srcVar] !== undefined
+                && activeIdList.includes(item.id))
             .map((item, index) => {
                 if (item.result) {
                     return {

@@ -35,8 +35,11 @@ export default function UploadQueuePanel() {
         handleQueueRemove,
         activeIdList, setActiveIdList,
         processMultipleSettings,
+        isAnalyzing,
         debugLevel
     } = useContext(DataContext)
+
+    console.log('queue', queue)
 
     const {currentColors, aggregateColor, isDesktop} = useContext(UIContext)
 
@@ -88,7 +91,7 @@ export default function UploadQueuePanel() {
     return (
         <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
             <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{width: '100%'}}>
-                <Typography style={{fontSize: '1.1rem', fontWeight: 500}}>IMAGE QUEUE</Typography>
+                <Typography style={{fontSize: '1.1rem', fontWeight: 500}}>SAMPLE QUEUE</Typography>
                 <ImportButton iconOnly={false}/>
             </Stack>
             <Stack direction='column' spacing={1} sx={{width: '100%'}}>
@@ -127,21 +130,17 @@ export default function UploadQueuePanel() {
                                             backgroundColor: activeIdList.includes(item.id) ? theme.palette.divider : 'inherit',
                                             '&:hover': selectEnabled ? {backgroundColor: theme.palette.action.hover} : {}
                                         }}
-                                        onClick={() => (item.status === 'done') && handleSelect(item.id)}
-                                        secondaryAction={
-                                            item.id === 'CurrentAggregateResults' &&
-                                            <Button onClick={() => handleDelete('all')}>Remove All</Button>
-                                        }>
+                                        onClick={() => (item.status === 'done') && handleSelect(item.id)}>
 
                                         <Stack direction='row' alignItems='center' justifyContent='space-between'
                                                sx={{width: '100%'}}>
                                             <Stack direction='row' alignItems='center'
                                                    sx={{flexGrow: 1, width: '100%'}}>
 
-                                                {activeIdList.includes(item.id)
-                                                    ? !['done', 'error'].includes(item.status)
-                                                        ? <span style={{marginRight: 8}}><LoadingDisplaySmall/></span>
-                                                        : <CheckBoxIcon
+                                                {['analyzing'].includes(item.status)
+                                                    ? <span style={{marginRight: 8}}><LoadingDisplaySmall/></span>
+                                                    : activeIdList.includes(item.id)
+                                                        ? <CheckBoxIcon
                                                             fontSize='small'
                                                             style={{
                                                                 marginRight: 8,
@@ -150,9 +149,9 @@ export default function UploadQueuePanel() {
                                                                         : aggregateColor)
                                                                     || theme.palette.primary.main
                                                             }}/>
-                                                    : <CheckBoxOutlineBlankIcon
-                                                        fontSize='small'
-                                                        style={{marginRight: 8, color: theme.palette.divider}}/>
+                                                        : <CheckBoxOutlineBlankIcon
+                                                            fontSize='small'
+                                                            style={{marginRight: 8, color: theme.palette.divider}}/>
                                                 }
 
                                                 <Stack direction={isDesktop ? 'row' : 'column'}
@@ -183,7 +182,7 @@ export default function UploadQueuePanel() {
                                                 </Stack>
                                             </Stack>
 
-                                            {!item.id.includes('CurrentAggregateResults') &&
+                                            {item.id !== aggregateQueueItem?.id &&
                                                 <Stack direction='row' alignItems='center'
                                                        sx={{marginLeft: 1, flexGrow: 0}}>
                                                     {debugLevel >= 1 && !Object.keys(PSD_PRESETS).some(s => item.filename?.includes(`-${s}`)) &&
@@ -216,7 +215,7 @@ export default function UploadQueuePanel() {
 
                                                     <IconButton edge='end' aria-label='delete' size='small'
                                                                 onClick={() => handleDelete(item.id)}>
-                                                        <DeleteIcon fontSize='small'/>
+                                                        <DeleteIcon fontSize='small' disabled={isAnalyzing}/>
                                                     </IconButton>
                                                 </Stack>
                                             }
@@ -226,14 +225,18 @@ export default function UploadQueuePanel() {
                             </List>
 
                             <Stack direction='row' alignItems='center' justifyContent='space-between'
-                                   sx={{width: '100%', pl: 4}} style={{marginTop: 0.5}}>
+                                   sx={{width: '100%', pl: 4}} style={{marginTop: 0}}>
                                 <ExportButton text={true}/>
+                                <Button onClick={() => handleDelete('all')}
+                                        style={{marginRight: 8}}
+                                        disabled={isAnalyzing || !queue.length}>
+                                    Remove All
+                                </Button>
                             </Stack>
                         </Stack>
                     }
                 </Stack>
             </Stack>
-
 
         </Paper>
     )

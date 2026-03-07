@@ -10,12 +10,9 @@ import Tooltip from '@mui/material/Tooltip'
 import {enqueueSnackbar} from 'notistack'
 import React, {useCallback, useContext, useState} from 'react'
 import DataContext from '../../context/DataContext.jsx'
-import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import download from '../../util/download'
 import Button from '@mui/material/Button'
 import {convertHistogramToCsv, convertParticlesToCsv, convertStatsToCsv, downloadFile} from '../analysis/exportCsv.js'
-import {Switch} from '@mui/material'
-import Divider from '@mui/material/Divider'
 import UIContext from '../../context/UIContext.jsx'
 import {setDeep} from '../../util/setDeep.js'
 import genHexString from '../../util/genHexString.js'
@@ -24,26 +21,37 @@ import {useTheme} from '@mui/material/styles'
 export default function ExportButton({text}) {
     const theme = useTheme()
 
-    const {queue, activeItems, activeIdList, processingComplete, binSpacing, aggregateQueueItem} = useContext(DataContext)
-    const {altButtonColor, isDesktop} = useContext(UIContext)
+    const {
+        queue,
+        activeItems,
+        activeIdList,
+        processingComplete,
+        binSpacing,
+        aggregateQueueItem
+    } = useContext(DataContext)
 
-    const cleanedQueue = queue
-        .filter(item => activeIdList.includes(item.id))
-        .map(item => {
-            const newResult = {...item.result}
-            newResult.previews = {}
-            newResult.particles = newResult.particles?.map(p => ({...p, contour: []}))
-            newResult.histograms = activeItems?.find(i => i.id === item.id).histograms
-            newResult.sampleName = activeItems?.find(i => i.id === item.id).sampleName
-            return {...item, result: newResult, source: 'export', file: {}}
-        })
+    const {altButtonColor} = useContext(UIContext)
+
+    const cleanQueueItems = useCallback((items) => {
+            return items
+                .filter(item => item?.result?.particles?.length > 0)
+                .filter(item => activeIdList.includes(item.id))
+                .map(item => {
+                    const newResult = {...item.result}
+                    newResult.previews = {}
+                    newResult.particles = newResult.particles?.map(p => ({...p, contour: []}))
+                    newResult.histograms = activeItems?.find(i => i.id === item.id).histograms
+                    newResult.sampleName = activeItems?.find(i => i.id === item.id).sampleName
+                    return {
+                        ...item, result: newResult, source: 'export', file: {}, id: item.id + '-export'
+                    }
+                })
+        }, [activeIdList, activeItems])
 
     const [anchorEl, setAnchorEl] = useState(null)
     const open = Boolean(anchorEl)
     const handleOpen = useCallback(event => setAnchorEl(event.currentTarget), [])
     const handleClose = useCallback(() => setAnchorEl(null), [])
-
-    const [archive, setArchive] = useState(true)
 
     const handleExportCsvFiles = useCallback((result) => {
         const histogram = binSpacing === 'log' ? result.histograms?.log : result.histograms?.linear
@@ -54,47 +62,31 @@ export default function ExportButton({text}) {
         downloadFile(`${result.sampleName || result.filename}_particles.csv`, convertParticlesToCsv(result.particles, result.scale.pxPerMm))
     }, [binSpacing])
 
-    const handleExportJson = useCallback((object, filename) => {
-        if (isDesktop) {
-            const exportName = object.length > 1
-                ? 'multiple-samples'
-                : filename || object[0]?.sampleName || object[0]?.filename || 'psd'
-            const data = JSON.stringify(object)
-            download(`${exportName}-export.json`, data)
-            enqueueSnackbar(`Current list downloaded as ${exportName}.json`)
-        } else {
-            enqueueSnackbar('Exports only available on desktop at this time.', {variant: 'warning'})
-        }
+    const handleExportJson = useCallback(() => {
+        const object = cleanQueueItems([...queue, aggregateQueueItem])
+        const exportName = object.length > 1
+            ? 'multiple-samples'
+            : object[0]?.sampleName || object[0]?.filename || 'psd'
+        const data = JSON.stringify(object)
+        download(`${exportName}-export.json`, data)
+        enqueueSnackbar(`Current list downloaded as ${exportName}.json`)
         handleClose()
-    }, [handleClose, isDesktop])
+    }, [aggregateQueueItem, cleanQueueItems, handleClose, queue])
 
-    const handleExportAggregate = useCallback(() => {
-
-        if (!isDesktop) {
-            enqueueSnackbar('Exports only available on desktop at this time.', {variant: 'warning'})
-            handleClose()
-            return
-        }
-
+    const _handleExportAggregate = useCallback(() => {
         const aggregateExport = {...aggregateQueueItem}
         setDeep(aggregateExport, ['id'], `aggregateExport_${genHexString(8)}`)
         setDeep(aggregateExport, ['file', 'name'], 'Aggregate Results Export')
         setDeep(aggregateExport, ['result', 'filename'], 'Aggregate Results Export')
         setDeep(aggregateExport, ['sampleName'], 'Aggregate Results Export')
-
-        handleExportJson([aggregateExport], 'aggregate-export')
-
+        //handleExportJson([aggregateExport], 'aggregate-export')
         handleClose()
-    }, [aggregateQueueItem, handleClose, handleExportJson, isDesktop])
+    }, [aggregateQueueItem, handleClose])
 
     const exportAllCsv = useCallback(() => {
-        if (isDesktop) {
-            cleanedQueue.forEach(item => handleExportCsvFiles(item.result))
-        } else {
-            enqueueSnackbar('Exports only available on desktop at this time.', {variant: 'warning'})
-        }
+        cleanQueueItems(queue).forEach(item => handleExportCsvFiles(item.result))
         handleClose()
-    }, [cleanedQueue, handleClose, handleExportCsvFiles, isDesktop])
+    }, [cleanQueueItems, handleClose, handleExportCsvFiles, queue])
 
     const menuItemStyle = {padding: '10px 16px'}
 
@@ -105,7 +97,8 @@ export default function ExportButton({text}) {
             {text
                 ? <Button variant='text' size='small' onClick={handleOpen}
                           disabled={disabled}
-                          startIcon={<FileDownloadIcon style={{color: !disabled ? altButtonColor : theme.palette.action.disabled}}/>}
+                          startIcon={<FileDownloadIcon
+                              style={{color: !disabled ? altButtonColor : theme.palette.action.disabled}}/>}
                           style={{color: !disabled ? altButtonColor : theme.palette.action.disabled}}>
                     Export Selected
                 </Button>
@@ -129,18 +122,11 @@ export default function ExportButton({text}) {
                     </MenuItem>
                 }
 
-                <MenuItem style={menuItemStyle} onClick={() => handleExportJson(cleanedQueue)}>
+                <MenuItem style={menuItemStyle} onClick={handleExportJson}>
                     <ListItemIcon>
                         <CodeIcon fontSize='small'/>
                     </ListItemIcon>
                     <ListItemText>Full Import/Export (JSON)</ListItemText>
-                </MenuItem>
-
-                <MenuItem style={menuItemStyle} onClick={handleExportAggregate}>
-                    <ListItemIcon>
-                        <CodeIcon fontSize='small'/>
-                    </ListItemIcon>
-                    <ListItemText>Aggregate Sample (JSON)</ListItemText>
                 </MenuItem>
 
                 <MenuItem style={menuItemStyle} onClick={exportAllCsv}>
@@ -157,31 +143,6 @@ export default function ExportButton({text}) {
                     </ListItemIcon>
                     <ListItemText>Analysis Data (JSON)</ListItemText>
                 </MenuItem>
-
-                <MenuItem style={menuItemStyle} onClick={() => {
-                }} disabled>
-                    <ListItemIcon>
-                        <ContentCopyIcon fontSize='small'/>
-                    </ListItemIcon>
-                    <ListItemText>Clipboard??</ListItemText>
-                </MenuItem>
-
-                <MenuItem style={menuItemStyle} onClick={() => {
-                }} disabled>
-                    <ListItemIcon>
-                        <ContentCopyIcon fontSize='small'/>
-                    </ListItemIcon>
-                    <ListItemText>Image??</ListItemText>
-                </MenuItem>
-
-                <Divider/>
-                <MenuItem onClick={() => setArchive(!archive)}>
-                    <ListItemText style={{textAlign: 'left'}}>
-                        Export as archive
-                        <Switch checked={archive} onChange={(e) => setArchive(e.target.checked)}/>
-                    </ListItemText>
-                </MenuItem>
-
 
             </Menu>
         </React.Fragment>

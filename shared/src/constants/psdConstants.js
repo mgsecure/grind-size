@@ -44,7 +44,7 @@ export const defaultOverlapPreset = 'Normal'
 // Defaults
 export const PSD_DEFAULTS = {
     name: 'default',
-    testPipeline: true,
+    testPipeline: false,
     useMorphology: true,
     correctPerspective: true,
     warpSizePx: 2000,
@@ -69,7 +69,7 @@ export const PSD_DEFAULTS = {
     minSolidity: 0.3,
     analysisChannel: 'grayscale', // 'grayscale' | 'blue'
     value: 'mass',
-    templateSize: 100,
+    templateSize: 75,
 }
 
 
@@ -83,8 +83,6 @@ export const PSD_PRESETS = {
             adaptiveC: 4,
             minAreaPx: 8,
             maxAreaMm2: 10,
-            splitOverlaps: false,
-            splitSensitivity: 0.4
         }
     },
     coarse: {
@@ -96,8 +94,6 @@ export const PSD_PRESETS = {
             adaptiveC: 5,
             minAreaPx: 12,
             maxAreaMm2: 20,
-            splitOverlaps: false,
-            splitSensitivity: 0.3
         }
     },
     fines: {
@@ -109,8 +105,6 @@ export const PSD_PRESETS = {
             adaptiveC: 3,
             minAreaPx: 4,
             maxAreaMm2: 5,
-            splitOverlaps: false,
-            splitSensitivity: 0.6
         }
     },
     camera: {
@@ -123,8 +117,6 @@ export const PSD_PRESETS = {
             bgSigma: 25,
             adaptiveBlockSize: 120,
             adaptiveC: 6,
-            splitOverlaps: false,
-            splitSensitivity: 0.6
         }
     },
     c1: {
@@ -137,8 +129,6 @@ export const PSD_PRESETS = {
             bgSigma: 25,
             adaptiveBlockSize: 120,
             adaptiveC: 6,
-            splitOverlaps: false,
-            splitSensitivity: 0.6
         }
     },
 }
@@ -149,41 +139,5 @@ export const BIN_DEFAULTS = {
     max: 3000,
     nBins: 15
 }
-
-
-//bin_start_um, bin_end_um, bin_center_um
-export const PSD_TEST_BINS = [
-    [150.0, 211.7, 180.8],
-    [211.7, 273.3, 242.5],
-    [273.3, 335.0, 304.2],
-    [335.0, 396.7, 365.8],
-    [396.7, 458.3, 427.5],
-    [458.3, 520.0, 489.2],
-    [520.0, 581.7, 550.8],
-    [581.7, 643.3, 612.5],
-    [643.3, 705.0, 674.2],
-    [705.0, 766.7, 735.8],
-    [766.7, 828.3, 797.5],
-    [828.3, 890.0, 859.2],
-    [890.0, 951.7, 920.8],
-    [951.7, 1013.3, 982.5],
-    [1013.3, 1075.0, 1044.2],
-    [1075.0, 1136.7, 1105.8],
-    [1136.7, 1198.3, 1167.5],
-    [1198.3, 1260.0, 1229.2],
-    [1260.0, 1321.7, 1290.8],
-    [1321.7, 1383.3, 1352.5],
-    [1383.3, 1445.0, 1414.2],
-    [1445.0, 1506.7, 1475.8],
-    [1506.7, 1568.3, 1537.5],
-    [1568.3, 1630.0, 1599.2],
-    [1630.0, 1691.7, 1660.8],
-    [1691.7, 1753.3, 1722.5],
-    [1753.3, 1815.0, 1784.2],
-    [1815.0, 1876.7, 1845.8],
-    [1876.7, 1938.3, 1907.5],
-    [1938.3, 2000.0, 1969.2]
-]
-
 
 export const API_PREFIX = '/api'

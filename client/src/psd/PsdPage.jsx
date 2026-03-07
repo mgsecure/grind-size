@@ -4,7 +4,6 @@ import UploadQueuePanel from './pagePanels/UploadQueuePanel.jsx'
 import ImagePanel from './pagePanels/ImagePanel.jsx'
 import SettingsPanel from './pagePanels/SettingsPanel.jsx'
 import HistogramPanel from './pagePanels/HistogramPanel.jsx'
-import ManualCornerSelector from './components/ManualCornerSelector.jsx'
 import StatsPanel from './pagePanels/StatsPanel.jsx'
 import DataContext from '../context/DataContext.jsx'
 import {useTheme} from '@mui/material/styles'
@@ -21,11 +20,6 @@ export default function PsdPage() {
 
     const {
         manualSelectionId,
-        manualSelectionUrl,
-        handleManualCorners,
-        cancelManual,
-        settings,
-        setSettings
     } = useContext(DataContext)
 
     const {showTitleBar, isDesktop} = useContext(UIContext)
@@ -53,7 +47,6 @@ export default function PsdPage() {
             {manualSelectionId && (
                 <ManualCornerPanel />
             )}
-
 
             <UploadQueuePanel/>
 

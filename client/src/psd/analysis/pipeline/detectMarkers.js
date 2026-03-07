@@ -101,7 +101,7 @@ export function detectMarkers(imageData) {
         if (bestScore >= 4) break
     }
 
-    console.log('detectMarkersCandidate: best markers', bestMarkers.map(m => m.id), 'score', bestScore)
+    console.log('detectMarkers: best markers', bestMarkers.map(m => m.id), 'score', bestScore)
 
     return bestMarkers
 }

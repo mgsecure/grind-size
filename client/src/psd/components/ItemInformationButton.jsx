@@ -2,7 +2,7 @@ import IconButton from '@mui/material/IconButton'
 import React, {useCallback, useContext, useEffect, useMemo, useState} from 'react'
 import DataContext from '../../context/DataContext.jsx'
 import UIContext from '../../context/UIContext.jsx'
-import {useTheme, alpha} from '@mui/material/styles'
+import {useTheme, alpha, darken, lighten} from '@mui/material/styles'
 import InfoOutlineIcon from '@mui/icons-material/InfoOutline'
 import EditIcon from '@mui/icons-material/Edit'
 import Stack from '@mui/material/Stack'
@@ -15,7 +15,14 @@ import Collapse from '@mui/material/Collapse'
 import ErrorIcon from '@mui/icons-material/Error'
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 
-export default function ItemInformationButton({item, imageViewer = false, noButton = false, openOverride = false, onClose = () => {}}) {
+export default function ItemInformationButton({
+                                                  item,
+                                                  imageViewer = false,
+                                                  noButton = false,
+                                                  openOverride = false,
+                                                  onClose = () => {
+                                                  }
+                                              }) {
 
     if (!item) return null
 
@@ -23,6 +30,7 @@ export default function ItemInformationButton({item, imageViewer = false, noButt
     const [open, setOpen] = useState(false)
     const [name, setName] = useState(item.sampleName || 'sample')
     const [editOpen, setEditOpen] = useState(false)
+
     const {queue, setQueue} = useContext(DataContext)
     const {isDesktop} = useContext(UIContext)
     useEffect(() => {
@@ -32,9 +40,7 @@ export default function ItemInformationButton({item, imageViewer = false, noButt
     const {sampleName = 'sample', result = {}} = item
     const {settings = {}, stats = {}, scale = {}} = result || {}
 
-
     const queueItemNames = queue.map(item => item.sampleName)
-    const queueItem = queue.find(q => q.id === item.id)
 
     const canSave = useMemo(() => {
         return (name.length > 1 && name !== sampleName && !queueItemNames.includes(name))
@@ -56,12 +62,11 @@ export default function ItemInformationButton({item, imageViewer = false, noButt
     }, [onClose])
 
     const saveName = useCallback(() => {
-        const newItem = {...queueItem, sampleName: name}
-        setQueue(oldQueue => oldQueue.map(i => i.id === item.id ? newItem : i))
+        setQueue(prev => prev.map(i => i.id === item.id ? {...item, sampleName: name} : i))
         setEditOpen(false)
-    }, [item, name, queueItem, setQueue])
+    }, [item, name, setQueue])
 
-    const rows = [
+    const rows = useMemo(() => [
         ['Settings', settings.name],
         ['Particle Count', stats.count],
         ['Template', scale.detectedTemplate],
@@ -79,7 +84,7 @@ export default function ItemInformationButton({item, imageViewer = false, noButt
         ['Test Pipeline', settings.testPipeline ? 'Enabled' : 'Disabled'],
         ['correctPerspective', settings.correctPerspective ? 'Enabled' : 'Disabled'],
         ['useMorphology', settings.useMorphology ? 'Enabled' : 'Disabled']
-    ]
+    ],[scale.detectedTemplate, settings.adaptiveBlockSize, settings.adaptiveC, settings.bgSigma, settings.correctPerspective, settings.maxAreaMm2, settings.minAreaPx, settings.name, settings.overlapSplitPreset, settings.splitSensitivity, settings.testPipeline, settings.useMorphology, stats.count])
 
     const settingsTable = (
         <Stack direction='column' style={{minWidth: 250, margin: 20}}>
@@ -143,14 +148,14 @@ export default function ItemInformationButton({item, imageViewer = false, noButt
             display: 'flex',
             padding: '15px 15px',
             height: 64,
-            backgroundColor: theme.palette.card?.add
+            backgroundColor: darken(theme.palette.background.paper, 0.05),
         }} onClick={() => setOpen(false)}>
             <div style={{
-                    flexGrow: 1,
-                    fontSize: '1.5rem',
-                    fontWeight: 500,
-                    color: theme.palette.text.primary
-                }}>
+                flexGrow: 1,
+                fontSize: '1.5rem',
+                fontWeight: 500,
+                color: theme.palette.text.primary
+            }}>
                 Sample Information
             </div>
             <div onClick={(e) => closeDrawer(e)}>
@@ -162,7 +167,7 @@ export default function ItemInformationButton({item, imageViewer = false, noButt
 
     if (!item || !['done', 'error'].includes(item.status)) return (
         <IconButton disabled style={{height: 36, width: 36}}>
-            <InfoOutlineIcon fontSize='small' color={'disabled'} sx={{color: 'disabled'}} />
+            <InfoOutlineIcon fontSize='small' color={'disabled'} sx={{color: 'disabled'}}/>
         </IconButton>
     )
 
@@ -192,15 +197,17 @@ export default function ItemInformationButton({item, imageViewer = false, noButt
                     onOpen={(e) => openDrawer(e)}
                     onClose={(e) => closeDrawer(e)}
                     slotProps={{
-                        paper: {sx: {maxWidth: isDesktop ? '600px' : '90vw'}},
+                        paper: {sx: {backgroundColor: lighten(theme.palette.background.paper, 0.05), maxWidth: isDesktop ? '600px' :'90vw'}},
                         transition: {
                             direction: 'right'
                         }
                     }}
-
                 >
                     {titleBar}
                     {settingsTable}
+                    <Stack style={{marginLeft: 20, fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.5)'}}>
+                        ID: {item.id}
+                    </Stack>
                 </SwipeableDrawer>
             }
         </>

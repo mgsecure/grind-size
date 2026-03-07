@@ -21,29 +21,32 @@ import defineROI from './pipeline/defineROI.js'
 const debug = false
 const renderDiagnosticImage = false
 
-export async function analyzeImageFiles(file, settings, manualCorners = null, overlayOptions = null) {
+export async function analyzeImageFiles(item, settings, manualCorners = null, overlayOptions = null) {
     const startedAt = new Date().toISOString()
 
     const {testPipeline = false, correctPerspective = true, useMorphology = true, sampleName = null} = settings
+    const file = item?.file
+
+    console.log('Analyzing item:', item)
+
+    if (!file) throw new Error('No file provided')
 
     const imageData = await decodeImageToImageData(file)
     const {width, height} = imageData
-
-    console.log('width, height:', {width, height})
 
     // detectMarkers might modify imageData.data (grayscale/threshold in js-aruco2)
     // We use slice() to ensure a deep copy of the buffer.
 
     const markerFn = testPipeline ? detectMarkersCandidate : detectMarkers
-    const markers = markerFn({
+    const markers = item.result?.markers || markerFn({
         width,
         height,
         data: imageData.data.slice()
     })
 
-    console.log(`Markers detected: ${markers.length}`)
+    console.log(`Markers detected: ${item.result?.markers ? '[reusing] ' + markers.length : markers.length}`)
 
-    if (markers.length < 3) return {
+    if (markers.length < 3 && !manualCorners && !item.result?.scale) return {
         filename: sampleName || getFileNameWithoutExtension(file.name),
         analysisVersion: PSD_ANALYSIS_VERSION,
         testPipeline,
@@ -54,13 +57,15 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
     }
 
     const processTemplateFn = testPipeline ? processTemplateCandidate : processTemplate
-    let scaleInfo = processTemplateFn({
+    let scaleInfo = item.result?.scale || processTemplateFn({
         width,
         height,
         markers,
         manualCorners,
         settings
     })
+
+    debug && console.log('Template scaleInfo:', scaleInfo)
 
     if (!scaleInfo) {
         throw new Error('Could not determine pixel scale. Check your template and image quality.')
@@ -77,9 +82,8 @@ export async function analyzeImageFiles(file, settings, manualCorners = null, ov
         pxPerMm
     } = scaleInfo || {}
 
-    debug && console.log('Template scaleInfo:', scaleInfo)
 
-    const roi = defineROI({scaleInfo, settings, correctPerspective, debug})
+    const roi = item.result?.roi || defineROI({scaleInfo, settings, correctPerspective, debug})
 
     let analysisImageData = imageData
     let warpSize = settings.warpSizePx || 2000

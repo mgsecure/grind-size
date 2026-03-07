@@ -111,6 +111,7 @@ export function PsdDataProvider({children}) {
         }
 
         setDeep(aggregateData, ['result'], {...baseResult, ...aggregateData.result})
+        setDeep(aggregateData, ['result', 'scale', 'mmPerPx'], 0.001)
 
         const baseData = {
             id: 'CurrentAggregateResults',
@@ -308,7 +309,7 @@ export function PsdDataProvider({children}) {
 
                     const newSettings = item.file?.name.includes('candidatePipeline') ? {...settings, testPipeline: true} : settings
 
-                    const result = await analyzeImageFiles(item.file, {
+                    const result = await analyzeImageFiles(item, {
                         ...newSettings,
                         binSpacing,
                         sampleName: item.sampleName
@@ -386,7 +387,7 @@ export function PsdDataProvider({children}) {
         }
         for (const [key, value] of Object.entries(settingsList)) {
             try {
-                const result = await analyzeImageFiles(item.file, {
+                const result = await analyzeImageFiles(item, {
                     ...PSD_DEFAULTS,
                     ...value.params,
                     binSpacing,
@@ -412,8 +413,9 @@ export function PsdDataProvider({children}) {
 
         try {
             const item = queue.find(q => q.id === id)
-            const result = await analyzeImageFiles(item.file, {...settings, binSpacing,sampleName: item.sampleName}, corners, overlayOptions)
+            const result = await analyzeImageFiles(item, {...settings, binSpacing,sampleName: item.sampleName}, corners, overlayOptions)
             setQueue(prev => prev.map(p => p.id === id ? {...p, status: 'done', result} : p))
+            setActiveIdList(prev => prev.concat(id))
         } catch (err) {
             setQueue(prev => prev.map(p => p.id === id ? {...p, status: 'error', error: String(err)} : p))
         }
