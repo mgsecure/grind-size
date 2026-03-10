@@ -36,6 +36,10 @@ export function selectiveSanitizeValues(object, {profanityOKFields = [], urlsOKF
     )
 }
 
+export function sanitizeFileName(fileName) {
+    return sanitizeValues(fileName).replace(/[^a-zA-Z0-9._-]/g, '_')
+}
+
 export function sanitizeText(input) {
     if (/^\d+(?:\.\d+)?$/.test(input)) {
         return input

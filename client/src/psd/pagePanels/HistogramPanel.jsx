@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useMemo, useState} from 'react'
+import React, {useContext, useMemo, useState} from 'react'
 import {Paper, Stack, Typography, ToggleButtonGroup, ToggleButton, Box, Slider, lighten, alpha} from '@mui/material'
 import {ResponsiveBar} from '@nivo/bar'
 import {ResponsiveLine} from '@nivo/line'
@@ -11,9 +11,9 @@ import {line, curveLinear, curveCatmullRom} from 'd3-shape'
 import DataContext from '../../context/DataContext.jsx'
 import ScreenshotElementButton from '../components/ScreenshotElementButton.jsx'
 import UIContext from '../../context/UIContext.jsx'
-import ItemInformationButton from '../components/ItemInformationButton.jsx'
 import CurveLinearIcon from '../resources/CurveLinearIcon.jsx'
 import CurveCardinalIcon from '../resources/CurveCardinalIcon.jsx'
+import {MuiColorInput} from 'mui-color-input'
 
 function fmtNumber(n, digits = 2) {
     if (!Number.isFinite(n)) return '—'
@@ -35,26 +35,11 @@ export default function HistogramPanel({domEl}) {
 
     const {aggregateColor, swapColors, chartColors, isDesktop} = useContext(UIContext)
 
-    const [settingsItem, setSettingsItem] = useState([])
-    const [settingsOpen, setSettingsOpen] = useState(false)
-
-    const openSettings = useCallback((e, id) => {
-        e.preventDefault()
-        e.stopPropagation()
-        setSettingsItem(allItems.find(item => item.sampleName === id))
-        setSettingsOpen(true)
-        document.activeElement.blur()
-    }, [allItems])
-    const closeSettings = useCallback(() => {
-        document.activeElement.blur()
-        setSettingsOpen(false)
-    }, [])
-
 
     //TODO: Skip every other tick on mobile
 
     const [chartMode, setChartMode] = useState('line')
-    const [chartCurve, setChartCurve] = useState('cardinal')
+    const [chartCurve, setChartCurve] = useState('curve')
     const maxY = binSpacing === 'log' ? globalMaxY.logMax : globalMaxY.linearMax
 
     // show aggregate in normal chart if only series remaining
@@ -299,6 +284,11 @@ export default function HistogramPanel({domEl}) {
         )
     }
 
+    const [color, setColor] = React.useState('#121212')
+    const handleChange = (color) => {
+        setColor(color)
+    }
+
     const disabledStyle = {opacity: 0.5, pointerEvents: 'none'}
 
     const activeFilename = activeItems.length === 1
@@ -470,21 +460,77 @@ export default function HistogramPanel({domEl}) {
                 </Box>
             )}
 
-            {activeItems.length > 0 &&
-                <ItemInformationButton item={settingsItem} noButton={true} openOverride={settingsOpen}
-                                       onClose={closeSettings}/>
-            }
-
             <Stack direction='row' flexWrap='wrap' spacing={2} justifyContent='center' sx={{mb: 1, pr: 2, pl: 4}}>
                 {legendItems.map((li, index) => (
                     <Box key={index} sx={{display: 'flex', alignItems: 'center', gap: 0.5}} style={{marginTop: 12}}>
                         <Box sx={{width: 14, height: 14, backgroundColor: li.color}}
-                             onClick={(e) => openSettings(e, li.id)}/>
+                             onClick={(_e) => {}}/>
                         <Typography style={{fontSize: '0.75rem'}}>{li.id}</Typography>
                     </Box>
                 ))}
             </Stack>
 
+            <MuiColorInput
+                value={color}
+                onChange={handleChange}
+                size='small'
+                variant='outlined'
+                color='warning'
+                isAlphaHidden
+                sx={colorPickerSx}
+                onClick={(e) => console.log(e)}
+            />
+
         </Paper>
     )
+}
+
+const colorPickerSx = {
+    '& .MuiTextField-root ': {
+        border: 'none',
+        color: '#0b0',
+        padding: 0,
+        margin: 0,
+    },
+    '& .MuiInputBase-input': {
+        display: 'none',
+        border: 'none',
+        color: '#0b0',
+        padding: 0,
+        margin: '0px 0px 0px -10px',
+        zIndex: 1,
+    },
+    '& .MuiOutlinedInput-root': {
+        border: 'none',
+        borderRadius: '0px',
+        padding: 0,
+        margin: 0,
+    },
+    '& .MuiButtonBase-root': {
+        border: 'none',
+        borderRadius: '0px',
+        width: 14,
+        height: 14,
+        padding: 0,
+        margin: 0,
+    },
+    '& .MuiInputAdornment-root': {
+        border: 'none',
+        borderRadius: '0px',
+        padding: 0,
+        margin: 0,
+    },
+    '& .MuiOutlinedInput-notchedOutline': {
+        border: 'none',
+        borderRadius: '0px',
+        padding: 0,
+        margin: 0,
+    },
+    '& .notranslate': {
+        border: 'none',
+        margin: '0px',
+        padding: '0px',
+        width: 0,
+        height: 0,
+    },
 }

@@ -69,6 +69,7 @@ export default function StatsPanel() {
 
     const metricData = [
         {key: 'template', label: 'Template', unit: ''},
+        {key: 'name', label: 'Settings', unit: ''},
         {key: 'particleCount', label: 'Particle Count', unit: ''},
         {key: 'D10', label: 'D10', unit: unit},
         {key: 'D50', label: 'D50 (Median)', unit: unit},
@@ -88,6 +89,7 @@ export default function StatsPanel() {
 
     const metricDataOne = [
         {key: 'template', label: 'Template', unit: ''},
+        {key: 'name', label: 'Settings', unit: ''},
         {key: 'particleCount', label: 'Particle Count', unit: ''},
         {key: 'D10', label: 'D10', unit: unit},
         {key: 'D50', label: 'D50 (Median)', unit: unit},

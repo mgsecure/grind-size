@@ -32,7 +32,7 @@ export default function SettingsPanel() {
     // console.log('customSettings', customSettings)
 
     const [showDetails, setShowDetails] = useState(false)
-    const [preset, setPreset] = useState('default') // 'default' | 'coarse' | 'fines' | 'custom'
+    const [preset, setPreset] = useState('hi-res') // 'hi-res' | 'standard' | 'coarse' | 'fines' | 'custom'
 
     const needsRefresh = useMemo(() => {
         return queueItems

@@ -309,6 +309,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ctrl/tinycolor@npm:^4.1.0":
+  version: 4.2.0
+  resolution: "@ctrl/tinycolor@npm:4.2.0"
+  checksum: 10c0/374034581953f6debd950e4b07da833d1d8f7af5aead5117c91545fbe1583c91b2407bc285e1625529839135d6465c2e7549e7a8ad70979cab4c207486798064
+  languageName: node
+  linkType: hard
+
 "@dabh/diagnostics@npm:^2.0.8":
   version: 2.0.8
   resolution: "@dabh/diagnostics@npm:2.0.8"
@@ -2607,6 +2614,7 @@ __metadata:
     html2canvas: "npm:^1.4.1"
     lodash: "npm:^4.17.23"
     motion: "npm:^12.34.0"
+    mui-color-input: "npm:^7.0.0"
     notistack: "npm:^3.0.2"
     obscenity: "npm:^0.4.5"
     query-string: "npm:^9.3.1"
@@ -8609,6 +8617,25 @@ __metadata:
   bin:
     msw: cli/index.js
   checksum: 10c0/14b67e607e071965a7119261a0bf75febdf0d17f3ea62b97938ece03fffd05eea63d0c1b52f81c1dec778107aae1c11a3400cf873c9029982a3ccab3764fc149
+  languageName: node
+  linkType: hard
+
+"mui-color-input@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "mui-color-input@npm:7.0.0"
+  dependencies:
+    "@ctrl/tinycolor": "npm:^4.1.0"
+  peerDependencies:
+    "@emotion/react": ^11.13.0
+    "@emotion/styled": ^11.13.0
+    "@mui/material": ^7.0.0
+    "@types/react": ^18.0.0 || ^19.0.0
+    react: ^18.0.0 || ^19.0.0
+    react-dom: ^18.0.0 || ^19.0.0
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  checksum: 10c0/7f417c06d9c8b3a6f33bd86f6a1493a234f953e61dce53dc0e63919a0f88a56dab7ae7b6123abf06125366f243d5feea0dcdf4009fce18dd4a392f69c51a04fc
   languageName: node
   linkType: hard
 

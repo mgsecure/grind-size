@@ -11,23 +11,19 @@ import UIContext from '../context/UIContext.jsx'
 import VersionChecker from '../app/VersionChecker.jsx'
 import Footer from './components/Footer.jsx'
 import IntroCopy from '../misc/IntroCopy.jsx'
-import ImportButton from './components/ImportButton.jsx'
-import introCopyMarkdown from './components/introCopyMarkdown.md?raw'
+import introCopyMarkdown from './resources/introCopyMarkdown.md?raw'
 import ManualCornerPanel from './pagePanels/ManualCornerPanel.jsx'
+import SampleSetsPanel from './pagePanels/SampleSetsPanel.jsx'
 
 export default function PsdPage() {
     const theme = useTheme()
 
-    const {
-        manualSelectionId,
-    } = useContext(DataContext)
-
+    const {manualSelectionId, viewOnly} = useContext(DataContext)
     const {showTitleBar, isDesktop} = useContext(UIContext)
-
     const domEl = useRef(null)
 
     return (
-        <Stack spacing={isDesktop ? 2 : 1} sx={{width: '100%'}}>
+        <Stack spacing={isDesktop ? 1 : 1} sx={{width: '100%'}}>
             <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
                 <Stack direction='row' spacing={1} alignItems='center' justifyContent='space-between'>
                     <Typography style={{fontSize: '1.5rem', fontWeight: 700, lineHeight: '1.2em', marginTop: 8}}>
@@ -38,21 +34,24 @@ export default function PsdPage() {
                     <VersionChecker/>
                 </Stack>
 
-                <IntroCopy introCopy={{markdown: introCopyMarkdown}} style={{fontSize: '0.9rem', padding: '0px 0px 0px 0px'}}/>
-
-                <span style={{fontSize: '0.9rem'}}>Or, you can click here to <ImportButton linkOnly={true}/> directly.</span>
+                <IntroCopy introCopy={{markdown: introCopyMarkdown}}
+                           style={{fontSize: '0.9rem', padding: '0px 0px 0px 0px'}}/>
 
             </Paper>
 
+            <SampleSetsPanel/>
+
             {manualSelectionId && (
-                <ManualCornerPanel />
+                <ManualCornerPanel/>
             )}
 
             <UploadQueuePanel/>
 
-            <SettingsPanel/>
+            {!viewOnly &&
+                <SettingsPanel/>
+            }
 
-            <Stack direction='column' spacing={(isDesktop && !showTitleBar) ? 2 : 1}
+            <Stack direction='column' spacing={(isDesktop && !showTitleBar) ? 1 : 1}
                    sx={{width: '100%', backgroundColor: theme.palette.background.default}} ref={domEl}>
 
                 {showTitleBar && (
@@ -69,7 +68,9 @@ export default function PsdPage() {
 
             </Stack>
 
-            <ImagePanel/>
+            {!viewOnly &&
+                <ImagePanel/>
+            }
 
             <Footer/>
 

@@ -30,14 +30,14 @@ import DataContext from '../../context/DataContext.jsx'
 import ItemInformationButton from './ItemInformationButton.jsx'
 import ImageViewModeToggles from './ImageViewModeToggles.jsx'
 import UIContext from '../../context/UIContext.jsx'
-import FilterContext from '../../context/FilterContext.jsx'
+import MiniFilterContext from '../../context/MiniFilterContext.jsx'
 
 const zoomIncrement = 0.6
 
 function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}}) {
     const {queue} = useContext(DataContext)
     const {isDesktop} = useContext(UIContext)
-    const {removeFilters} = useContext(FilterContext)
+    const {removeFilters} = useContext(MiniFilterContext)
 
     const [open, setOpen] = useState(true)
     const [loading, setLoading] = useState(true)

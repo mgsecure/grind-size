@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react'
+import React, {useCallback, useContext, useEffect, useMemo, useState} from 'react'
 import DataContext from '../context/DataContext.jsx'
 import {PSD_DEFAULTS, PSD_PRESETS, overlapSplitPresets, defaultOverlapPreset} from '@starter/shared'
 import {analyzeImageFiles} from './analysis/analyzeImage.js'
@@ -9,8 +9,11 @@ import {v4 as uuidv4} from 'uuid'
 import {useLocalStorage} from 'usehooks-ts'
 import {setDeep, setDeepJoin, setDeepMultiple} from '../util/setDeep.js'
 import {enqueueSnackbar} from 'notistack'
+import sampleSets from './data/sampleSets.json'
+import MiniFilterContext from '../context/MiniFilterContext.jsx'
 
 export function PsdDataProvider({children}) {
+    const {removeFilters} = useContext(MiniFilterContext)
     const [debugLevel, setDebugLevel] = useLocalStorage('psd-debug', 0)
 
     // State from PsdPage
@@ -33,6 +36,9 @@ export function PsdDataProvider({children}) {
         showParticles: true, showMarkers: true, showScale: true, showRoi: true
     })
     const [overlapPreset, setOverlapPreset] = useState(defaultOverlapPreset) // off | low | normal | (high)
+    //const [viewOnly, setViewOnly] = useState(window.location.search.includes('sampleSet'))
+    const [viewOnly, setViewOnly] = useState(false)
+    const [sampleSet, setSampleSet] = useState(undefined)
 
     const processedCount = useMemo(() =>
         queue.filter(q => (q.status === 'done' && q.result) || q.status === 'error').length
@@ -359,6 +365,7 @@ export function PsdDataProvider({children}) {
         if (!id) return
 
         if (id === 'all') {
+            removeFilters(['sampleSet'])
             setQueue([])
             setDroppedFiles([])
             setActiveIdList([])
@@ -373,7 +380,7 @@ export function PsdDataProvider({children}) {
             setDroppedFiles([])
             setActiveIdList([])
         }
-    }, [queue])
+    }, [queue, removeFilters])
 
 // Process selected image with multiple settings
     const processMultipleSettings = useCallback(async (id, settingsList = {...PSD_PRESETS}) => {
@@ -459,8 +466,10 @@ export function PsdDataProvider({children}) {
         processMultipleSettings,
         handleManualCorners,
         cancelManual,
-        overlapSplitPresets, overlapPreset, setOverlapPreset
-    }), [debugLevel, setDebugLevel, settings, setSettings, customSettings, setCustomSettings, retainCustomSettings, setRetainCustomSettings, isCustomSettings, setIsCustomSettings, queue, setQueue, processingComplete, droppedFiles, setDroppedFiles, activeIdList, setActiveIdList, xAxis, setXAxis, yAxis, setYAxis, binSpacing, setBinSpacing, resetToggle, setResetToggle, isAnalyzing, setIsAnalyzing, manualSelectionId, setManualSelectionId, manualSelectionUrl, setManualSelectionUrl, overlayOptions, setOverlayOptions, aggregateQueueItem, aggregateItem, queueItems, allItems, activeItems, getItemDetails, globalMaxY, onFiles, analyzeAll, handleQueueRemove, processMultipleSettings, handleManualCorners, cancelManual, overlapPreset, setOverlapPreset])
+        overlapSplitPresets, overlapPreset, setOverlapPreset,
+        viewOnly, setViewOnly,
+        sampleSets, sampleSet, setSampleSet,
+    }), [debugLevel, setDebugLevel, settings, customSettings, setCustomSettings, retainCustomSettings, isCustomSettings, queue, processingComplete, droppedFiles, activeIdList, xAxis, yAxis, binSpacing, resetToggle, isAnalyzing, manualSelectionId, manualSelectionUrl, overlayOptions, aggregateQueueItem, aggregateItem, queueItems, allItems, activeItems, getItemDetails, globalMaxY, onFiles, analyzeAll, handleQueueRemove, processMultipleSettings, handleManualCorners, cancelManual, overlapPreset, viewOnly, sampleSet])
 
     return (
         <DataContext.Provider value={value}>

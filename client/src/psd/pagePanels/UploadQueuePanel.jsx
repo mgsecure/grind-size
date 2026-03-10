@@ -38,10 +38,9 @@ export default function UploadQueuePanel() {
         isAnalyzing,
         debugLevel
     } = useContext(DataContext)
+    const {currentColors, aggregateColor, isDesktop} = useContext(UIContext)
 
     console.log('queue', queue)
-
-    const {currentColors, aggregateColor, isDesktop} = useContext(UIContext)
 
     const selectEnabled = queue.length > 1 || activeIdList.length === 0
 
@@ -166,6 +165,9 @@ export default function UploadQueuePanel() {
                                                         textAlign: 'left'
                                                     }}>
                                                         {item.sampleName || item.file?.name || 'Unnamed Sample'}
+                                                        {item.id === aggregateQueueItem?.id &&
+                                                            <span style={{fontWeight: 300, fontSize: '0.85rem'}}> ({queue.length})</span>
+                                                        }
                                                     </div>
 
                                                     <div style={{

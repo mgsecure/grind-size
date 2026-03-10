@@ -93,7 +93,7 @@ export default function ItemInformationButton({
                 <>
                     <Stack direction='row' alignItems='center' style={{marginBottom: 12, fontWeight: 600}}>
                         <div style={{marginRight: 8}}>{sampleName}</div>
-                        {!imageViewer &&
+                        {!imageViewer && !noButton &&
                             <>
                                 <IconButton onClick={() => setEditOpen(!editOpen)} disabled={item.status !== 'done'}
                                             style={{height: 36, width: 36}}>

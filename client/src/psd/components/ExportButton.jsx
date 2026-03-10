@@ -14,9 +14,17 @@ import download from '../../util/download'
 import Button from '@mui/material/Button'
 import {convertHistogramToCsv, convertParticlesToCsv, convertStatsToCsv, downloadFile} from '../analysis/exportCsv.js'
 import UIContext from '../../context/UIContext.jsx'
-import {setDeep} from '../../util/setDeep.js'
 import genHexString from '../../util/genHexString.js'
 import {useTheme} from '@mui/material/styles'
+import TextField from '@mui/material/TextField'
+import Dialog from '@mui/material/Dialog'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContent from '@mui/material/DialogContent'
+import DialogContentText from '@mui/material/DialogContentText'
+import DialogTitle from '@mui/material/DialogTitle'
+import {sanitizeFileName} from '../../util/sanitizeValues.js'
+
+const defaultAggregateExportName = 'Multiple Samples - Aggregate'
 
 export default function ExportButton({text}) {
     const theme = useTheme()
@@ -31,22 +39,34 @@ export default function ExportButton({text}) {
     } = useContext(DataContext)
 
     const {altButtonColor} = useContext(UIContext)
+    const [aggregateExportName, setAggregateExportName] = useState(defaultAggregateExportName)
 
     const cleanQueueItems = useCallback((items) => {
-            return items
-                .filter(item => item?.result?.particles?.length > 0)
-                .filter(item => activeIdList.includes(item.id))
-                .map(item => {
-                    const newResult = {...item.result}
-                    newResult.previews = {}
-                    newResult.particles = newResult.particles?.map(p => ({...p, contour: []}))
-                    newResult.histograms = activeItems?.find(i => i.id === item.id).histograms
-                    newResult.sampleName = activeItems?.find(i => i.id === item.id).sampleName
-                    return {
-                        ...item, result: newResult, source: 'export', file: {}, id: item.id + '-export'
-                    }
-                })
-        }, [activeIdList, activeItems])
+        if (!items) return []
+        return items
+            .filter(item => item?.result?.particles?.length > 0)
+            .filter(item => activeIdList.includes(item.id))
+            .map(item => {
+                const newResult = {...item.result}
+                newResult.previews = {}
+                newResult.particles = newResult.particles?.map(p => ({...p, contour: []}))
+                newResult.histograms = activeItems?.find(i => i.id === item.id).histograms
+                newResult.sampleName = activeItems?.find(i => i.id === item.id).sampleName
+                let newItem = {
+                    ...item, result: newResult, source: 'export', file: {}, id: `${item.id}-${genHexString(8)}`
+                }
+
+                if (item.id === aggregateQueueItem?.id) {
+                    console.log('aggregateQueueItem', aggregateExportName, aggregateQueueItem)
+                    newItem.sampleName = aggregateExportName
+                    newItem.result.filename = aggregateExportName
+                    newItem.result.sampleName = aggregateExportName
+                    newItem.file.name = aggregateExportName
+                }
+
+                return newItem
+            })
+    }, [activeIdList, activeItems, aggregateExportName, aggregateQueueItem])
 
     const [anchorEl, setAnchorEl] = useState(null)
     const open = Boolean(anchorEl)
@@ -68,25 +88,49 @@ export default function ExportButton({text}) {
             ? 'multiple-samples'
             : object[0]?.sampleName || object[0]?.filename || 'psd'
         const data = JSON.stringify(object)
-        download(`${exportName}-export.json`, data)
+        download(`${sanitizeFileName(exportName)}-export.json`, data)
         enqueueSnackbar(`Current list downloaded as ${exportName}.json`)
         handleClose()
     }, [aggregateQueueItem, cleanQueueItems, handleClose, queue])
-
-    const _handleExportAggregate = useCallback(() => {
-        const aggregateExport = {...aggregateQueueItem}
-        setDeep(aggregateExport, ['id'], `aggregateExport_${genHexString(8)}`)
-        setDeep(aggregateExport, ['file', 'name'], 'Aggregate Results Export')
-        setDeep(aggregateExport, ['result', 'filename'], 'Aggregate Results Export')
-        setDeep(aggregateExport, ['sampleName'], 'Aggregate Results Export')
-        //handleExportJson([aggregateExport], 'aggregate-export')
-        handleClose()
-    }, [aggregateQueueItem, handleClose])
 
     const exportAllCsv = useCallback(() => {
         cleanQueueItems(queue).forEach(item => handleExportCsvFiles(item.result))
         handleClose()
     }, [cleanQueueItems, handleClose, handleExportCsvFiles, queue])
+
+    const [dialogOpen, setDialogOpen] = useState(false)
+    const handleDialogOpen = useCallback(() => {
+        if (!aggregateExportName) setAggregateExportName(defaultAggregateExportName)
+        setDialogOpen(true)
+        handleClose()
+    }, [aggregateExportName, handleClose])
+
+    const handleDialogClose = useCallback(() => {
+        document.activeElement.blur()
+        setDialogOpen(false)
+    }, [])
+    const handleDialogCancel = useCallback(() => {
+        document.activeElement.blur()
+        handleDialogClose()
+        handleClose()
+        setAggregateExportName(defaultAggregateExportName)
+    }, [handleClose, handleDialogClose])
+
+    const handleSubmit = useCallback((event) => {
+        event.preventDefault()
+        handleExportJson()
+        handleDialogClose()
+        handleClose()
+    }, [handleClose, handleDialogClose, handleExportJson])
+
+    const handlePreflight = useCallback((event) => {
+        event.preventDefault()
+        if (activeIdList.includes(aggregateQueueItem?.id)) {
+            handleDialogOpen()
+        } else {
+            handleExportJson()
+        }
+    }, [activeIdList, aggregateQueueItem?.id, handleDialogOpen, handleExportJson])
 
     const menuItemStyle = {padding: '10px 16px'}
 
@@ -121,30 +165,58 @@ export default function ExportButton({text}) {
                         <ListItemText>Export Selected</ListItemText>
                     </MenuItem>
                 }
-
-                <MenuItem style={menuItemStyle} onClick={handleExportJson}>
+                <MenuItem style={menuItemStyle} onClick={(event) => handlePreflight(event)}>
                     <ListItemIcon>
                         <CodeIcon fontSize='small'/>
                     </ListItemIcon>
                     <ListItemText>Full Import/Export (JSON)</ListItemText>
                 </MenuItem>
-
                 <MenuItem style={menuItemStyle} onClick={exportAllCsv}>
                     <ListItemIcon>
                         <ListIcon fontSize='small'/>
                     </ListItemIcon>
                     <ListItemText>Analysis Data (3x CSV)</ListItemText>
                 </MenuItem>
-
-                <MenuItem style={menuItemStyle} onClick={() => {
-                }} disabled>
+                <MenuItem style={menuItemStyle} onClick={handleDialogOpen} disabled>
                     <ListItemIcon>
                         <CodeIcon fontSize='small'/>
                     </ListItemIcon>
                     <ListItemText>Analysis Data (JSON)</ListItemText>
                 </MenuItem>
-
             </Menu>
+            <Dialog open={dialogOpen} onClose={handleDialogClose}>
+                <DialogTitle>Aggregate Series Name:</DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                    </DialogContentText>
+                    <TextField
+                        autoFocus
+                        type='text'
+                        margin='dense'
+                        id='exportName'
+                        name='exportName'
+                        style={{marginLeft: 8, width: 250}}
+                        size='small'
+                        onChange={(e) => setAggregateExportName(e.target.value || '')}
+                        value={aggregateExportName}
+                        color='info'
+                        variant='standard'
+                        slotProps={{
+                            input: {
+                                sx: {
+                                    '& input': {
+                                        paddingLeft: 1
+                                    }
+                                }
+                            }
+                        }}
+                    />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleDialogCancel}>Cancel</Button>
+                    <Button onClick={handleSubmit}>Export</Button>
+                </DialogActions>
+            </Dialog>
         </React.Fragment>
     )
 }

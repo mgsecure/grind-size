@@ -41,43 +41,24 @@ export const overlapSplitPresets = {
 
 export const defaultOverlapPreset = 'Normal'
 
-// Defaults
-export const PSD_DEFAULTS = {
-    name: 'default',
-    testPipeline: false,
-    useMorphology: true,
-    correctPerspective: true,
-    warpSizePx: 2000,
-    insetPx: 18,
-    bgSigma: 35,
-    adaptiveBlockSize: 201,
-    adaptiveC: 4,
-    minAreaPx: 8,
-    maxAreaMm2: 10,
-    bins: 15,
-    binsType: 'default', // 'auto' | 'default'
-    binSpacing: 'log', // 'log' | 'linear'
-    weighting: 'mass', // 'count' | 'surface' | 'volume' | 'mass'
-    metric: 'diameter', // 'diameter' | 'surface' | 'volume'
-    chartMode: 'bar', // 'bar' | 'line'
-    splitOverlaps: false,
-    overlapSplitPreset: defaultOverlapPreset,
-    splitSensitivity: overlapSplitPresets[defaultOverlapPreset].splitSensitivity,
-    extraSeedSensitivity: overlapSplitPresets[defaultOverlapPreset].extraSeedSensitivity,
-    extraSeedMinDistFactor: overlapSplitPresets[defaultOverlapPreset].extraSeedMinDistFactor,
-    ellipseFactor: 5.0,
-    minSolidity: 0.3,
-    analysisChannel: 'grayscale', // 'grayscale' | 'blue'
-    value: 'mass',
-    templateSize: 75,
-}
-
-
+export const defaultSettingsPreset = 'hi-res'
 export const PSD_PRESETS = {
-    default: {
-        name: 'Default',
+    'hi-res': {
+        name: 'Hi-Res',
+        debugOnly: false,
         params: {
-            name: 'default',
+            name: 'hi-res',
+            minAreaPx: 4,
+            maxAreaMm2: 8,
+            bgSigma: 25,
+            adaptiveBlockSize: 120,
+            adaptiveC: 6,
+        }
+    },
+    standard: {
+        name: 'Standard',
+        params: {
+            name: 'standard',
             bgSigma: 35,
             adaptiveBlockSize: 201,
             adaptiveC: 4,
@@ -107,18 +88,6 @@ export const PSD_PRESETS = {
             maxAreaMm2: 5,
         }
     },
-    camera: {
-        name: 'Camera',
-        debugOnly: false,
-        params: {
-            name: 'camera',
-            minAreaPx: 4,
-            maxAreaMm2: 8,
-            bgSigma: 25,
-            adaptiveBlockSize: 120,
-            adaptiveC: 6,
-        }
-    },
     c1: {
         name: 'C1',
         debugOnly: true,
@@ -133,6 +102,37 @@ export const PSD_PRESETS = {
     },
 }
 
+// Defaults
+export const PSD_DEFAULTS = {
+    name: PSD_PRESETS[defaultSettingsPreset].name,
+    testPipeline: false,
+    useMorphology: true,
+    correctPerspective: true,
+    warpSizePx: 2000,
+    insetPx: 18,
+    bgSigma: 35,
+    adaptiveBlockSize: 201,
+    adaptiveC: 4,
+    minAreaPx: 8,
+    maxAreaMm2: 10,
+    bins: 15,
+    binsType: 'default', // 'auto' | 'default'
+    binSpacing: 'log', // 'log' | 'linear'
+    weighting: 'mass', // 'count' | 'surface' | 'volume' | 'mass'
+    metric: 'diameter', // 'diameter' | 'surface' | 'volume'
+    chartMode: 'bar', // 'bar' | 'line'
+    splitOverlaps: false,
+    overlapSplitPreset: defaultOverlapPreset,
+    splitSensitivity: overlapSplitPresets[defaultOverlapPreset].splitSensitivity,
+    extraSeedSensitivity: overlapSplitPresets[defaultOverlapPreset].extraSeedSensitivity,
+    extraSeedMinDistFactor: overlapSplitPresets[defaultOverlapPreset].extraSeedMinDistFactor,
+    ellipseFactor: 5.0,
+    minSolidity: 0.3,
+    analysisChannel: 'grayscale', // 'grayscale' | 'blue'
+    value: 'mass',
+    templateSize: 75,
+    ...PSD_PRESETS[defaultSettingsPreset].params
+}
 
 export const BIN_DEFAULTS = {
     min: 75,

@@ -1,12 +1,12 @@
 import queryString from 'query-string'
 import React, {useCallback, useContext, useMemo} from 'react'
 import {useLocation} from 'react-router-dom'
-import FilterContext from '../../context/FilterContext.jsx'
+import MiniFilterContext from '../../context/MiniFilterContext.jsx'
 import ImageGallery from './ImageGallery.jsx'
 
 function EntryImageGallery({entry}) {
     const location = useLocation()
-    const {filters, addFilter, removeFilters} = useContext(FilterContext)
+    const {filters, addFilter, removeFilters} = useContext(MiniFilterContext)
 
     const handleOpenImage = useCallback(imageNum => {
         addFilter('image', imageNum, true)
