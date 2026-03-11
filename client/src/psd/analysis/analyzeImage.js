@@ -17,6 +17,7 @@ import {calculateStatistics} from './metrics/calculateStatistics.js'
 import {renderMaskPng, renderOverlayPng, renderDiagnosticPng, renderOriginalPng} from './render/renderOutputs.js'
 import {getFileNameWithoutExtension} from '../../util/stringUtils.js'
 import defineROI from './pipeline/defineROI.js'
+import getColorTemperature from './pipeline/getColorTemperature.js'
 
 const debug = false
 const renderDiagnosticImage = false
@@ -53,7 +54,7 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
         settings,
         startedAt,
         image: {width, height},
-        markers: markers,
+        markers: markers
     }
 
     const processTemplateFn = testPipeline ? processTemplateCandidate : processTemplate
@@ -120,7 +121,27 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
         debug && console.log('Scale info:', scaleInfo)
     }
 
-    const gray = normalizeLighting(analysisImageData, {bgSigma: settings.bgSigma, channel: settings.analysisChannel})
+
+    const colorTemperature = await getColorTemperature(item.file)
+    const imageTemperature = colorTemperature > 6200
+        ? 'cool'
+        : colorTemperature < 5400
+            ? 'warm'
+            : 'neutral'
+
+    let analysisChannel = settings.analysisChannel
+    if (settings.analysisChannel === 'auto' && imageTemperature === 'warm') {
+        analysisChannel = 'blue'
+    } else if (settings.analysisChannel === 'auto' && imageTemperature === 'cool') {
+        analysisChannel = 'grayscale' // replace if better option
+    } else if (settings.analysisChannel === 'auto' && (!!imageTemperature || imageTemperature === 'neutral')) {
+        analysisChannel = 'grayscale'
+    }
+
+    //console.log('Using image channel', settings.analysisChannel, analysisChannel, colorTemperature)
+
+
+    const gray = normalizeLighting(analysisImageData, {bgSigma: settings.bgSigma, channel: analysisChannel})
     const mask = adaptiveThreshold(gray, {blockSize: settings.adaptiveBlockSize, C: settings.adaptiveC})
 
     // WHY ISN'T THIS USED?

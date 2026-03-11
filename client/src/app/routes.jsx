@@ -1,5 +1,5 @@
 import React, {Suspense} from 'react'
-import {Outlet, redirect, Navigate} from 'react-router-dom'
+import {Outlet, Navigate} from 'react-router-dom'
 
 import ErrorBoundary from './ErrorBoundary'
 import LoadingDisplay from '../misc/LoadingDisplay.jsx'

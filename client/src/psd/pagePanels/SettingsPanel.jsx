@@ -105,78 +105,80 @@ export default function SettingsPanel() {
 
     return (
         <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
-            <Stack direction='row' alignItems='flex-end' sx={{fontSize: '1.1rem', fontWeight: 500}}>
-                <span style={{marginRight: 10}}>SETTINGS</span>
-                <HelpContentDrawerButton markdown={String(helpSettings)}/>
+            <Stack direction='row' flexWrap='wrap' alignItems='center' justifyContent='space-between'>
+                <Stack direction='row' alignItems='flex-end' sx={{fontSize: '1.1rem', fontWeight: 500}}>
+                    <span style={{marginRight: 10}}>SETTINGS</span>
+                    <HelpContentDrawerButton markdown={String(helpSettings)}/>
+                </Stack>
+                <ExpandButton expanded={showDetails} onChange={() => setShowDetails(!showDetails)}/>
             </Stack>
 
-            <Stack direction='row' flexWrap='wrap' alignItems='center' justifyContent='space-between'>
-                <Stack direction='row' alignItems='center' justifyContent='space-between' style={{flexGrow: 1}}>
-                    <Stack direction='row' flexWrap='wrap' alignItems='center'>
-                        <ToggleButtonGroup
-                            size='small'
-                            value={preset}
-                            key={'presets'}
-                            exclusive
-                            onChange={(_, v) => v && handlePresetChange(v)}
-                            style={{margin: '10px 10px 10px 0'}}
-                        >
-                            {Object.entries(PSD_PRESETS)
-                                .filter(([_key, preset]) => preset.debugOnly !== true)
-                                .map(([key, preset]) => (
-                                    <ToggleButton key={key} value={key}>{preset.name}</ToggleButton>
-                                ))}
-                        </ToggleButtonGroup>
+            <Collapse in={showDetails} sx={{ml: isDesktop ? 1 : 0}}>
 
-                        {debugLevel >= 1 && Object.entries(PSD_PRESETS).find(([_key, preset]) => preset.debugOnly) &&
+                <Stack direction='row' flexWrap='wrap' alignItems='center' justifyContent='space-between'>
+                    <Stack direction='row' alignItems='center' justifyContent='space-between' style={{flexGrow: 1}}>
+                        <Stack direction='row' flexWrap='wrap' alignItems='center'>
                             <ToggleButtonGroup
                                 size='small'
                                 value={preset}
-                                key={'debugPresets'}
+                                key={'presets'}
                                 exclusive
                                 onChange={(_, v) => v && handlePresetChange(v)}
                                 style={{margin: '10px 10px 10px 0'}}
                             >
                                 {Object.entries(PSD_PRESETS)
-                                    .filter(([_key, preset]) => preset.debugOnly)
+                                    .filter(([_key, preset]) => preset.debugOnly !== true)
                                     .map(([key, preset]) => (
                                         <ToggleButton key={key} value={key}>{preset.name}</ToggleButton>
                                     ))}
                             </ToggleButtonGroup>
-                        }
 
-                        <Stack direction='row' alignItems='center'>
-                            <ToggleButtonGroup
-                                size='small'
-                                value={preset}
-                                key={'custom'}
-                                exclusive
-                                onChange={(_, v) => v && handlePresetChange(v)}
-                                style={{margin: isDesktop ? '10px 8px 10px 20px' : 0}}
-                            >
-                                <ToggleButton key='custom' value='custom' onClick={handleCustomClick}>Custom</ToggleButton>
-                            </ToggleButtonGroup>
-                            <CustomSettingsButtons/>
+                            {debugLevel >= 1 && Object.entries(PSD_PRESETS).find(([_key, preset]) => preset.debugOnly) &&
+                                <ToggleButtonGroup
+                                    size='small'
+                                    value={preset}
+                                    key={'debugPresets'}
+                                    exclusive
+                                    onChange={(_, v) => v && handlePresetChange(v)}
+                                    style={{margin: '10px 10px 10px 0'}}
+                                >
+                                    {Object.entries(PSD_PRESETS)
+                                        .filter(([_key, preset]) => preset.debugOnly)
+                                        .map(([key, preset]) => (
+                                            <ToggleButton key={key} value={key}>{preset.name}</ToggleButton>
+                                        ))}
+                                </ToggleButtonGroup>
+                            }
+
+                            <Stack direction='row' alignItems='center'>
+                                <ToggleButtonGroup
+                                    size='small'
+                                    value={preset}
+                                    key={'custom'}
+                                    exclusive
+                                    onChange={(_, v) => v && handlePresetChange(v)}
+                                    style={{margin: isDesktop ? '10px 8px 10px 20px' : 0}}
+                                >
+                                    <ToggleButton key='custom' value='custom'
+                                                  onClick={handleCustomClick}>Custom</ToggleButton>
+                                </ToggleButtonGroup>
+                                <CustomSettingsButtons/>
+                            </Stack>
+
                         </Stack>
-
                     </Stack>
+
+                    {queueItems.length > 0 &&
+                        <Stack direction='row' alignItems='center'>
+                            <Button variant='contained'
+                                    disabled={!needsRefresh || queueItems.length === 0}
+                                    onClick={handleRecalculate}
+                                    style={{margin: 10}}>
+                                Refresh All
+                            </Button>
+                        </Stack>
+                    }
                 </Stack>
-
-                {queueItems.length > 0 &&
-                    <Stack direction='row' alignItems='center'>
-                        <Button variant='contained'
-                                disabled={!needsRefresh || queueItems.length === 0}
-                                onClick={handleRecalculate}
-                                style={{margin: 10}}>
-                            Refresh All
-                        </Button>
-                    </Stack>
-                }
-                <ExpandButton expanded={showDetails} onChange={() => setShowDetails(!showDetails)}/>
-
-            </Stack>
-
-            <Collapse in={showDetails} sx={{ml: isDesktop ? 1 : 0}}>
 
                 {debugLevel >= 2 &&
                     <Stack style={{
@@ -219,17 +221,27 @@ export default function SettingsPanel() {
 
                         <Stack direction='row'
                                sx={{alignItems: 'center', width: '100%', justifyContent: 'center', mt: 2}}>
-                            <Stack>
-                                <ToggleButtonGroup
-                                    size='small'
-                                    value={settings.binsType}
-                                    exclusive
-                                    onChange={(_e, v) => v && setSettings(prev => ({...prev, binsType: v}))}
-                                >
-                                    <ToggleButton value='default'>Default Bins</ToggleButton>
-                                    <ToggleButton value='dynamic'>Dynamic</ToggleButton>
-                                </ToggleButtonGroup>
-                            </Stack>
+                            <ToggleButtonGroup
+                                size='small'
+                                value={settings.binsType}
+                                exclusive
+                                onChange={(_e, v) => v && setSettings(prev => ({...prev, binsType: v}))}
+                            >
+                                <ToggleButton value='default'>Default Bins</ToggleButton>
+                                <ToggleButton value='dynamic'>Dynamic</ToggleButton>
+                            </ToggleButtonGroup>
+
+                            <ToggleButtonGroup
+                                size='small'
+                                value={settings.analysisChannel}
+                                exclusive
+                                onChange={(_e, v) => v && setSettings(prev => ({...prev, analysisChannel: v}))}
+                                style={{marginLeft: 20}}
+                            >
+                                <ToggleButton value='auto'>Auto</ToggleButton>
+                                <ToggleButton value='grayscale'>Grayscale</ToggleButton>
+                                <ToggleButton value='blue'>Blue</ToggleButton>
+                            </ToggleButtonGroup>
                         </Stack>
                     </Stack>
                 }

@@ -128,7 +128,7 @@ export const PSD_DEFAULTS = {
     extraSeedMinDistFactor: overlapSplitPresets[defaultOverlapPreset].extraSeedMinDistFactor,
     ellipseFactor: 5.0,
     minSolidity: 0.3,
-    analysisChannel: 'grayscale', // 'grayscale' | 'blue'
+    analysisChannel: 'grayscale', // 'grayscale' | 'blue' | 'auto'
     value: 'mass',
     templateSize: 75,
     ...PSD_PRESETS[defaultSettingsPreset].params

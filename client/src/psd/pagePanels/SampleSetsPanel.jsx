@@ -10,7 +10,16 @@ import MiniFilterContext from '../../context/MiniFilterContext.jsx'
 
 export default function SampleSetsPanel() {
 
-    const {sampleSets, sampleSet, setSampleSet, queue, setQueue, setActiveIdList, setViewOnly, setSettings} = useContext(DataContext)
+    const {
+        sampleSets,
+        sampleSet,
+        setSampleSet,
+        queue,
+        setQueue,
+        setActiveIdList,
+        setViewOnly,
+        setSettings
+    } = useContext(DataContext)
     const {isDesktop} = useContext(UIContext)
     const {removeFilters} = useContext(MiniFilterContext)
 
@@ -18,7 +27,7 @@ export default function SampleSetsPanel() {
     const sampleSetId = searchParams.get('sampleSet')
     const sampleSetData = sampleSets.find(s => s.id === sampleSetId)
 
-    console.log('sampleSet', sampleSetId, sampleSetData)
+    //console.log('sampleSet', sampleSetId, sampleSetData)
     const loadedRef = useRef(null)
 
     useEffect(() => {
@@ -46,9 +55,11 @@ export default function SampleSetsPanel() {
                 <SampleSetsButton iconOnly={false}/>
             </Stack>
 
-            <div style={{width: '100%', fontSize: '0.9rem', marginTop: 5}}>
-                <strong>{sampleSet?.name || 'Demo Sample Set'}</strong> | {sampleSet?.description || 'A collection of demo images.'}
-            </div>
+            {sampleSet &&
+                <div style={{width: '100%', fontSize: '0.9rem', marginTop: 5}}>
+                    <strong>{sampleSet?.name || 'Demo Sample Set'}</strong> | {sampleSet?.description || 'A collection of demo images.'}
+                </div>
+            }
         </Paper>
     )
 

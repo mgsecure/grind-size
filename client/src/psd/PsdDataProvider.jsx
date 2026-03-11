@@ -375,11 +375,11 @@ export function PsdDataProvider({children}) {
         setDroppedFiles(prev => prev.filter(f => f.path !== queue.find(q => q.id === id)?.file.path))
         const newQueue = queue.filter(q => q.id !== id)
         setQueue(newQueue)
-
         if (newQueue.length === 0) {
             setDroppedFiles([])
             setActiveIdList([])
         }
+        setSampleSet(undefined)
     }, [queue, removeFilters])
 
 // Process selected image with multiple settings

@@ -20,9 +20,5 @@ export default function loadImport(jsonData, {queue=[], setQueue, setActiveIdLis
     setQueue(prev => [...prev, ...importQueueClean])
     setActiveIdList(prev => [...prev, ...nonDuplicateIds])
 
-    console.log(
-        `Imported ${cleanCount(importQueueClean.length, 'sample', false)}: ${importQueueClean
-            .map(item => item.id)
-            .join(', ')}`
-    )
+   // console.log(`Imported ${cleanCount(importQueueClean.length, 'sample', false)}: ${importQueueClean.map(item => item.id).join(', ')}`)
 }

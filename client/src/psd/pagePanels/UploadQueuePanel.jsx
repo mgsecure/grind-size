@@ -40,7 +40,7 @@ export default function UploadQueuePanel() {
     } = useContext(DataContext)
     const {currentColors, aggregateColor, isDesktop} = useContext(UIContext)
 
-    console.log('queue', queue)
+    //console.log('queue', queue)
 
     const selectEnabled = queue.length > 1 || activeIdList.length === 0
 

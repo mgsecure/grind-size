@@ -2599,14 +2599,16 @@ __metadata:
     axios: "npm:^1.12.2"
     babel-plugin-styled-components: "npm:^2.1.4"
     canvas: "npm:^3.2.1"
+    color-temperature: "npm:^0.2.7"
     d3-shape: "npm:^3.2.0"
     dayjs: "npm:^1.11.18"
-    dompurify: "npm:^3.2.7"
+    dompurify: "npm:^3.3.3"
     dotenv: "npm:^17.3.0"
     eslint: "npm:^9.36.0"
     eslint-plugin-import: "npm:^2.32.0"
     eslint-plugin-react: "npm:^7.37.5"
     eslint-plugin-react-hooks: "npm:^5.2.0"
+    fast-average-color: "npm:^9.5.0"
     fast-levenshtein: "npm:^3.0.0"
     firebase: "npm:^12.7.0"
     framer-motion: "npm:^12.24.7"
@@ -2619,6 +2621,7 @@ __metadata:
     obscenity: "npm:^0.4.5"
     query-string: "npm:^9.3.1"
     react: "npm:^18"
+    react-colorful: "npm:^5.6.1"
     react-dom: "npm:^18"
     react-dropzone: "npm:^15.0.0"
     react-hotkeys-hook: "npm:^5.2.4"
@@ -4064,6 +4067,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"color-temperature@npm:^0.2.7":
+  version: 0.2.7
+  resolution: "color-temperature@npm:0.2.7"
+  checksum: 10c0/eb39d97367525b27086f265ba5ecf31d18fae66fab5d39b9da5898891392c2c610c55990bce8fe89e40ba11ba093adbb3ed4e4ce06d43b970850d5f75fd4a90b
+  languageName: node
+  linkType: hard
+
 "color@npm:^5.0.2":
   version: 5.0.3
   resolution: "color@npm:5.0.3"
@@ -4807,15 +4817,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"dompurify@npm:^3.2.7":
-  version: 3.3.1
-  resolution: "dompurify@npm:3.3.1"
+"dompurify@npm:^3.3.3":
+  version: 3.3.3
+  resolution: "dompurify@npm:3.3.3"
   dependencies:
     "@types/trusted-types": "npm:^2.0.7"
   dependenciesMeta:
     "@types/trusted-types":
       optional: true
-  checksum: 10c0/fa0a8c55a436ba0d54389195e3d2337e311f56de709a2fc9efc98dbbc7746fa53bb4b74b6ac043b77a279a8f2ebd8685f0ebaa6e58c9e32e92051d529bc0baf8
+  checksum: 10c0/097c14a21a3f6cb95beded9ecd255f7c3512c42767b048390c747b0fe35736f6a71e02320fc50a9ac2be645834b463e4760915d595d502a56452daf339d0ea9c
   languageName: node
   linkType: hard
 
@@ -5621,6 +5631,13 @@ __metadata:
   version: 1.1.0
   resolution: "farmhash-modern@npm:1.1.0"
   checksum: 10c0/eca8a1e40e5ca78395d585298f813f8e33ef884624795969ac708d7b855ab9a7e543d31fc14ba715bc7aa302d464e1db6ddc38e6c87816ed8f5a75db482d7071
+  languageName: node
+  linkType: hard
+
+"fast-average-color@npm:^9.5.0":
+  version: 9.5.0
+  resolution: "fast-average-color@npm:9.5.0"
+  checksum: 10c0/766f78beaed852030ff52d13ba64f433c2af10fabc3cabfb6ec8ea2cd9b71a1049c02374ed8974553beef0734617937c46521b57fb13768368c2f0b8fc0b0b34
   languageName: node
   linkType: hard
 
@@ -9624,6 +9641,16 @@ __metadata:
   bin:
     rc: ./cli.js
   checksum: 10c0/24a07653150f0d9ac7168e52943cc3cb4b7a22c0e43c7dff3219977c2fdca5a2760a304a029c20811a0e79d351f57d46c9bde216193a0f73978496afc2b85b15
+  languageName: node
+  linkType: hard
+
+"react-colorful@npm:^5.6.1":
+  version: 5.6.1
+  resolution: "react-colorful@npm:5.6.1"
+  peerDependencies:
+    react: ">=16.8.0"
+    react-dom: ">=16.8.0"
+  checksum: 10c0/48eb73cf71e10841c2a61b6b06ab81da9fffa9876134c239bfdebcf348ce2a47e56b146338e35dfb03512c85966bfc9a53844fc56bc50154e71f8daee59ff6f0
   languageName: node
   linkType: hard
 

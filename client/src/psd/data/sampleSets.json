@@ -1,16 +1,5 @@
 [
   {
-    "id": "5ff7457c",
-    "name": "Demo Data Set 1",
-    "description": "Kinu M47 grinder using the Pour Over Burr at three different settings",
-    "sourceName": "demo",
-    "dataUrl": "/data/M47-POB-demo-export.json",
-    "sampleCount": 3,
-    "binCount": 17,
-    "dataQuality": 5,
-    "notes": "This is just a demo data set to show how the app works."
-  },
-  {
     "id": "a1581afe",
     "name": "Kinu M47: 0.0.0 - 4.0.0",
     "description": "Kinu M47 grinder using the Pour Over Burr at five different settings",
