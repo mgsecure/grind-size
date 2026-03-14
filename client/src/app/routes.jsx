@@ -53,6 +53,24 @@ export default [{
             ]
         },
         {
+            path: '/reports',
+            name: 'reports parent route',
+            lazy: async () => {
+                const {default: ReportsParentRoute} = await import('../reports/ReportsParentRoute.jsx')
+                return {element: <Suspense><ReportsParentRoute/></Suspense>}
+            },
+            children: [
+                {
+                    path: '/reports',
+                    name: 'site report',
+                    lazy: async () => {
+                        const {default: SiteReportRoute} = await import('../reports/siteReport/SiteReportRoute.jsx')
+                        return {element: <Suspense><SiteReportRoute/></Suspense>}
+                    },
+                }
+            ]
+        },
+        {
             path: '/homepage',
             name: 'homepage',
             lazy: async () => {

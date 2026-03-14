@@ -9,7 +9,7 @@ import {v4 as uuidv4} from 'uuid'
 import {useLocalStorage} from 'usehooks-ts'
 import {setDeep, setDeepJoin, setDeepMultiple} from '../util/setDeep.js'
 import {enqueueSnackbar} from 'notistack'
-import sampleSets from './data/sampleSets.json'
+import sampleSets from '../data/sampleSets.json'
 import MiniFilterContext from '../context/MiniFilterContext.jsx'
 
 export function PsdDataProvider({children}) {

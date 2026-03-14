@@ -28,6 +28,13 @@ export function cleanCount(num, string, lowerCase = true) {
     return (lowerCase ? numString.toLowerCase() : numString) + ' ' + string + (num > 1 ? 's' : '')
 }
 
+export function splitCommaValues(string) {
+    if (!string) return []
+    return string.replace(/\s+,|,\s+/g, ',')
+        .split(',')
+        .map(s => s.trim())
+        .filter(x => x)
+}
 
 export function isValidRegex(pattern) {
     try {

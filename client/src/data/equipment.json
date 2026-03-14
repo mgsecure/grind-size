@@ -1339,11 +1339,46 @@
     "fullName": "Kingrinder K6"
   },
   {
+    "id": "6b28cf38",
+    "type": "Grinder",
+    "brand": "Kinu",
+    "model": "Classic",
+    "fullName": "Kinu Classic"
+  },
+  {
     "id": "a26fccd8",
     "type": "Grinder",
     "brand": "Kinu",
     "model": "Phoenix",
     "fullName": "Kinu Phoenix"
+  },
+  {
+    "id": "956ca2d7",
+    "type": "Grinder",
+    "brand": "Kinu",
+    "model": "Rebel",
+    "fullName": "Kinu Rebel"
+  },
+  {
+    "id": "2c90d8b1",
+    "type": "Grinder",
+    "brand": "Kinu",
+    "model": "Simplicity",
+    "fullName": "Kinu Simplicity"
+  },
+  {
+    "id": "07c4318a",
+    "type": "Grinder",
+    "brand": "Kinu",
+    "model": "Taveler",
+    "fullName": "Kinu Taveler"
+  },
+  {
+    "id": "ff3f7ee8",
+    "type": "Grinder",
+    "brand": "Kinu",
+    "model": "Titan",
+    "fullName": "Kinu Titan"
   },
   {
     "id": "c79175aa",
@@ -1482,8 +1517,8 @@
     "id": "35293cf1",
     "type": "Grinder",
     "brand": "Lagom",
-    "model": "1",
-    "fullName": "Lagom 1"
+    "model": "01",
+    "fullName": "Lagom 01"
   },
   {
     "id": "56eb0371",
@@ -1491,6 +1526,34 @@
     "brand": "Lagom",
     "model": "Casa",
     "fullName": "Lagom Casa"
+  },
+  {
+    "id": "5db2c89a",
+    "type": "Grinder",
+    "brand": "Lagom",
+    "model": "Mini",
+    "fullName": "Lagom Mini"
+  },
+  {
+    "id": "8b74635e",
+    "type": "Grinder",
+    "brand": "Lagom",
+    "model": "P100",
+    "fullName": "Lagom P100"
+  },
+  {
+    "id": "df63df7e",
+    "type": "Grinder",
+    "brand": "Lagom",
+    "model": "P64",
+    "fullName": "Lagom P64"
+  },
+  {
+    "id": "97ea4519",
+    "type": "Grinder",
+    "brand": "Lagom",
+    "model": "P80",
+    "fullName": "Lagom P80"
   },
   {
     "id": "51365920",

@@ -3,14 +3,16 @@ import Joi from 'joi'
 export const sampleSetSchema = Joi.array().items(
     Joi.object({
         'id': Joi.string().regex(/^[0-9a-f]{8}$/),
+        'seq': Joi.number().min(1),
         'name': Joi.string().min(1),
         'description': Joi.string().min(1),
+        'adminOnly': Joi.string().allow(''),
         'sourceName': Joi.string().min(1),
         'dataUrl': Joi.string().min(1),
         'sampleCount': Joi.number().allow(''),
         'binCount': Joi.number().allow(''),
         'dataQuality': Joi.number().allow(''),
-        'notes': Joi.string().allow(''),
+        'notes': Joi.string().allow('')
     }).unknown()
 )
 
@@ -33,14 +35,9 @@ export const equipmentSchema = Joi.array().items(
         'ID': Joi.string().regex(/^[0-9a-f]{8}$/),
         Type: Joi.string().min(1),
         Brand: Joi.string().allow(''),
-        Model: Joi.string().allow(''),
+        Model: Joi.string().allow('')
     }).unknown()
 )
-
-
-
-
-
 
 
 export const linkSchema = Joi.array().items(

@@ -1,0 +1,539 @@
+{
+  "completedSearches": {},
+  "referrerViews": {
+    "none": 1314,
+    "https://www.google.com/": 9,
+    "https://coffee-tracker.com/": 208,
+    "android-app://com.reddit.frontpage/": 95,
+    "https://www.reddit.com/": 7,
+    "https://www.reddit.com/r/9Barista/comments/1qia9at/yet_another_coffee_tracking_website_100_all/": 7,
+    "https://www.reddit.com/r/pourover/comments/1qixxf4/deals_and_announcements_of_the_week_week_of/": 1,
+    "https://old.reddit.com/r/pourover/comments/1qixxf4/deals_and_announcements_of_the_week_week_of/": 2,
+    "https://old.reddit.com/": 1,
+    "http://localhost:3000/reports": 4
+  },
+  "browsers": {
+    "Chrome": 685,
+    "Safari": 769,
+    "Edge": 24,
+    "Apple WebKit": 1,
+    "Firefox": 184,
+    "Opera": 6
+  },
+  "platforms": {
+    "macOS Catalina": 480,
+    "Linux": 250,
+    "Linux 64": 18,
+    "OS X": 649,
+    "Windows 10.0": 191,
+    "unknown": 80,
+    "Chrome OS": 1
+  },
+  "crawlerAgentRequests": {
+    "Dataprovider.com": 1
+  },
+  "requestsByLocalHour": {
+    "10": 44,
+    "11": 49,
+    "12": 62,
+    "13": 96,
+    "14": 96,
+    "15": 99,
+    "16": 116,
+    "17": 70,
+    "18": 73,
+    "19": 61,
+    "20": 66,
+    "21": 87,
+    "22": 53,
+    "23": 54,
+    "06": 37,
+    "02": 36,
+    "05": 56,
+    "07": 82,
+    "08": 109,
+    "00": 49,
+    "04": 87,
+    "03": 47,
+    "01": 54,
+    "09": 86
+  },
+  "requestsByServerHour": {
+    "10": 125,
+    "11": 72,
+    "12": 69,
+    "13": 63,
+    "14": 94,
+    "15": 85,
+    "16": 91,
+    "17": 102,
+    "18": 81,
+    "19": 73,
+    "20": 60,
+    "21": 46,
+    "22": 36,
+    "23": 9,
+    "01": 12,
+    "02": 2,
+    "05": 10,
+    "08": 171,
+    "06": 58,
+    "07": 121,
+    "04": 17,
+    "09": 224,
+    "03": 19,
+    "00": 29
+  },
+  "totals": {
+    "numDays": 17,
+    "visitors": 353,
+    "pageViews": 1669
+  },
+  "weeks": {
+    "2026-01-11": {
+      "numDays": 6,
+      "visitors": 71
+    },
+    "2026-01-18": {
+      "numDays": 7,
+      "visitors": 172
+    },
+    "2026-01-25": {
+      "numDays": 4,
+      "visitors": 110
+    }
+  },
+  "last28days": {
+    "2026-01-12": {
+      "visitors": 5,
+      "pageViews": {
+        "homepage": 20,
+        "equipment": 3,
+        "roasters": 2,
+        "coffees": 6,
+        "brews": 3,
+        "espressoBeans": 1,
+        "machineDetails": 1,
+        "espressoStats": 2
+      },
+      "totalPageViews": 38
+    },
+    "2026-01-13": {
+      "visitors": 8,
+      "pageViews": {
+        "homepage": 9,
+        "coffees": 9,
+        "brews": 2
+      },
+      "totalPageViews": 20
+    },
+    "2026-01-14": {
+      "visitors": 6,
+      "pageViews": {
+        "homepage": 8,
+        "coffees": 5,
+        "beanDetails": 1,
+        "machineDetails": 2,
+        "equipment": 4,
+        "brews": 6
+      },
+      "totalPageViews": 26
+    },
+    "2026-01-15": {
+      "visitors": 33,
+      "pageViews": {
+        "homepage": 51,
+        "coffees": 19,
+        "equipment": 22,
+        "roasters": 8,
+        "brews": 19,
+        "machineDetails": 18,
+        "espressoBeans": 7,
+        "beanDetails": 2,
+        "espressoStats": 3,
+        "lock": 1
+      },
+      "totalPageViews": 150
+    },
+    "2026-01-16": {
+      "visitors": 14,
+      "pageViews": {
+        "homepage": 25,
+        "espressoBeans": 2,
+        "equipment": 14,
+        "coffees": 7,
+        "espressoStats": 2,
+        "roasters": 1,
+        "lock": 2,
+        "brews": 5,
+        "machineDetails": 2,
+        "editProfile": 2
+      },
+      "totalPageViews": 62
+    },
+    "2026-01-17": {
+      "visitors": 5,
+      "pageViews": {
+        "homepage": 7,
+        "coffees": 4,
+        "brews": 10,
+        "espressoBeans": 2,
+        "lock": 2,
+        "equipment": 5,
+        "machineDetails": 2,
+        "roasters": 1,
+        "espressoStats": 1
+      },
+      "totalPageViews": 34
+    },
+    "2026-01-18": {
+      "visitors": 3,
+      "pageViews": {
+        "homepage": 2,
+        "brews": 4,
+        "coffees": 6,
+        "editProfile": 1
+      },
+      "totalPageViews": 13
+    },
+    "2026-01-19": {
+      "visitors": 5,
+      "pageViews": {
+        "coffees": 45,
+        "homepage": 12,
+        "equipment": 12,
+        "brews": 15,
+        "roasters": 3,
+        "espressoStats": 6
+      },
+      "totalPageViews": 93
+    },
+    "2026-01-20": {
+      "visitors": 45,
+      "pageViews": {
+        "homepage": 32,
+        "brews": 20,
+        "coffees": 20,
+        "equipment": 16,
+        "roasters": 60,
+        "espressoStats": 1,
+        "espressoBeans": 8,
+        "editProfile": 1,
+        "search": 2
+      },
+      "totalPageViews": 160
+    },
+    "2026-01-21": {
+      "visitors": 61,
+      "pageViews": {
+        "roasters": 30,
+        "homepage": 119,
+        "espressoBeans": 28,
+        "search": 11,
+        "equipment": 27,
+        "coffees": 34,
+        "brews": 37,
+        "espressoStats": 11,
+        "editProfile": 1
+      },
+      "totalPageViews": 298
+    },
+    "2026-01-22": {
+      "visitors": 43,
+      "pageViews": {
+        "homepage": 19,
+        "roasters": 53,
+        "brews": 9,
+        "coffees": 7,
+        "equipment": 8,
+        "espressoStats": 3
+      },
+      "totalPageViews": 99
+    },
+    "2026-01-23": {
+      "visitors": 8,
+      "pageViews": {
+        "homepage": 3,
+        "brews": 10,
+        "roasters": 4,
+        "coffees": 8,
+        "espressoStats": 1
+      },
+      "totalPageViews": 26
+    },
+    "2026-01-24": {
+      "visitors": 7,
+      "pageViews": {
+        "coffees": 6,
+        "homepage": 7,
+        "brews": 9,
+        "reports": 11,
+        "espressoBeans": 6,
+        "roasters": 5,
+        "equipment": 5,
+        "espressoStats": 2
+      },
+      "totalPageViews": 51
+    },
+    "2026-01-25": {
+      "visitors": 32,
+      "pageViews": {
+        "equipment": 43,
+        "homepage": 120,
+        "roasters": 7,
+        "brews": 19,
+        "reports": 39,
+        "coffees": 11,
+        "espressoBeans": 11,
+        "espressoStats": 2
+      },
+      "totalPageViews": 252
+    },
+    "2026-01-26": {
+      "visitors": 58,
+      "pageViews": {
+        "homepage": 61,
+        "espressoBeans": 19,
+        "coffees": 26,
+        "equipment": 13,
+        "brews": 12,
+        "espressoStats": 3,
+        "roasters": 87,
+        "reports": 9,
+        "search": 1
+      },
+      "totalPageViews": 231
+    },
+    "2026-01-27": {
+      "visitors": 16,
+      "pageViews": {
+        "homepage": 23,
+        "coffees": 17,
+        "equipment": 22,
+        "espressoStats": 2,
+        "roasters": 21,
+        "brews": 6,
+        "reports": 6
+      },
+      "totalPageViews": 97
+    },
+    "2026-01-28": {
+      "visitors": 4,
+      "pageViews": {
+        "homepage": 5,
+        "roasters": 6,
+        "coffees": 2,
+        "reports": 5
+      },
+      "totalPageViews": 18
+    }
+  },
+  "pageViewsByContinent": {
+    "North America": 1270,
+    "Europe": 303,
+    "Oceania": 11,
+    "Asia": 76,
+    "undefined": 9
+  },
+  "pageViewsByCountry": {
+    "US": 1193,
+    "IE": 3,
+    "GB": 28,
+    "HU": 3,
+    "FR": 50,
+    "BE": 27,
+    "NZ": 1,
+    "FI": 68,
+    "KR": 20,
+    "NL": 29,
+    "CA": 70,
+    "AU": 10,
+    "DE": 26,
+    "SK": 1,
+    "CZ": 59,
+    "TH": 16,
+    "CR": 3,
+    "TR": 8,
+    "SV": 1,
+    "GR": 2,
+    "TT": 1,
+    "JP": 1,
+    "SG": 1,
+    "PT": 5,
+    "ES": 1,
+    "CN": 30,
+    "MX": 2,
+    "CH": 1,
+    "HK": 4,
+    "IN": 5
+  },
+  "firstVisit": {
+    "US": "2026-01-12",
+    "IE": "2026-01-12",
+    "GB": "2026-01-13",
+    "HU": "2026-01-13",
+    "FR": "2026-01-14",
+    "BE": "2026-01-14",
+    "NZ": "2026-01-15",
+    "FI": "2026-01-15",
+    "KR": "2026-01-15",
+    "NL": "2026-01-15",
+    "CA": "2026-01-15",
+    "AU": "2026-01-15",
+    "DE": "2026-01-15",
+    "SK": "2026-01-15",
+    "CZ": "2026-01-20",
+    "TH": "2026-01-20",
+    "CR": "2026-01-20",
+    "TR": "2026-01-21",
+    "SV": "2026-01-21",
+    "GR": "2026-01-21",
+    "TT": "2026-01-22",
+    "JP": "2026-01-22",
+    "SG": "2026-01-22",
+    "PT": "2026-01-22",
+    "ES": "2026-01-22",
+    "CN": "2026-01-22",
+    "MX": "2026-01-22",
+    "CH": "2026-01-25",
+    "HK": "2026-01-26",
+    "IN": "2026-01-26"
+  },
+  "visitorsByCountry": {
+    "US": 249,
+    "IE": 2,
+    "GB": 8,
+    "HU": 2,
+    "FR": 13,
+    "BE": 4,
+    "NZ": 1,
+    "FI": 1,
+    "KR": 5,
+    "NL": 7,
+    "CA": 21,
+    "AU": 4,
+    "DE": 5,
+    "SK": 1,
+    "CZ": 3,
+    "TH": 1,
+    "CR": 2,
+    "TR": 2,
+    "SV": 1,
+    "GR": 1,
+    "TT": 1,
+    "JP": 1,
+    "SG": 1,
+    "PT": 2,
+    "ES": 1,
+    "CN": 7,
+    "MX": 2,
+    "CH": 1,
+    "HK": 2,
+    "IN": 2
+  },
+  "pageViewsByState": {
+    "CA": 624,
+    "AZ": 10,
+    "VA": 18,
+    "OR": 10,
+    "NC": 27,
+    "IA": 4,
+    "NV": 43,
+    "TX": 18,
+    "IL": 21,
+    "NJ": 19,
+    "CO": 21,
+    "CT": 25,
+    "OH": 15,
+    "FL": 25,
+    "NY": 85,
+    "GA": 8,
+    "MN": 14,
+    "PA": 19,
+    "LA": 3,
+    "UT": 4,
+    "MA": 17,
+    "WI": 5,
+    "WA": 18,
+    "KY": 23,
+    "MO": 8,
+    "MI": 7,
+    "SC": 1,
+    "TN": 22,
+    "IN": 10,
+    "NM": 2,
+    "OK": 2,
+    "VT": 2
+  },
+  "lockViewsByWidth": {},
+  "pageViewsByWidth": {
+    "320": 5,
+    "360": 47,
+    "372": 68,
+    "375": 31,
+    "376": 12,
+    "378": 2,
+    "384": 21,
+    "385": 2,
+    "390": 171,
+    "393": 204,
+    "396": 2,
+    "402": 58,
+    "408": 12,
+    "412": 80,
+    "414": 58,
+    "420": 5,
+    "427": 4,
+    "428": 1,
+    "430": 31,
+    "432": 2,
+    "434": 11,
+    "440": 97,
+    "444": 5,
+    "448": 14,
+    "450": 7,
+    "486": 16,
+    "528": 1,
+    "768": 14,
+    "800": 18,
+    "810": 1,
+    "820": 116,
+    "834": 5,
+    "866": 1,
+    "1024": 2,
+    "1280": 2,
+    "1366": 1,
+    "1440": 34,
+    "1470": 11,
+    "1512": 125,
+    "1536": 5,
+    "1552": 15,
+    "1600": 5,
+    "1680": 3,
+    "1710": 1,
+    "1728": 23,
+    "1920": 81,
+    "2048": 5,
+    "2240": 2,
+    "2304": 126,
+    "2560": 93,
+    "3440": 9,
+    "3840": 3
+  },
+  "pageViewsBySearchTerm": {
+    "espressoBeans": {
+      "black white": 12,
+      "1740161234000": 1,
+      "major": 1
+    },
+    "total": {
+      "black white": 12,
+      "1740161234000": 1,
+      "major": 1
+    }
+  },
+  "metadata": {
+    "updatedDateTime": "2026-01-28T16:39:03-08:00",
+    "timezone": "z"
+  }
+}

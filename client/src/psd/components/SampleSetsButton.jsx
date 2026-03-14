@@ -15,12 +15,16 @@ import {Box, Link} from '@mui/material'
 import fetchData from '../../util/fetchData.js'
 import loadImport from '../components/loadImport.jsx'
 import {cleanCount} from '../../util/stringUtils.js'
-
+import AuthContext from '../../app/AuthContext.jsx'
 
 export default function SampleSetsButton({iconOnly = false, linkOnly = false}) {
 
     const {setQueue, setActiveIdList, sampleSets, setSampleSet, setSettings} = useContext(DataContext)
     const {altButtonColor} = useContext(UIContext)
+    const {isAdmin} = useContext(AuthContext)
+
+    const publicSampleSets = sampleSets.filter(s => !s.adminOnly)
+    const adminSampleSets = sampleSets.filter(s => !!s.adminOnly)
 
     const [anchorEl, setAnchorEl] = useState(null)
     const open = Boolean(anchorEl)
@@ -95,7 +99,17 @@ export default function SampleSetsButton({iconOnly = false, linkOnly = false}) {
                     </MenuItem>
                 }
 
-                {sampleSets.map((set, idx) => (
+                {publicSampleSets.map((set, idx) => (
+                    <MenuItem key={idx} style={menuItemStyle} onClick={() => handleClick(set.id)}>
+                        <ListItemText>{set.name}</ListItemText>
+                    </MenuItem>
+                ))}
+
+                {isAdmin && adminSampleSets?.length &&
+                    <MenuItem disabled>Admin Only</MenuItem>
+                }
+
+                {isAdmin && adminSampleSets.map((set, idx) => (
                     <MenuItem key={idx} style={menuItemStyle} onClick={() => handleClick(set.id)}>
                         <ListItemText>{set.name}</ListItemText>
                     </MenuItem>
