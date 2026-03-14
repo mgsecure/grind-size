@@ -24,7 +24,7 @@ import ImportButton from '../components/ImportButton.jsx'
 import UIContext from '../../context/UIContext.jsx'
 import LoadingDisplaySmall from '../../misc/LoadingDisplaySmall.jsx'
 
-export default function UploadQueuePanel() {
+export default function UploadQueuePanel({resetContexts}) {
     const theme = useTheme()
 
     const {
@@ -38,7 +38,7 @@ export default function UploadQueuePanel() {
         isAnalyzing,
         debugLevel
     } = useContext(DataContext)
-    const {currentColors, aggregateColor, isDesktop} = useContext(UIContext)
+    const {currentColors, aggregateColor, customSampleParams, isDesktop} = useContext(UIContext)
 
     //console.log('queue', queue)
 
@@ -85,7 +85,10 @@ export default function UploadQueuePanel() {
         handleQueueRemove(id)
         const newActiveIdList = activeIdList.filter(i => (i !== id && queue.find(q => q.id === i)))
         setActiveIdList(newActiveIdList)
-    }, [activeIdList, handleQueueRemove, queue, setActiveIdList])
+        if (id === 'all' || queue.length === 0 || (queue.length === 1 && queue[0].id === id)) {
+            resetContexts()
+        }
+    }, [activeIdList, handleQueueRemove, queue, resetContexts, setActiveIdList])
 
     return (
         <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
@@ -144,7 +147,7 @@ export default function UploadQueuePanel() {
                                                             style={{
                                                                 marginRight: 8,
                                                                 color: (item.id !== aggregateQueueItem?.id
-                                                                        ? currentColors[noErrorIdList.indexOf(item.id)]
+                                                                        ? customSampleParams[item.sampleName]?.color || currentColors[noErrorIdList.indexOf(item.id)]
                                                                         : aggregateColor)
                                                                     || theme.palette.primary.main
                                                             }}/>

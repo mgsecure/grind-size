@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useState} from 'react'
+import React, {useCallback, useContext, useRef, useState} from 'react'
 import IconButton from '@mui/material/IconButton'
 import Tooltip from '@mui/material/Tooltip'
 import {enqueueSnackbar} from 'notistack'
@@ -11,7 +11,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import ListItemText from '@mui/material/ListItemText'
 import Menu from '@mui/material/Menu'
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload'
-import {Link} from '@mui/material'
+import {Box, Link} from '@mui/material'
 import fetchData from '../../util/fetchData.js'
 import loadImport from '../components/loadImport.jsx'
 import {cleanCount} from '../../util/stringUtils.js'
@@ -19,7 +19,7 @@ import {cleanCount} from '../../util/stringUtils.js'
 
 export default function SampleSetsButton({iconOnly = false, linkOnly = false}) {
 
-    const {setQueue, setActiveIdList, sampleSets, sampleSet, setSampleSet, setSettings} = useContext(DataContext)
+    const {setQueue, setActiveIdList, sampleSets, setSampleSet, setSettings} = useContext(DataContext)
     const {altButtonColor} = useContext(UIContext)
 
     const [anchorEl, setAnchorEl] = useState(null)
@@ -30,7 +30,10 @@ export default function SampleSetsButton({iconOnly = false, linkOnly = false}) {
         setAnchorEl(null)
     }, [])
 
+    const domRef = useRef(null)
+
     const handleClick = useCallback((sampleSetId) => {
+        domRef.current?.scrollIntoView({ behavior: 'smooth' })
         handleClose()
         const sampleSet = sampleSets.find(s => s.id === sampleSetId)
         if (!sampleSet) return
@@ -54,7 +57,7 @@ export default function SampleSetsButton({iconOnly = false, linkOnly = false}) {
     const menuItemStyle = {padding: '10px 16px'}
 
     return (
-        <React.Fragment>
+        <Box ref={domRef}>
             {linkOnly &&
                 <Link onClick={handleOpen}>Choose Dataset...</Link>
             }
@@ -99,6 +102,6 @@ export default function SampleSetsButton({iconOnly = false, linkOnly = false}) {
                 ))}
 
             </Menu>
-        </React.Fragment>
+        </Box>
     )
 }

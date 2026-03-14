@@ -1,4 +1,4 @@
-import React, {useContext, useRef} from 'react'
+import React, {useCallback, useContext, useRef} from 'react'
 import {Stack, Paper, Typography} from '@mui/material'
 import UploadQueuePanel from './pagePanels/UploadQueuePanel.jsx'
 import ImagePanel from './pagePanels/ImagePanel.jsx'
@@ -14,13 +14,21 @@ import IntroCopy from '../misc/IntroCopy.jsx'
 import introCopyMarkdown from './resources/introCopyMarkdown.md?raw'
 import ManualCornerPanel from './pagePanels/ManualCornerPanel.jsx'
 import SampleSetsPanel from './pagePanels/SampleSetsPanel.jsx'
+import Tracker from '../app/Tracker.jsx'
 
 export default function PsdPage() {
     const theme = useTheme()
 
+    // TODO - need to be able to reset all data in both contexts
+
     const {manualSelectionId, viewOnly} = useContext(DataContext)
-    const {showTitleBar, isDesktop} = useContext(UIContext)
+    const {showTitleBar, isDesktop, resetUI} = useContext(UIContext)
     const domEl = useRef(null)
+
+    const resetContexts = useCallback(() => {
+        resetUI()
+        //resetData()
+    }, [resetUI])
 
     return (
         <Stack spacing={isDesktop ? 1 : 1} sx={{width: '100%'}}>
@@ -45,7 +53,7 @@ export default function PsdPage() {
                 <ManualCornerPanel/>
             )}
 
-            <UploadQueuePanel/>
+            <UploadQueuePanel resetContexts={resetContexts}/>
 
             {!viewOnly &&
                 <SettingsPanel/>
@@ -72,6 +80,7 @@ export default function PsdPage() {
                 <ImagePanel/>
             }
 
+            <Tracker feature='MainPage'/>
             <Footer/>
 
         </Stack>

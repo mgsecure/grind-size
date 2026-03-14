@@ -61,7 +61,9 @@ export default function ItemInformationButton({
         onClose && onClose()
     }, [onClose])
 
-    const saveName = useCallback(() => {
+    const saveName = useCallback((e) => {
+        e.preventDefault()
+        e.stopPropagation()
         setQueue(prev => prev.map(i => i.id === item.id ? {...item, sampleName: name} : i))
         setEditOpen(false)
     }, [item, name, setQueue])
@@ -108,7 +110,7 @@ export default function ItemInformationButton({
                                        size='small'
                                        onChange={e => setName(e.target.value)} value={name}
                                        color='info'/>
-                            <IconButton disabled={!canSave} onClick={saveName} style={{height: 36, width: 36}}>
+                            <IconButton disabled={!canSave} onClick={(e) => saveName(e)} style={{height: 36, width: 36}}>
                                 <SaveIcon fontSize='small'
                                           style={{color: canSave ? theme.palette.success.main : alpha(theme.palette.text.primary, 0.5)}}/>
                             </IconButton>

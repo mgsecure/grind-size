@@ -1,6 +1,7 @@
 import React, {useState, useRef} from 'react'
 import {Box, Typography, Button, Stack, ToggleButtonGroup, ToggleButton} from '@mui/material'
 import {useHotkeys} from 'react-hotkeys-hook'
+import Tracker from '../../app/Tracker.jsx'
 
 // Attempt to snap a clicked point (in image pixel coords) to the nearest corner
 // of a large dark rectangle within `searchRadiusPx` pixels.
@@ -260,6 +261,8 @@ export default function ManualCornerSelector({
                     Submit
                 </Button>
             </Stack>
+
+            <Tracker feature='ManualCorners'/>
         </Box>
     )
 }

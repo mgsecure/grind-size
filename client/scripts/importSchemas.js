@@ -1,5 +1,19 @@
 import Joi from 'joi'
 
+export const sampleSetSchema = Joi.array().items(
+    Joi.object({
+        'id': Joi.string().regex(/^[0-9a-f]{8}$/),
+        'name': Joi.string().min(1),
+        'description': Joi.string().min(1),
+        'sourceName': Joi.string().min(1),
+        'dataUrl': Joi.string().min(1),
+        'sampleCount': Joi.number().allow(''),
+        'binCount': Joi.number().allow(''),
+        'dataQuality': Joi.number().allow(''),
+        'notes': Joi.string().allow(''),
+    }).unknown()
+)
+
 export const roasterSchema = Joi.array().items(
     Joi.object({
         'ID': Joi.string().regex(/^[0-9a-f]{8}$/),

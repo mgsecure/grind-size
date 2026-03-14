@@ -31,6 +31,7 @@ import ItemInformationButton from './ItemInformationButton.jsx'
 import ImageViewModeToggles from './ImageViewModeToggles.jsx'
 import UIContext from '../../context/UIContext.jsx'
 import MiniFilterContext from '../../context/MiniFilterContext.jsx'
+import Tracker from '../../app/Tracker.jsx'
 
 const zoomIncrement = 0.6
 
@@ -170,7 +171,6 @@ function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}})
                     unmountOnExit: true
                 }
             }}
-
             fullScreen
         >
             <AppBar sx={{position: 'relative'}}>
@@ -355,6 +355,7 @@ function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}})
                     </Tooltip>
                 }
             </DialogActions>
+            <Tracker feature='ImageViewer' />
         </Dialog>)
 }
 

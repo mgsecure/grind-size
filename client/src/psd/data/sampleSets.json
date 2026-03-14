@@ -2,13 +2,24 @@
   {
     "id": "a1581afe",
     "name": "Kinu M47: 0.0.0 - 4.0.0",
-    "description": "Kinu M47 grinder using the Pour Over Burr at five different settings",
+    "description": "Kinu M47 grinder using the Pour Over Burr at five different settings.",
     "sourceName": "demo",
     "dataUrl": "/data/Kinu_M47_POB_0-4_Compare.json",
     "sampleCount": 5,
     "binCount": 19,
     "dataQuality": 5,
-    "notes": "This is just a demo data set to show how the app works."
+    "notes": "This is just a demo dataset to show how the app works."
+  },
+  {
+    "id": "a92951f6",
+    "name": "Kinu M47: Stock vs Pour Over Burr at 2.0.0",
+    "description": "Comparing the Stock and Pour Over burrs at setting 2.0.0 on the Kinu M47 grinder.",
+    "sourceName": "demo",
+    "dataUrl": "/data/Kinu_M47_POB_Stock_2.0.0_Compare.json",
+    "sampleCount": 2,
+    "binCount": 15,
+    "dataQuality": 3,
+    "notes": "Another demo dataset to show how the app works."
   }
 ]
 

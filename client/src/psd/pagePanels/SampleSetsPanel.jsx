@@ -7,6 +7,7 @@ import SampleSetsButton from '../components/SampleSetsButton.jsx'
 import fetchData from '../../util/fetchData.js'
 import loadImport from '../components/loadImport.jsx'
 import MiniFilterContext from '../../context/MiniFilterContext.jsx'
+import Tracker from '../../app/Tracker.jsx'
 
 export default function SampleSetsPanel() {
 
@@ -58,6 +59,7 @@ export default function SampleSetsPanel() {
             {sampleSet &&
                 <div style={{width: '100%', fontSize: '0.9rem', marginTop: 5}}>
                     <strong>{sampleSet?.name || 'Demo Sample Set'}</strong> | {sampleSet?.description || 'A collection of demo images.'}
+                    <Tracker feature='SampleSetImport' page={sampleSet?.name} />
                 </div>
             }
         </Paper>

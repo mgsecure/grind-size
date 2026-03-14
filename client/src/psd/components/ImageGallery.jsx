@@ -25,7 +25,7 @@ function ImageGallery(props) {
     } = props
 
     const {queue} = useContext(DataContext)
-    const {currentColors, isDesktop} = useContext(UIContext)
+    const {currentColors, customSampleParams, isDesktop} = useContext(UIContext)
     const noErrorIdList = useMemo(() => {
         return queue
             .filter(item => (item.status === 'done'))
@@ -111,9 +111,9 @@ function ImageGallery(props) {
                                     padding: '6px 12px'
                                 },
                                 '& .MuiImageListItemBar-title': {
-                                    color: currentColors[noErrorIdList.indexOf(id)],
+                                    color: customSampleParams[title]?.color || currentColors[noErrorIdList.indexOf(id)],
                                     fontWeight: 500,
-                                    borderBottom: `1px solid ${currentColors[noErrorIdList.indexOf(id)]}`
+                                    borderBottom: `1px solid ${customSampleParams[title]?.color || currentColors[noErrorIdList.indexOf(id)]}`
                                 },
                                 '& .MuiImageListItemBar-subtitle': {
                                     lineHeight: '1.4rem'

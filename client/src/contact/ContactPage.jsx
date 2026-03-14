@@ -5,14 +5,10 @@ import ReactMarkdown from 'react-markdown'
 import rehypeExternalLinks from 'rehype-external-links'
 import privacyPolicyMd from '../resources/privacyPolicy.md?raw'
 import remarkGfm from 'remark-gfm'
-import NavCG from '../nav/NavCG'
 
-function PrivacyPage() {
-
+function ContactPage() {
     return (
         <React.Fragment>
-            <NavCG />
-
             <Card style={{
                 maxWidth: 800,
                 marginLeft: 'auto',
@@ -33,4 +29,4 @@ function PrivacyPage() {
     )
 }
 
-export default PrivacyPage
+export default ContactPage

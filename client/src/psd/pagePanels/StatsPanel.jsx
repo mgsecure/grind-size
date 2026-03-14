@@ -19,7 +19,7 @@ import UIContext from '../../context/UIContext.jsx'
 
 export default function StatsPanel() {
     const {activeItems, queue, aggregateQueueItem = {}} = useContext(DataContext)
-    const {currentColors, isDesktop, aggregateColor} = useContext(UIContext)
+    const {currentColors, isDesktop, aggregateColor, customSampleParams} = useContext(UIContext)
 
     const domEl = useRef(null)
     const theme = useTheme()
@@ -202,8 +202,8 @@ export default function StatsPanel() {
                             fontWeight: 'bold',
                             backgroundColor: theme.palette.background.paper,
                             whiteSpace: 'nowrap',
-                            color: item.id === aggregateQueueItem?.id ? aggregateColor : currentColors[noErrorIdList.indexOf(item.id)],
-                            borderBottom: `2px solid ${item.id === aggregateQueueItem?.id ? aggregateColor : currentColors[noErrorIdList.indexOf(item.id)]}`
+                            color: item.id === aggregateQueueItem?.id ? aggregateColor : customSampleParams[item.sampleName]?.color || currentColors[noErrorIdList.indexOf(item.id)],
+                            borderBottom: `2px solid ${item.id === aggregateQueueItem?.id ? aggregateColor : customSampleParams[item.sampleName]?.color || currentColors[noErrorIdList.indexOf(item.id)]}`
                         }} key={item.id}>
                             {tableData[item.id]?.sampleName}
                         </TableCell>

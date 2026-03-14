@@ -5,6 +5,7 @@ import React, {useCallback, useContext, useMemo, useState} from 'react'
 import DataContext from '../context/DataContext.jsx'
 
 const altButtonColor = '#6b92b8'
+const defaultImageViewMode = 'mask'
 
 export default function PsdUIProvider({children}) {
     const theme = useTheme()
@@ -14,19 +15,21 @@ export default function PsdUIProvider({children}) {
     } = useContext(DataContext)
 
     const [showTitleBar, setShowTitleBar] = useState(false)
-    const [imageViewMode, setImageViewMode] = useState('mask') // original | mask | overlay | diagnostic
+    const [imageViewMode, setImageViewMode] = useState(defaultImageViewMode) // original | mask | overlay | diagnostic
 
     const [reverseColors, setReverseColors] = useState(false)
     const swapColors = useCallback(() => setReverseColors(prev => !prev), [])
 
     const allColors = useMemo(() => theme.palette.mode === 'dark'
-            ? ['#a6cee3', '#1f78b4', '#e8c1a0', '#f47560', '#b2df8a', '#33a02c']
-            : ['#5eb9e3', '#1186d7', '#ffb670', '#f47560',
+            ? ['#a6cee3', '#038be6', '#f7a65f', '#ff3916',
+                '#b2df8a', '#33a02c']
+            : ['#5eb9e3', '#038be6', '#ffb670', '#ff3916',
                 '#8ad743', '#0fad04']
         , [theme.palette.mode])
     const swappedColors = useMemo(() => theme.palette.mode === 'dark'
-            ? ['#1f78b4', '#a6cee3', '#f47560', '#e8c1a0', '#33a02c', '#b2df8a']
-            : ['#1186d7', '#5eb9e3', '#f47560', '#ffb670',
+            ? ['#038be6', '#a6cee3', '#ff3916', '#f7a65f',
+                '#33a02c', '#b2df8a']
+            : ['#038be6', '#5eb9e3', '#ff3916', '#ffb670',
                 '#0fad04', '#8ad743']
         , [theme.palette.mode])
     const currentColors = useMemo(() => reverseColors
@@ -49,7 +52,16 @@ export default function PsdUIProvider({children}) {
         return [...sampleColors, aggregateColor]
     }, [notErrorIdList, aggregateColor, currentColors, queue, activeIdList])
 
+    const [customSampleParams, setCustomSampleParams] = useState({})
+
+    const resetUI = useCallback(() => {
+        setCustomSampleParams({})
+        setImageViewMode(defaultImageViewMode)
+        setShowTitleBar(false)
+    }, [setCustomSampleParams, setImageViewMode, setShowTitleBar])
+
     const value = useMemo(() => ({
+        resetUI,
         theme,
         isDesktop,
         isMobile,
@@ -60,8 +72,10 @@ export default function PsdUIProvider({children}) {
         altButtonColor,
         notErrorIdList,
         showTitleBar, setShowTitleBar,
-        imageViewMode, setImageViewMode
+        imageViewMode, setImageViewMode,
+        customSampleParams, setCustomSampleParams
     }), [
+        resetUI,
         theme,
         isDesktop,
         isMobile,
@@ -71,7 +85,8 @@ export default function PsdUIProvider({children}) {
         aggregateColor,
         notErrorIdList,
         showTitleBar, setShowTitleBar,
-        imageViewMode, setImageViewMode
+        imageViewMode, setImageViewMode,
+        customSampleParams, setCustomSampleParams
     ])
 
     return (

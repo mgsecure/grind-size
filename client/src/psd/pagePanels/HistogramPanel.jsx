@@ -1,5 +1,16 @@
-import React, {useCallback, useContext, useMemo, useState} from 'react'
-import {Paper, Stack, Typography, ToggleButtonGroup, ToggleButton, Box, Slider, lighten, alpha} from '@mui/material'
+import React, {useContext, useMemo, useState} from 'react'
+import {
+    Paper,
+    Stack,
+    Typography,
+    ToggleButtonGroup,
+    ToggleButton,
+    Box,
+    Slider,
+    lighten,
+    alpha,
+    Link
+} from '@mui/material'
 import {ResponsiveBar} from '@nivo/bar'
 import {ResponsiveLine} from '@nivo/line'
 import BarChartIcon from '@mui/icons-material/BarChart'
@@ -33,8 +44,14 @@ export default function HistogramPanel({domEl}) {
         globalMaxY
     } = useContext(DataContext)
 
-    const {aggregateColor, swapColors, chartColors, isDesktop} = useContext(UIContext)
-
+    const {
+        aggregateColor,
+        swapColors,
+        chartColors,
+        customSampleParams,
+        setCustomSampleParams,
+        isDesktop
+    } = useContext(UIContext)
 
     //TODO: Skip every other tick on mobile
 
@@ -57,10 +74,7 @@ export default function HistogramPanel({domEl}) {
     const theme = useTheme()
     const tickLegendColor = theme.palette.text.primary
 
-    const [strokeWidth, setStrokeWidth] = useState(2)
-    const handleChangeStroke = useCallback((newValue) => {
-        setStrokeWidth(newValue)
-    }, [])
+    const strokeWidth = 2
 
     function formatXTick(value) {
         if (xAxis === 'diameter') return Math.floor(value / 10 + 0.5) * 10
@@ -94,14 +108,20 @@ export default function HistogramPanel({domEl}) {
                 return hist?.bins?.length && hist?.values?.length
             })
 
-        if (!itemsWithHist.length) {
+        const aggregateOnly = !itemsWithHist.length && aggregateQueueItem && activeIdList.includes(aggregateQueueItem?.id)
+
+        if (!itemsWithHist.length && !aggregateOnly) {
             return {chartData: [], lineData: [], xLabel: xLab, yLabel: yLab, keys: []}
         }
 
         const seriesKeys = itemsWithHist.map(item => item.id)
 
+        console.log('itemsWithHist', itemsWithHist)
+        console.log('aggregateQueueItem', aggregateQueueItem)
+
         // Use the first item's bins as the master set of bins for the X-axis
-        const firstHist = binSpacing === 'log' ? itemsWithHist[0].histograms.log : itemsWithHist[0].histograms.linear
+        const basisHist = itemsWithHist.length ? itemsWithHist[0].histograms : aggregateQueueItem.result.histograms
+        const firstHist = binSpacing === 'log' ? basisHist?.log : basisHist?.linear
 
         const cData = firstHist.bins.map((b, i) => {
             const entry = {
@@ -109,11 +129,12 @@ export default function HistogramPanel({domEl}) {
                 lowerBound: b.start,
                 upperBound: b.end
             }
-            itemsWithHist.forEach(item => {
+            itemsWithHist.forEach((item, idx) => {
                 const h = binSpacing === 'log' ? item.histograms.log : item.histograms.linear
                 // We assume all items have the same bins if they were analyzed with the same settings
                 entry[item.id] = h.values[i]?.percent ?? 0
                 entry.sampleName = item.sampleName
+                entry[item.id + 'Color'] = customSampleParams[item.sampleName]?.color || chartColors[idx] || aggregateColor
             })
 
             if (aggregateQueueItem && activeIdList.includes(aggregateQueueItem?.id)) {
@@ -123,10 +144,12 @@ export default function HistogramPanel({domEl}) {
             return entry
         })
 
-        const lData = itemsWithHist.map(item => {
+        const lData = itemsWithHist.map((item, idx) => {
             const h = binSpacing === 'log' ? item.histograms.log : item.histograms.linear
             return {
                 id: item.id,
+                color: customSampleParams[item.sampleName]?.color || chartColors[idx] || aggregateColor,
+                stroke: customSampleParams[item.sampleName]?.stroke || 2,
                 data: h.bins.map((b, i) => ({
                     x: fmtNumber(b.center, xAxis === 'diameter' ? 1 : 0),
                     y: h.values[i]?.percent ?? 0,
@@ -141,6 +164,7 @@ export default function HistogramPanel({domEl}) {
         // Add Aggregate line data
         !showAggregate && activeIdList.includes(aggregateQueueItem?.id) && lData.push({
             id: 'Aggregate',
+            color: aggregateColor,
             data: cData.map(d => ({
                 x: d.bin,
                 y: d.Aggregate,
@@ -150,7 +174,7 @@ export default function HistogramPanel({domEl}) {
         })
 
         return {chartData: cData, lineData: lData, xLabel: xLab, yLabel: yLab, keys: seriesKeys}
-    }, [xAxis, yAxis, activeItems, binSpacing, showAggregate, aggregateQueueItem, activeIdList])
+    }, [xAxis, yAxis, activeIdList, activeItems, binSpacing, showAggregate, aggregateQueueItem, aggregateColor, customSampleParams, chartColors])
 
     const aggregateBarLineLayer = ({bars, xScale, yScale}) => {
         const lineGenerator = line()
@@ -167,9 +191,11 @@ export default function HistogramPanel({domEl}) {
             }
         })
         uniqueBins.sort((a, b) => xScale(a.data.data.bin) - xScale(b.data.data.bin))
-        return (activeIdList.includes(aggregateQueueItem?.id) && !showAggregate
+        const validBins = uniqueBins.filter(bar => typeof bar.data.data.Aggregate === 'number' && !isNaN(bar.data.data.Aggregate))
+
+        return (activeIdList.includes(aggregateQueueItem?.id) && !showAggregate && validBins.length > 0
                 ? <path
-                    d={lineGenerator(uniqueBins)}
+                    d={lineGenerator(validBins)}
                     fill='none'
                     stroke={aggregateColor}
                     strokeWidth={3}
@@ -186,13 +212,13 @@ export default function HistogramPanel({domEl}) {
             .curve(chartCurve === 'linear' ? curveLinear : curveCatmullRom)
         return (<g>
                 {series
-                    .map(({id, data, color}) => (
+                    .map(({id, data, color, stroke}) => (
                         <path
                             key={id}
                             d={lineGenerator(data)}
                             fill='none'
-                            stroke={color}
-                            strokeWidth={id === 'Aggregate' ? 3 : strokeWidth}
+                            stroke={id === 'Aggregate' ? aggregateColor : color}
+                            strokeWidth={id === 'Aggregate' ? 3 : stroke}
                         />
                     ))}
             </g>
@@ -203,7 +229,6 @@ export default function HistogramPanel({domEl}) {
 
     const commonProps = {
         margin: {top: 20, right: 10, bottom: 60, left: 40},
-        colors: chartColors,
         enableLabel: false,
         onClick: swapColors,
         theme: {
@@ -414,6 +439,7 @@ export default function HistogramPanel({domEl}) {
                         data={chartData}
                         curve='basis'
                         keys={keys}
+                        colors={d => d.data[d.id + 'Color']}
                         indexBy='bin'
                         padding={0.1}
                         groupMode='grouped'
@@ -436,6 +462,7 @@ export default function HistogramPanel({domEl}) {
                 <Box sx={{height: chartData.length ? chartHeight : 175}}>
                     <ResponsiveLine
                         data={lineData}
+                        colors={d => d.color}
                         curve='basis'
                         enableSlices='x'
                         enableGridX={false}
@@ -463,13 +490,21 @@ export default function HistogramPanel({domEl}) {
             <Stack direction='row' flexWrap='wrap' spacing={2} justifyContent='center' sx={{mb: 1, pr: 2, pl: 4}}>
                 {legendItems.map((li, index) => (
                     <Box key={index} sx={{display: 'flex', alignItems: 'center', gap: 0.5}} style={{marginTop: 12}}>
-                        <SeriesColorPicker seriesColor={li.color} onChangeStroke={handleChangeStroke}/>
+                        <SeriesColorPicker seriesItem={{...li, index}}/>
                         <Typography style={{fontSize: '0.75rem'}}>{li.id}</Typography>
                     </Box>
                 ))}
             </Stack>
-
-
+            <Stack direction='row' flexWrap='wrap' spacing={2} justifyContent='center'
+                   sx={{mt: 1, pr: 2, pl: 4, fontSize: '0.75rem'}}>
+                &nbsp;
+                {Object.keys(customSampleParams) && Object.keys(customSampleParams).length > 0 &&
+                    <>
+                        [&nbsp;<Link onClick={() => setCustomSampleParams({})}>Reset</Link>&nbsp;]
+                    </>
+                }
+                &nbsp;
+            </Stack>
 
         </Paper>
     )

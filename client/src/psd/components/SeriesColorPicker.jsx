@@ -1,11 +1,15 @@
-import React, {useState} from 'react'
+import React, {useCallback, useContext, useEffect, useState} from 'react'
 import {Slider, Stack, Typography} from '@mui/material'
 import {HexColorPicker} from 'react-colorful'
 import Popover from '@mui/material/Popover'
 import {useTheme} from '@mui/material/styles'
+import UIContext from '../../context/UIContext.jsx'
+import {setDeep} from '../../util/setDeep.js'
 
-export default function SeriesColorPicker({seriesColor='#121212', onChangeStroke}) {
+export default function SeriesColorPicker({seriesItem}) {
     const theme = useTheme()
+    const {chartColors, customSampleParams, setCustomSampleParams} = useContext(UIContext)
+
 
     const [anchorEl, setAnchorEl] = React.useState(null)
 
@@ -20,19 +24,33 @@ export default function SeriesColorPicker({seriesColor='#121212', onChangeStroke
     const open = Boolean(anchorEl)
     const id = open ? 'simple-popover' : undefined
 
-    const [color, setColor] = useState(seriesColor)
-    const handleColorChange = (color) => {
-        setColor(color)
-    }
+    const [color, setColor] = useState(chartColors[seriesItem.index] || '#bbb')
+
+    useEffect(() => {
+        if (customSampleParams[seriesItem.id]?.color && color !== customSampleParams[seriesItem.id]?.color) {
+            setColor(customSampleParams[seriesItem.id]?.color)
+        } else if (!customSampleParams[seriesItem.id]?.color) {
+            setColor(chartColors[seriesItem.index] || '#bbb')
+        }
+    },[chartColors, color, customSampleParams, seriesItem.id, seriesItem.index])
+
     const [lineWeight, setLineWeight] = useState(2)
     const handleLineWeight = (weight) => {
         setLineWeight(weight)
-        onChangeStroke && onChangeStroke(weight)
+        const newSeriesParams = {...customSampleParams}
+        setDeep(newSeriesParams, [seriesItem.id, 'stroke'], weight)
+        setCustomSampleParams(newSeriesParams)
     }
+    const handleColorChange = useCallback((color) => {
+        setColor(color)
+        const newSeriesParams = {...customSampleParams}
+        setDeep(newSeriesParams, [seriesItem.id, 'color'], color)
+        setCustomSampleParams(newSeriesParams)
+    },[customSampleParams, seriesItem.id, setCustomSampleParams])
 
     return (
         <>
-            <div style={{height: 14, width: 14, backgroundColor: color}} aria-describedby={id} onClick={handleClick}/>
+            <div style={{height: 14, width: 14, backgroundColor: color || '#999'}} aria-describedby={id} onClick={handleClick}/>
             <Popover
                 id={id}
                 open={open}
@@ -53,7 +71,7 @@ export default function SeriesColorPicker({seriesColor='#121212', onChangeStroke
                     }
                 }}
             >
-                <HexColorPicker color={color} onChange={handleColorChange} style={{margin: 20}}/>
+                <HexColorPicker color={color.toString()} onChange={handleColorChange} style={{margin: 20}}/>
 
                 <Stack direction='column' alignItems='center' justifyContent='space-between'
                        sx={{margin: 0, paddingTop: 0}}>

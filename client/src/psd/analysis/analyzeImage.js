@@ -99,6 +99,9 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
                 const targetPxPerMm = 20
                 warpSize = Math.round(template.outerMm * targetPxPerMm)
 
+                // TODO fix to not enlarge image. may mess with image viewer
+                // warpSize = Math.min(width, height, warpSize)
+
                 analysisImageData = warpPerspective(imageData, templateCorners, warpSize)
             } catch (e) {
                 console.error('Perspective warp failed', e)
@@ -122,6 +125,7 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
     }
 
 
+    // TODO move to normalizeLighting
     const colorTemperature = await getColorTemperature(item.file)
     const imageTemperature = colorTemperature > 6200
         ? 'cool'

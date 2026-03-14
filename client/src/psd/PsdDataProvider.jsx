@@ -232,7 +232,7 @@ export function PsdDataProvider({children}) {
     const globalMaxY = useMemo(() => {
         let logMax = 0
         let linearMax = 0
-        let results = activeItems || []
+        let results = allItems || []
         if (results.length === 0) return {logMax: 20, linearMax: 20}
 
         results.forEach(result => {
@@ -248,7 +248,7 @@ export function PsdDataProvider({children}) {
         const log = logMax > 0 ? logMax * 1.05 : 20
         const linear = linearMax > 0 ? linearMax * 1.05 : 20
         return {logMax: log, linearMax: linear}
-    }, [activeItems])
+    }, [allItems])
 
     const onFiles = useCallback(async (files) => {
         setDroppedFiles(files)
