@@ -1,4 +1,3 @@
-import ListItemIcon from '@mui/material/ListItemIcon'
 import React, {useCallback, useContext, useState} from 'react'
 import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
@@ -11,9 +10,8 @@ import AppContext from '../app/AppContext'
 import DBContext from '../app/DBContext'
 import MainMenuItem from './MainMenuItem'
 import menuConfig from './menuConfig.jsx'
-import lpuHeaderSmall from '../resources/bean2.png'
 import AuthContext from '../app/AuthContext.jsx'
-import Box from '@mui/material/Box'
+import CloseIcon from '@mui/icons-material/Close'
 
 function MainMenu() {
     const {beta} = useContext(AppContext)
@@ -26,41 +24,45 @@ function MainMenu() {
         // Clear current focus to prevent weird issues on mobile
         document.activeElement.blur()
     }, [])
-    const closeDrawer = useCallback(() => setOpen(false), [])
+    const closeDrawer = useCallback(() => {
+        document.activeElement.blur()
+        document.body.focus()
+        setOpen(false)
+    }, [])
 
     return (
         <React.Fragment>
             <Tooltip title='Main Menu' arrow disableFocusListener>
-                <IconButton edge='start' color='inherit' onClick={openDrawer}
+                <IconButton onClick={openDrawer}
                             style={{
-                                backgroundColor: '#181818',
-                                height: '36px',
-                                width: '36px',
-                                marginLeft: '-8px',
-                                marginTop: 6
+                                marginLeft: '0px',
+                                marginTop: 0
                             }}
                 >
-                    <MenuIcon/>
+                    <MenuIcon style={{color: '#bbb'}}/>
                 </IconButton>
             </Tooltip>
 
             <SwipeableDrawer
-                anchor='left'
+                anchor='right'
                 open={open}
                 onOpen={openDrawer}
                 onClose={closeDrawer}
+                disableRestoreFocus
             >
                 <Stack direction='column' style={{minWidth: 250}}>
                     <MenuItem onClick={closeDrawer} style={{
-                        padding: '10px 0px',
-                        display: 'flex',
-                        placeItems: 'center'
+                        justifyContent: 'right',
+                        padding: '6px 12px'
                     }}>
-                        <ListItemIcon style={{display: 'flex', flexGrow: 1, placeItems: 'center'}}>
-                            <Box component='img' alt='Coffee Tracker' src={lpuHeaderSmall} style={{
-                                width: 150, margin: 0
-                            }}/>
-                        </ListItemIcon>
+                        <IconButton onClick={openDrawer}
+                                    style={{
+                                        marginLeft: '0px',
+                                        marginTop: 0
+                                    }}
+                        >
+                            <CloseIcon style={{color: '#bbb'}}/>
+                        </IconButton>
                     </MenuItem>
                     <Divider style={{margin: 0}}/>
 

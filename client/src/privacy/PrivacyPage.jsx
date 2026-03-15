@@ -5,19 +5,22 @@ import ReactMarkdown from 'react-markdown'
 import rehypeExternalLinks from 'rehype-external-links'
 import privacyPolicyMd from '../resources/privacyPolicy.md?raw'
 import remarkGfm from 'remark-gfm'
-import NavCG from '../nav/NavCG'
+import Nav from '../nav/Nav'
+import usePageTitle from '../util/usePageTitle.jsx'
+import Tracker from '../app/Tracker.jsx'
 
 function PrivacyPage() {
+    usePageTitle('Privacy Policy')
 
     return (
         <React.Fragment>
-            <NavCG />
+            <Nav />
 
             <Card style={{
                 maxWidth: 800,
                 marginLeft: 'auto',
                 marginRight: 'auto',
-                marginTop: 16,
+                marginTop: 8,
                 marginBottom: 16
             }}>
                 <CardContent>
@@ -29,6 +32,9 @@ function PrivacyPage() {
                     </ReactMarkdown>
                 </CardContent>
             </Card>
+
+            <Tracker feature='Privacy'/>
+
         </React.Fragment>
     )
 }

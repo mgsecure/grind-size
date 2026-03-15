@@ -18,7 +18,6 @@ import AuthContext from '../app/AuthContext'
 import DBContext from '../app/DBContext'
 import AppContext from '../app/AppContext'
 import {useNavigate} from 'react-router-dom'
-import CoffeeIcon from '@mui/icons-material/Coffee'
 
 function UserMenu() {
     const navigate = useNavigate()

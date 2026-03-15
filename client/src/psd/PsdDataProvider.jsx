@@ -9,7 +9,7 @@ import {v4 as uuidv4} from 'uuid'
 import {useLocalStorage} from 'usehooks-ts'
 import {setDeep, setDeepJoin, setDeepMultiple} from '../util/setDeep.js'
 import {enqueueSnackbar} from 'notistack'
-import sampleSets from '../data/sampleSets.json'
+import sampleSetData from '../data/sampleSets.json'
 import MiniFilterContext from '../context/MiniFilterContext.jsx'
 
 export function PsdDataProvider({children}) {
@@ -41,8 +41,8 @@ export function PsdDataProvider({children}) {
     const [sampleSet, setSampleSet] = useState(undefined)
 
     const processedCount = useMemo(() =>
-        queue.filter(q => (q.status === 'done' && q.result) || q.status === 'error').length
-    , [queue])
+            queue.filter(q => (q.status === 'done' && q.result) || q.status === 'error').length
+        , [queue])
 
     const processingComplete = useMemo(() => {
         return (queue.length === processedCount)
@@ -123,7 +123,7 @@ export function PsdDataProvider({children}) {
             id: 'CurrentAggregateResults',
             file: {name: 'Aggregate Results'},
             status: queue.find(q => q.status !== 'done') ? 'analyzing' : 'done',
-            sampleName: 'Aggregate Results',
+            sampleName: 'Aggregate Results'
         }
         return {...baseData, ...aggregateData}
 
@@ -313,7 +313,10 @@ export function PsdDataProvider({children}) {
                 try {
                     console.log(`Starting analysis for ${item.file?.name}`)
 
-                    const newSettings = item.file?.name.includes('candidatePipeline') ? {...settings, testPipeline: true} : settings
+                    const newSettings = item.file?.name.includes('candidatePipeline') ? {
+                        ...settings,
+                        testPipeline: true
+                    } : settings
 
                     const result = await analyzeImageFiles(item, {
                         ...newSettings,
@@ -397,10 +400,16 @@ export function PsdDataProvider({children}) {
                 const result = await analyzeImageFiles(item, {
                     ...PSD_DEFAULTS,
                     ...value.params,
-                    binSpacing,
+                    binSpacing
                 }, null, overlayOptions)
                 console.log('Processed', {result})
-                const newItem = {...item, id: uuidv4(), status: 'done', result, sampleName: `${item.sampleName || result.filename}-${key}`}
+                const newItem = {
+                    ...item,
+                    id: uuidv4(),
+                    status: 'done',
+                    result,
+                    sampleName: `${item.sampleName || result.filename}-${key}`
+                }
                 setQueue(prev => prev.concat(newItem))
                 setActiveIdList(prev => prev.concat(newItem.id))
             } catch (err) {
@@ -420,7 +429,11 @@ export function PsdDataProvider({children}) {
 
         try {
             const item = queue.find(q => q.id === id)
-            const result = await analyzeImageFiles(item, {...settings, binSpacing,sampleName: item.sampleName}, corners, overlayOptions)
+            const result = await analyzeImageFiles(item, {
+                ...settings,
+                binSpacing,
+                sampleName: item.sampleName
+            }, corners, overlayOptions)
             setQueue(prev => prev.map(p => p.id === id ? {...p, status: 'done', result} : p))
             setActiveIdList(prev => prev.concat(id))
         } catch (err) {
@@ -434,6 +447,20 @@ export function PsdDataProvider({children}) {
         setQueue(prev => prev.map(p => p.id === id ? {...p, status: 'error', error: 'Manual selection cancelled'} : p))
     }, [manualSelectionId])
 
+    // ??????
+    //const sampleSets = useQuery(['sampleSets'], () => fetchData('/api/sampleSets'), {
+    //    select: data => data.map(s => ({...s, loading: false}))
+    // })
+
+    const sampleSets = sampleSetData.map(s => (
+        {
+            ...s,
+            binCount: parseInt(s.binCount),
+            dataQuality: parseInt(s.dataQuality),
+            sampleCount: parseInt(s.sampleCount),
+            seq: parseInt(s.seq)
+        }
+    ))
 
     const value = useMemo(() => ({
         debugLevel, setDebugLevel,
@@ -468,7 +495,7 @@ export function PsdDataProvider({children}) {
         cancelManual,
         overlapSplitPresets, overlapPreset, setOverlapPreset,
         viewOnly, setViewOnly,
-        sampleSets, sampleSet, setSampleSet,
+        sampleSets, sampleSet, setSampleSet
     }), [debugLevel, setDebugLevel, settings, customSettings, setCustomSettings, retainCustomSettings, isCustomSettings, queue, processingComplete, droppedFiles, activeIdList, xAxis, yAxis, binSpacing, resetToggle, isAnalyzing, manualSelectionId, manualSelectionUrl, overlayOptions, aggregateQueueItem, aggregateItem, queueItems, allItems, activeItems, getItemDetails, globalMaxY, onFiles, analyzeAll, handleQueueRemove, processMultipleSettings, handleManualCorners, cancelManual, overlapPreset, viewOnly, sampleSet])
 
     return (

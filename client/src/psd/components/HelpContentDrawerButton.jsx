@@ -20,6 +20,7 @@ export default function HelpContentDrawerButton({markdown = 'content tk', title 
 
     const handleClose = useCallback(() => {
         document.activeElement.blur()
+        document.body.focus()
         setOpen(false)
     }, [setOpen])
 

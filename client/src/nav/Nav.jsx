@@ -9,8 +9,10 @@ import useWindowSize from '../util/useWindowSize.jsx'
 import FilterContext from '../context/FilterContext.jsx'
 import menuConfig from './menuConfig.jsx'
 import {useLocation, useNavigate} from 'react-router-dom'
-import Link from '@mui/material/Link'
 import {useTheme} from '@mui/material/styles'
+import {Paper, Stack, Typography, useScrollTrigger} from '@mui/material'
+import Slide from '@mui/material/Slide'
+import PropTypes from 'prop-types'
 
 function Nav({extras, extrasTwo, title, titleMobile}) {
     const {isFiltered, clearAdvancedFilterGroups} = useContext(FilterContext)
@@ -25,7 +27,7 @@ function Nav({extras, extrasTwo, title, titleMobile}) {
         menuItem?.path && navigate(menuItem.path)
     }, [clearAdvancedFilterGroups, menuItem?.path, navigate])
 
-    const {isMobile, width} = useWindowSize()
+    const {isDesktop, isMobile, width} = useWindowSize()
     const smallWidth = width <= 500
     const spacer = isMobile
         ? extrasTwo
@@ -40,50 +42,38 @@ function Nav({extras, extrasTwo, title, titleMobile}) {
         }
     }
 
+    function HideOnScroll({children}) {
+        const trigger = useScrollTrigger()
+        return (
+            <Slide appear={false} direction='down' in={!trigger}>
+                {children ?? <div/>}
+            </Slide>
+        )
+    }
+
     return (
         <React.Fragment>
-            <AppBar position='fixed' sx={{boxShadow: 'none'}}>
-                <Toolbar style={{marginTop: 6, minHeight: 40}}>
-                    <div style={{display: flexStyle, width: '100%'}}>
-                        <div style={{display: 'flex', flexGrow: 1, marginBottom: 8}}>
-                            <MainMenu/>
-                            <VersionChecker/>
+            <HideOnScroll>
+                <AppBar position='fixed' sx={{boxShadow: 'none'}}>
+                    <Toolbar style={{margin: '6px 0px', minHeight: 40, padding: '0px 12px'}}>
+                        <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{width: '100%'}}>
                             <div style={{
-                                flexGrow: 1,
-                                fontWeight: 500,
-                                fontSize: '1.5rem',
-                                paddingLeft: 8,
-                                paddingRight: 16,
-                                marginTop: 6
-                            }} role='heading' aria-label={title}>
-                                {(!isFiltered || !smallWidth) &&
-                                    <React.Fragment>
-                                        {menuItem && !isRootPath
-                                            ?
-                                            <Link onClick={handleClickTitle} style={{color: theme.palette.text.primary, whiteSpace: 'nowrap'}} sx={linkSx}>
-                                                {isMobile ? titleMobile : title}
-                                            </Link>
-                                            : <div style={{whiteSpace: 'nowrap'}}>{isMobile ? titleMobile : title}</div>
-                                        }
-                                    </React.Fragment>
-                                }
+                                fontSize: isDesktop ? '1.5rem' : '1.4rem',
+                                fontWeight: 700,
+                                lineHeight: '1.2em',
+                                marginRight: 8
+                            }}>
+                                COFFEE GRINDS
+                                {!isDesktop && <br/>}
+                                <span style={{fontWeight: 300}}> PARTICLE SIZE DISTRIBUTION</span>
                             </div>
-                            {extras}
+                            <VersionChecker/>
+                            <MainMenu/>
 
-                            {!isMobile && extrasTwo &&
-                                extrasTwo
-                            }
-                            <UserMenu/>
-                        </div>
-                        {isMobile && extrasTwo &&
-                            <div style={{display: 'flex', justifyContent: 'center'}}>
-                                {extrasTwo}
-                            </div>
-                        }
-                    </div>
-                </Toolbar>
-            </AppBar>
-
+                        </Stack>
+                    </Toolbar>
+                </AppBar>
+            </HideOnScroll>
             {/* Dummy toolbar to help content place correctly below this */}
             <Toolbar style={{backgroundColor: 'transparent', marginTop: spacer}}/>
 

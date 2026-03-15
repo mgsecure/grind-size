@@ -116,9 +116,6 @@ export default function HistogramPanel({domEl}) {
 
         const seriesKeys = itemsWithHist.map(item => item.id)
 
-        console.log('itemsWithHist', itemsWithHist)
-        console.log('aggregateQueueItem', aggregateQueueItem)
-
         // Use the first item's bins as the master set of bins for the X-axis
         const basisHist = itemsWithHist.length ? itemsWithHist[0].histograms : aggregateQueueItem.result.histograms
         const firstHist = binSpacing === 'log' ? basisHist?.log : basisHist?.linear

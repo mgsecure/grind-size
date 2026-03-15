@@ -12,17 +12,21 @@ function MainMenuItem({menuItem, onClose, child, childCount, childIndex}) {
     const {children, title, params, path, icon, disabled} = menuItem
 
     const isCurrentPath = location.pathname === path
+    const isChildPath = children?.find(child => child.path === location.pathname)
     const isCurrentParams = Object.keys(params || [])
         .every(key => params[key] === searchParams[key])
-    const isCurrentRoute = isCurrentPath && isCurrentParams
+    const isCurrentRoute = (isChildPath || isCurrentPath) && isCurrentParams
 
     const openInNewTab = (url) => {
         const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
         if (newWindow) newWindow.opener = null
     }
 
-    const handleClick = useCallback(() => {
-        if (children) {
+    const handleClick = useCallback((e) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        if (!path) {
             return null
         } else if (path.includes('http')) {
             openInNewTab(path)
@@ -34,7 +38,7 @@ function MainMenuItem({menuItem, onClose, child, childCount, childIndex}) {
             navigate(url)
             window.scrollTo({top: 0})
         }
-    }, [children, navigate, onClose, params, path])
+    }, [navigate, onClose, params, path])
 
     const color = isCurrentRoute ? '#18aa18' : null
 
@@ -43,8 +47,8 @@ function MainMenuItem({menuItem, onClose, child, childCount, childIndex}) {
         : undefined
 
     const style = child
-        ? {padding: '5px 0px 9px 48px', margin: '0px 15px 1px 28px', color}
-        : {padding: '14px 30px 14px 24px',color}
+        ? {padding: '6px 18px 6px 18px', margin: '0px 0px 0px 44px', color}
+        : {padding: '14px 18px 14px 18px',color}
 
     const coloredIcon = icon
         ? React.cloneElement(icon, {style: {color}})
@@ -54,7 +58,7 @@ function MainMenuItem({menuItem, onClose, child, childCount, childIndex}) {
 
     return (
         <React.Fragment>
-            <MenuItem style={style} onClick={handleClick} dense={child} disabled={disabled}>
+            <MenuItem style={style} onClick={(e) => handleClick(e)} dense={child} disabled={disabled}>
                 {coloredIcon &&
                     <ListItemIcon style={{height:20}}>
                         {coloredIcon}

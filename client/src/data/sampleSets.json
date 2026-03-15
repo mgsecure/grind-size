@@ -8,7 +8,7 @@
     "sourceName": "demo",
     "dataUrl": "/data/Kinu_M47_POB_0-4_Compare.json",
     "sampleCount": "5",
-    "binCount": "9",
+    "binCount": "19",
     "dataQuality": "5",
     "notes": "This is just a demo dataset to show how the app works."
   },
@@ -34,7 +34,7 @@
     "sourceName": "demo",
     "dataUrl": "/data/Kinu_M47_POB_0-4_Compare.json",
     "sampleCount": "5",
-    "binCount": "9",
+    "binCount": "10",
     "dataQuality": "5",
     "notes": "This is just a demo dataset to show how the app works."
   }

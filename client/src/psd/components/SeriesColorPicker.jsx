@@ -17,8 +17,9 @@ export default function SeriesColorPicker({seriesItem}) {
         setAnchorEl(event.currentTarget)
     }
     const handleClose = () => {
+        document.activeElement.blur()
+        document.body.focus()
         setAnchorEl(null)
-        setTimeout(() => document.activeElement?.blur(), 0)
     }
 
     const open = Boolean(anchorEl)
@@ -56,6 +57,7 @@ export default function SeriesColorPicker({seriesItem}) {
                 open={open}
                 anchorEl={anchorEl}
                 onClose={handleClose}
+                disableRestoreFocus
                 anchorOrigin={{
                     vertical: 'bottom',
                     horizontal: 'left'
