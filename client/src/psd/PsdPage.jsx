@@ -31,58 +31,60 @@ export default function PsdPage() {
     }, [resetUI])
 
     return (
-        <Stack spacing={isDesktop ? 1 : 1} sx={{width: '100%'}}>
-            <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
-                <Stack direction='row' spacing={1} alignItems='center' justifyContent='space-between'>
-                    <Typography style={{fontSize: '1.5rem', fontWeight: 700, lineHeight: '1.2em', marginTop: 8}}>
-                        COFFEE GRINDS
-                        {!isDesktop && <br/>}
-                        <span style={{fontWeight: 300}}> PARTICLE SIZE DISTRIBUTION</span>
-                    </Typography>
-                    <VersionChecker/>
-                </Stack>
-
-                <IntroCopy introCopy={{markdown: introCopyMarkdown}}
-                           style={{fontSize: '0.9rem', padding: '0px 0px 0px 0px'}}/>
-
-            </Paper>
-
-            <SampleSetsPanel/>
-
-            {manualSelectionId && (
-                <ManualCornerPanel/>
-            )}
-
-            <UploadQueuePanel resetContexts={resetContexts}/>
-
-            {!viewOnly &&
-                <SettingsPanel/>
-            }
-
-            <Stack direction='column' spacing={(isDesktop && !showTitleBar) ? 1 : 1}
-                   sx={{width: '100%', backgroundColor: theme.palette.background.default}} ref={domEl}>
-
-                {showTitleBar && (
-                    <Paper sx={{p: 2, width: '100%'}}>
-                        <Typography style={{fontSize: '1.5rem', fontWeight: 700}}>
-                            COFFEE GRINDS <span style={{fontWeight: 300}}> PARTICLE SIZE DISTRIBUTION</span>
+        <>
+            <Stack spacing={isDesktop ? 1 : 1} sx={{width: '100%'}}>
+                <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
+                    <Stack direction='row' spacing={1} alignItems='center' justifyContent='space-between'>
+                        <Typography style={{fontSize: '1.5rem', fontWeight: 700, lineHeight: '1.2em', marginTop: 8}}>
+                            COFFEE GRINDS
+                            {!isDesktop && <br/>}
+                            <span style={{fontWeight: 300}}> PARTICLE SIZE DISTRIBUTION</span>
                         </Typography>
-                    </Paper>
+                        <VersionChecker/>
+                    </Stack>
+
+                    <IntroCopy introCopy={{markdown: introCopyMarkdown}}
+                               style={{fontSize: '0.9rem', padding: '0px 0px 0px 0px'}}/>
+
+                </Paper>
+
+                <SampleSetsPanel/>
+
+                {manualSelectionId && (
+                    <ManualCornerPanel/>
                 )}
 
-                <HistogramPanel domEl={domEl}/>
+                <UploadQueuePanel resetContexts={resetContexts}/>
 
-                <StatsPanel/>
+                {!viewOnly &&
+                    <SettingsPanel/>
+                }
+
+                <Stack direction='column' spacing={(isDesktop && !showTitleBar) ? 1 : 1}
+                       sx={{width: '100%', backgroundColor: theme.palette.background.default}} ref={domEl}>
+
+                    {showTitleBar && (
+                        <Paper sx={{p: 2, width: '100%'}}>
+                            <Typography style={{fontSize: '1.5rem', fontWeight: 700}}>
+                                COFFEE GRINDS <span style={{fontWeight: 300}}> PARTICLE SIZE DISTRIBUTION</span>
+                            </Typography>
+                        </Paper>
+                    )}
+
+                    <HistogramPanel domEl={domEl}/>
+
+                    <StatsPanel/>
+
+                </Stack>
+
+                {!viewOnly &&
+                    <ImagePanel/>
+                }
 
             </Stack>
-
-            {!viewOnly &&
-                <ImagePanel/>
-            }
-
             <Tracker feature='MainPage'/>
             <Footer/>
 
-        </Stack>
+        </>
     )
 }

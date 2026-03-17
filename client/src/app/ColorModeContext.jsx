@@ -50,7 +50,7 @@ export function ColorModeProvider({children}) {
                 add: '#805046'
             },
             'background': {
-                'default': '#111',
+                'default': '#111111',
                 'paper': '#131313'
             }
         }

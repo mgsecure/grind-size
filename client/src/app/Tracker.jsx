@@ -3,11 +3,11 @@ import querystring from 'query-string'
 import AppContext from './AppContext'
 
 function Tracker({feature, ...extraParams}) {
-    const {adminEnabled} = useContext(AppContext)
+    const {adminEnabled, useTracker} = useContext(AppContext)
 
     // disable for testing/reporting
-    if (import.meta.env.DEV) return null
-    //if (adminEnabled) return null
+    if (import.meta.env.DEV && !useTracker) return null
+    if (adminEnabled && !useTracker) return null
 
     //const pageParam = extraParams?.page?.replace(/[^\w\s]/, '-').replace(/\s/g, '_')
     const randomStuff = (Math.random()).toString(36).substring(2, 10)

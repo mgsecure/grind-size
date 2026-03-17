@@ -88,7 +88,7 @@ export default function ExportButton({text}) {
             ? 'multiple-samples'
             : object[0]?.sampleName || object[0]?.filename || 'psd'
         const data = JSON.stringify(object)
-        download(`${sanitizeFileName(exportName)}-export.json`, data)
+        download(`${exportName}-export.json`, data)
         enqueueSnackbar(`Current list downloaded as ${exportName}.json`)
         handleClose()
     }, [aggregateQueueItem, cleanQueueItems, handleClose, queue])

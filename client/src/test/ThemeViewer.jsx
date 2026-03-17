@@ -2,7 +2,7 @@ import React, {useEffect, useRef} from 'react'
 import ToggleColorMode from '../misc/ToggleColorMode.jsx'
 
 import {
-    AppBar, Toolbar, Box, Stack, Paper, Typography, Button, ButtonGroup, IconButton,
+    Box, Stack, Paper, Typography, Button, ButtonGroup, IconButton,
     TextField, FormControl, InputLabel, Select, MenuItem, FormGroup, FormControlLabel,
     Checkbox, Radio, RadioGroup, Switch, Slider, Rating, Chip, Avatar, Badge, List,
     ListItem, ListItemAvatar, ListItemText, Divider, Tabs, Tab, Accordion, AccordionSummary,
@@ -98,7 +98,7 @@ const parsePaletteJSONToEditorColors = (json, current, mode = 'light') => {
     if (!palette || typeof palette !== 'object') return null
 
     const pick = (obj, path, fallback) => {
-        const val = path.split('.').reduce((a, k) => (a && a[k] != null ? a[k] : undefined), obj)
+        const val = path.split('.').reduce((a, k) => (a && a[k] !== null ? a[k] : undefined), obj)
         return isHex(val) ? val : fallback
     }
 
@@ -181,7 +181,7 @@ function PasteJSONDialog({open, onClose, onSubmit, initial = ''}) {
         try {
             const obj = JSON.parse(text)
             onSubmit(obj)
-        } catch (e) {
+        } catch (_e) {
             setErr('Invalid JSON')
         }
     }
@@ -272,7 +272,7 @@ function PaletteEditor({
 
             <Grid container spacing={2}>
                 {fields.map(f => (
-                    <Grid item xs={12} sm={6} md={3} key={f.key}>
+                    <Grid size={{xs: 12, sm: 6}} key={f.key}>
                         <Stack spacing={1}>
                             <Typography variant='caption' sx={{color: 'text.secondary'}}>{f.label}</Typography>
                             <TextField
@@ -328,8 +328,9 @@ function ThemeInspector({mode, palettePreview}) {
     const colorOf = (obj, key, fallback) => obj?.[key] ?? fallback
 
     return (
-        <Paper variant='outlined' sx={{p: 3, mb: 3}}>
-            <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{mb: 2}}>
+        <Stack sx={{mb: 3}} spacing={2}>
+            <Stack direction={{xs: 'column', sm: 'row'}} alignItems='center' justifyContent='space-between'
+                   sx={{mb: 2}}>
                 <Typography variant='h5'>Live Theme Inspector</Typography>
                 <Stack direction='row' spacing={1} alignItems='center'>
                     <ToggleColorMode/>
@@ -339,7 +340,7 @@ function ThemeInspector({mode, palettePreview}) {
 
             <Section title='Palette'>
                 <Grid container spacing={2}>
-                    <Grid xs={12} md={6}>
+                    <Grid size={{xs: 12, md: 6}}>
                         <Stack spacing={1.5}>
                             <Swatch label='primary.main' color={colorOf(palette.primary, 'main', '#000000')}/>
                             <Swatch label='primary.light'
@@ -353,7 +354,7 @@ function ThemeInspector({mode, palettePreview}) {
                             <Swatch label='error.main' color={colorOf(palette.error, 'main', '#d32f2f')}/>
                         </Stack>
                     </Grid>
-                    <Grid xs={12} md={6}>
+                    <Grid size={{xs: 12, md: 6}}>
                         <Stack spacing={1.5}>
                             <Swatch label='background.default' color={palette.background?.default ?? '#ffffff'}/>
                             <Swatch label='background.paper' color={palette.background?.paper ?? '#ffffff'}/>
@@ -419,7 +420,7 @@ function ThemeInspector({mode, palettePreview}) {
 
             {/* Inline palette editor (live-applies below via nested ThemeProvider) */}
             {palettePreview}
-        </Paper>
+        </Stack>
     )
 }
 
@@ -596,7 +597,7 @@ export default function ThemeKitchenSink() {
     const popoverOpen = Boolean(popoverAnchor)
     const menuOpen = Boolean(menuAnchor)
 
-    const bgcolor =alpha(previewTheme.palette.text.primary, 0.06)
+    const bgcolor = alpha(previewTheme.palette.text.primary, 0.06)
 
     return (
         <Box sx={{minHeight: '100vh', bgcolor: 'background.default', color: 'text.primary'}}>
@@ -630,38 +631,51 @@ export default function ThemeKitchenSink() {
                     <Grid container spacing={3}>
 
                         {/* Text */}
-                        <Grid item xs={12} md={6}>
+                        <Grid size={6}>
                             <Section title='Text'>
-                                <Stack direction='row' spacing={2}>
-                                <Box sx={{backgroundColor: bgcolor, padding: 2}}>
-                                    <Typography variant='body1' gutterBottom>
-                                        This is an example of body1 text. It uses the default font size and color from
-                                        the theme. <Link>Link text.</Link> There's more text here that follows.
-                                    </Typography>
-                                </Box>
-                                <Box sx={{padding: 2}}>
-                                    <Typography variant='body1' gutterBottom>
-                                        This is an example of body1 text. It uses the default font size and color from
-                                        the theme. <Link>Link text.</Link> There's more text here that follows.
-                                    </Typography>
-                                </Box>
+                                <Stack direction={{xs: 'column', sm: 'row'}} spacing={2}>
+                                    <Box sx={{backgroundColor: bgcolor, padding: 2}}>
+                                        <Typography variant='body1' gutterBottom>
+                                            This is an example of body1 text. It uses the default font size and color
+                                            from
+                                            the theme. <Link>Link text.</Link> There&#39;s more text here that follows.
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{padding: 2}}>
+                                        <Typography variant='body1' gutterBottom>
+                                            This is an example of body1 text. It uses the default font size and color
+                                            from
+                                            the theme. <Link>Link text.</Link> There&#39;s more text here that follows.
+                                        </Typography>
+                                    </Box>
                                 </Stack>
                             </Section>
                         </Grid>
 
-                        {/* Buttons */}
-                        <Grid item xs={12} md={6}>
+
+                    </Grid>
+                </ThemeProvider>
+                <ThemeProvider theme={previewTheme}>
+                    <Grid container spacing={3}>
+
+
+                    {/* Buttons */}
+                        <Grid size={12}>
                             <Section title='Buttons'>
                                 <Stack direction='row' spacing={2}>
                                     <Button variant='contained'>Contained</Button>
                                     <Button variant='outlined'>Outlined</Button>
                                     <Button variant='text'>Text</Button>
                                 </Stack>
-                                <Stack direction='row' spacing={2}>
-                                    <Button variant='contained' color='secondary'>Secondary</Button>
-                                    <Button variant='contained' color='success'>Success</Button>
-                                    <Button variant='contained' color='error'>Error</Button>
-                                    <Button variant='contained' disabled>Disabled</Button>
+                                <Stack direction={{xs: 'column', sm: 'row'}} spacing={2}>
+                                    <Stack direction='row' spacing={2}>
+                                        <Button variant='contained' color='secondary'>Secondary</Button>
+                                        <Button variant='contained' color='success'>Success</Button>
+                                    </Stack>
+                                    <Stack direction='row' spacing={2}>
+                                        <Button variant='contained' color='error'>Error</Button>
+                                        <Button variant='contained' disabled>Disabled</Button>
+                                    </Stack>
                                 </Stack>
                                 <ButtonGroup>
                                     <Button>One</Button>
@@ -694,7 +708,7 @@ export default function ThemeKitchenSink() {
                         </Grid>
 
                         {/* Inputs */}
-                        <Grid item xs={12} md={6}>
+                        <Grid>
                             <Section title='Inputs'>
                                 <Stack direction='row' spacing={2}>
                                     <TextField label='Standard' variant='standard'/>
@@ -752,7 +766,7 @@ export default function ThemeKitchenSink() {
                         </Grid>
 
                         {/* Typography & Chips */}
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{xs: 12, md: 12}}>
                             <Section title='Typography & Chips'>
                                 <Typography variant='h1'>H1 Heading</Typography>
                                 <Typography variant='h4'>H4 Heading</Typography>
@@ -769,7 +783,7 @@ export default function ThemeKitchenSink() {
                         </Grid>
 
                         {/* Lists & Badges */}
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{xs: 12, md: 6}}>
                             <Section title='Lists, Avatars & Badges'>
                                 <Stack direction='row' spacing={3} alignItems='center'>
                                     <Badge color='secondary' badgeContent={4}>
@@ -796,7 +810,7 @@ export default function ThemeKitchenSink() {
                         </Grid>
 
                         {/* Tabs, Accordion, Navigation */}
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{xs: 12, md: 6}}>
                             <Section title='Tabs & Accordions'>
                                 <Tabs value={tab} onChange={(_, v) => setTab(v)}>
                                     <Tab label='One'/>
@@ -832,7 +846,7 @@ export default function ThemeKitchenSink() {
                         </Grid>
 
                         {/* Feedback & Progress */}
-                        <Grid item xs={12} md={6}>
+                        <Grid size={12}>
                             <Section title='Feedback & Progress'>
                                 <Stack direction='row' spacing={2} alignItems='center'>
                                     <Alert severity='info'>Informational alert</Alert>
@@ -848,7 +862,7 @@ export default function ThemeKitchenSink() {
                         </Grid>
 
                         {/* Cards & Table */}
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{xs: 12, md: 6}}>
                             <Section title='Cards & Table'>
                                 <Card>
                                     <CardHeader title='Card Title' subheader='Subheader'/>
@@ -889,7 +903,7 @@ export default function ThemeKitchenSink() {
                         </Grid>
 
                         {/* Overlays */}
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{xs: 12, md: 6}}>
                             <Section title='Overlays: Dialog & Drawer'>
                                 <Stack direction='row' spacing={2}>
                                     <Button variant='contained' onClick={() => setDialogOpen(true)}>Open Dialog</Button>
@@ -918,7 +932,7 @@ export default function ThemeKitchenSink() {
                         </Grid>
 
                         {/* Steppers */}
-                        <Grid item xs={12} md={6}>
+                        <Grid size={{xs: 12, md: 6}}>
                             <Section title='Stepper'>
                                 <Stepper activeStep={1} alternativeLabel>
                                     {['Select', 'Review', 'Pay'].map(label => (

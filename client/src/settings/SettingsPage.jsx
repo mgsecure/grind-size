@@ -3,11 +3,13 @@ import ToggleColorMode from '../misc/ToggleColorMode.jsx'
 import AppContext from '../app/AppContext.jsx'
 import DBContext from '../app/DBContext.jsx'
 import Switch from '@mui/material/Switch'
+import usePageTitle from '../util/usePageTitle.jsx'
 
 
 export default function SettingsPage() {
+    usePageTitle('Toggle Flags')
 
-    const {admin, setAdmin, beta, setBeta} = useContext(AppContext)
+    const {admin, setAdmin, beta, setBeta, useTracker, setUseTracker} = useContext(AppContext)
     const {demo, setDemo} = useContext(DBContext)
 
     return (
@@ -30,6 +32,17 @@ export default function SettingsPage() {
                                 checked={admin}
                                 onChange={(e) => setAdmin(e.target.checked)}
                                 name='adminMode'
+                                color='primary'
+                            />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style={{padding: '8px 12px'}}>Use Tracker</td>
+                        <td style={{padding: '8px 12px'}}>
+                            <Switch
+                                checked={useTracker}
+                                onChange={(e) => setUseTracker(e.target.checked)}
+                                name='useTracker'
                                 color='primary'
                             />
                         </td>
