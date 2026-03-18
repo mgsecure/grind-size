@@ -106,6 +106,7 @@ export const PSD_PRESETS = {
 export const PSD_DEFAULTS = {
     name: PSD_PRESETS[defaultSettingsPreset].name,
     testPipeline: false,
+    removeLargestParticles: 5,
     useMorphology: true,
     correctPerspective: true,
     warpSizePx: 2000,

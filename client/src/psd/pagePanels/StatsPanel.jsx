@@ -19,7 +19,7 @@ import UIContext from '../../context/UIContext.jsx'
 
 export default function StatsPanel() {
     const {activeItems, queue, aggregateQueueItem = {}} = useContext(DataContext)
-    const {currentColors, isDesktop, aggregateColor, customSampleParams} = useContext(UIContext)
+    const {currentColors, isDesktop, aggregateColor, customSampleParams, showTitleBar} = useContext(UIContext)
 
     const domEl = useRef(null)
     const theme = useTheme()
@@ -218,22 +218,23 @@ export default function StatsPanel() {
             <Stack direction='row' alignItems='flex-end' justifyContent='space-between'
                    sx={{fontSize: '1.1rem', fontWeight: 500}}>
                 STATISTICS
-                <FormControlLabel
-                    labelPlacement={'start'}
-                    control={
-                        <Switch size='small'
-                                checked={showSettings}
-                                onChange={() => setShowSettings(!showSettings)}
-                                name='showSettings'
-                        />}
-                    label={
-                        <span style={{fontSize: '0.9rem'}}>
+                {!showTitleBar &&
+                    <FormControlLabel
+                        labelPlacement={'start'}
+                        control={
+                            <Switch size='small'
+                                    checked={showSettings}
+                                    onChange={() => setShowSettings(!showSettings)}
+                                    name='showSettings'
+                            />}
+                        label={
+                            <span style={{fontSize: '0.9rem'}}>
                         Show Settings
                     </span>
-                    }
-                    style={{textAlign: 'right', marginRight: 16}}
-                />
-
+                        }
+                        style={{textAlign: 'right', marginRight: 16}}
+                    />
+                }
             </Stack>
             <Stack direction={breakTables ? 'row' : 'column'} spacing={3} sx={{my: 2}}>
                 <TableContainer component={Paper} sx={{}}>
@@ -357,6 +358,18 @@ export default function StatsPanel() {
                     </Table>
                 }
             </Stack>
+            {showTitleBar &&
+                <Box sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'right',
+                    fontSize: '0.8rem',
+                    paddingRight: 1,
+                    width: '100%'
+                }}>
+                    coffee-grind.com
+                </Box>
+            }
         </Paper>
     )
 }

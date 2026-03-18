@@ -25,6 +25,7 @@ import UIContext from '../../context/UIContext.jsx'
 import CurveLinearIcon from '../resources/CurveLinearIcon.jsx'
 import CurveCardinalIcon from '../resources/CurveCardinalIcon.jsx'
 import SeriesColorPicker from '../components/SeriesColorPicker.jsx'
+import Tracker from '../../app/Tracker.jsx'
 
 function fmtNumber(n, digits = 2) {
     if (!Number.isFinite(n)) return '—'
@@ -352,10 +353,16 @@ export default function HistogramPanel({domEl}) {
                     style={{margin: '10px 10px 10px 10px'}}
                 >
                     <ToggleButton value='log' style={{padding: 9}}>
-                        <ScaleLogIcon width={18} height={18} style={{margin: '0px 1px'}}/>
+                        <ScaleLogIcon width={18} height={18} style={{
+                            margin: '0px 1px',
+                            fill: binSpacing === 'log' ? theme.palette.text.primary : theme.palette.text.secondary
+                        }}/>
                     </ToggleButton>
                     <ToggleButton value='linear' style={{padding: 9}}>
-                        <ScaleLinearIcon width={18} height={18} style={{margin: '0px 1px'}}/>
+                        <ScaleLinearIcon width={18} height={18} style={{
+                            margin: '0px 1px',
+                            fill: binSpacing === 'linear' ? theme.palette.text.primary : theme.palette.text.secondary
+                        }}/>
                     </ToggleButton>
                 </ToggleButtonGroup>
 
@@ -398,10 +405,16 @@ export default function HistogramPanel({domEl}) {
                         style={{margin: '10px 0px 10px 10px'}}
                     >
                         <ToggleButton value='linear' style={{}}>
-                            <CurveLinearIcon width={16} height={16} style={{margin: '4px 5px'}}/>
+                            <CurveLinearIcon width={16} height={16} style={{
+                                margin: '4px 5px',
+                                stroke: chartCurve === 'linear' ? theme.palette.text.primary : theme.palette.text.secondary
+                            }}/>
                         </ToggleButton>
                         <ToggleButton value='curve'>
-                            <CurveCardinalIcon width={16} height={16} style={{margin: '4px 5px'}}/>
+                            <CurveCardinalIcon width={16} height={16} style={{
+                                margin: '4px 5px',
+                                stroke: chartCurve === 'curve' ? theme.palette.text.primary : theme.palette.text.secondary
+                            }}/>
                         </ToggleButton>
                     </ToggleButtonGroup>
 
@@ -429,6 +442,9 @@ export default function HistogramPanel({domEl}) {
                     </Box>
                 </Box>
             )}
+
+            {!!chartData.length && <Tracker feature='Results'/>}
+
 
             {!!chartData.length && chartMode === 'bar' && (
                 <Box sx={{height: chartData.length ? chartHeight : 175}}>

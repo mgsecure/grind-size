@@ -5,7 +5,6 @@ const SvgComponent = (props) => (
             d='M4.3 33.8 18 5.8l13.7 28'
             style={{
                 fill: 'none',
-                stroke: '#fff',
                 strokeMiterlimit: 10,
                 strokeWidth: 5,
             }}

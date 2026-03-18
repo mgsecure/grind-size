@@ -28,7 +28,7 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
     const {testPipeline = false, correctPerspective = true, useMorphology = true, sampleName = null} = settings
     const file = item?.file
 
-    console.log('Analyzing item:', item)
+    console.log('Test Pipeline', testPipeline, 'Analyzing item:', item)
 
     if (!file) throw new Error('No file provided')
 
@@ -132,7 +132,6 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
         : colorTemperature < 5400
             ? 'warm'
             : 'neutral'
-
     let analysisChannel = settings.analysisChannel
     if (settings.analysisChannel === 'auto' && imageTemperature === 'warm') {
         analysisChannel = 'blue'
@@ -142,10 +141,8 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
         analysisChannel = 'grayscale'
     }
 
-    //console.log('Using image channel', settings.analysisChannel, analysisChannel, colorTemperature)
-
-
     const gray = normalizeLighting(analysisImageData, {bgSigma: settings.bgSigma, channel: analysisChannel})
+
     const mask = adaptiveThreshold(gray, {blockSize: settings.adaptiveBlockSize, C: settings.adaptiveC})
 
     // WHY ISN'T THIS USED?
@@ -171,7 +168,6 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
 
     // Optional Overlap Separation (Watershed)
     const spearationFn = testPipeline ? separateOverlapsCandidate : separateOverlaps
-
     debug && console.log(`Using spearation function: ${testPipeline ? 'separateOverlapsCandidate' : 'separateOverlaps'}`)
 
     const overlapResult = settings.overlapSplitPreset !== 'off' ? await spearationFn(detectFn, detectResult, mask, settings) : null
@@ -234,6 +230,14 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
 
     if (particles.length === 0) {
         throw new Error('No valid particles remaining after filtering.')
+    }
+
+    // Remove the top N largest particles
+    if (settings.removeLargestParticles > 0) {
+        const n = settings.removeLargestParticles
+        const sorted = [...particles].sort((a, b) => b.areaPx - a.areaPx)
+        const removedIds = new Set(sorted.slice(0, n).map(p => p.id))
+        particles = particles.filter(p => !removedIds.has(p.id))
     }
 
     console.log(`Final analysis: ${particles.length} particles`)

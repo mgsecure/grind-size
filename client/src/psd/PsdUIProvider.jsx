@@ -3,6 +3,7 @@ import useWindowSize from '../util/useWindowSize.jsx'
 import UIContext from '../context/UIContext.jsx'
 import React, {useCallback, useContext, useMemo, useState} from 'react'
 import DataContext from '../context/DataContext.jsx'
+import {useLocalStorage} from 'usehooks-ts'
 
 const altButtonColor = '#6b92b8'
 const defaultImageViewMode = 'mask'
@@ -13,6 +14,8 @@ export default function PsdUIProvider({children}) {
     const {
         queue, activeIdList, aggregateQueueItem
     } = useContext(DataContext)
+
+    const [colorSwatches, setColorSwatches] = useLocalStorage('psd-colors', ['#bd1fff', '#00b', '#b00', '#0b0'])
 
     const [showTitleBar, setShowTitleBar] = useState(false)
     const [imageViewMode, setImageViewMode] = useState(defaultImageViewMode) // original | mask | overlay | diagnostic
@@ -73,7 +76,8 @@ export default function PsdUIProvider({children}) {
         notErrorIdList,
         showTitleBar, setShowTitleBar,
         imageViewMode, setImageViewMode,
-        customSampleParams, setCustomSampleParams
+        customSampleParams, setCustomSampleParams,
+        colorSwatches, setColorSwatches
     }), [
         resetUI,
         theme,
@@ -86,7 +90,8 @@ export default function PsdUIProvider({children}) {
         notErrorIdList,
         showTitleBar, setShowTitleBar,
         imageViewMode, setImageViewMode,
-        customSampleParams, setCustomSampleParams
+        customSampleParams, setCustomSampleParams,
+        colorSwatches, setColorSwatches
     ])
 
     return (
