@@ -73,10 +73,10 @@ export default function UploadQueuePanel({resetContexts}) {
 
     useEffect(() => {
         if (queue.length === 1 && activeIdList.includes(aggregateQueueItem?.id)) {
-            console.log('only one active item, clearing CurrentAggregateResults')
+            //console.log('only one active item, clearing CurrentAggregateResults')
             setActiveIdList(prev => prev.filter(i => i !== aggregateQueueItem?.id))
         } else if (queue.length === 0 && activeIdList.length > 0) {
-            console.log('no active items, clearing selection')
+            //console.log('no active items, clearing selection')
             setActiveIdList([])
         }
     }, [activeIdList, aggregateQueueItem, handleSelect, queue, setActiveIdList])

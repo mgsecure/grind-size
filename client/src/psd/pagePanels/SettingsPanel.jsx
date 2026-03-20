@@ -102,6 +102,7 @@ export default function SettingsPanel() {
     }
 
     const sliderWidth = isDesktop ? 230 : 170
+    const toggleButtonStyle = {padding: '4px 11px'}
 
     return (
         <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
@@ -129,7 +130,7 @@ export default function SettingsPanel() {
                                 {Object.entries(PSD_PRESETS)
                                     .filter(([_key, preset]) => preset.debugOnly !== true)
                                     .map(([key, preset]) => (
-                                        <ToggleButton key={key} value={key}>{preset.name}</ToggleButton>
+                                        <ToggleButton key={key} value={key} style={toggleButtonStyle}>{preset.name}</ToggleButton>
                                     ))}
                             </ToggleButtonGroup>
 
@@ -145,7 +146,7 @@ export default function SettingsPanel() {
                                     {Object.entries(PSD_PRESETS)
                                         .filter(([_key, preset]) => preset.debugOnly)
                                         .map(([key, preset]) => (
-                                            <ToggleButton key={key} value={key}>{preset.name}</ToggleButton>
+                                            <ToggleButton key={key} value={key} style={toggleButtonStyle}>{preset.name}</ToggleButton>
                                         ))}
                                 </ToggleButtonGroup>
                             }
@@ -160,7 +161,8 @@ export default function SettingsPanel() {
                                     style={{margin: isDesktop ? '10px 8px 10px 20px' : 0}}
                                 >
                                     <ToggleButton key='custom' value='custom'
-                                                  onClick={handleCustomClick}>Custom</ToggleButton>
+                                                  onClick={handleCustomClick}
+                                                  style={toggleButtonStyle}>Custom</ToggleButton>
                                 </ToggleButtonGroup>
                                 <CustomSettingsButtons/>
                             </Stack>
@@ -227,8 +229,8 @@ export default function SettingsPanel() {
                                 exclusive
                                 onChange={(_e, v) => v && setSettings(prev => ({...prev, binsType: v}))}
                             >
-                                <ToggleButton value='default'>Default Bins</ToggleButton>
-                                <ToggleButton value='dynamic'>Dynamic</ToggleButton>
+                                <ToggleButton value='default' style={toggleButtonStyle}>Default Bins</ToggleButton>
+                                <ToggleButton value='dynamic' style={toggleButtonStyle}>Dynamic</ToggleButton>
                             </ToggleButtonGroup>
 
                             <ToggleButtonGroup
@@ -238,9 +240,9 @@ export default function SettingsPanel() {
                                 onChange={(_e, v) => v && setSettings(prev => ({...prev, analysisChannel: v}))}
                                 style={{marginLeft: 20}}
                             >
-                                <ToggleButton value='auto'>Auto</ToggleButton>
-                                <ToggleButton value='grayscale'>Grayscale</ToggleButton>
-                                <ToggleButton value='blue'>Blue</ToggleButton>
+                                <ToggleButton value='auto' style={toggleButtonStyle}>Auto</ToggleButton>
+                                <ToggleButton value='grayscale' style={toggleButtonStyle}>Grayscale</ToggleButton>
+                                <ToggleButton value='blue' style={toggleButtonStyle}>Blue</ToggleButton>
                             </ToggleButtonGroup>
                         </Stack>
                     </Stack>
@@ -274,10 +276,22 @@ export default function SettingsPanel() {
                     </Stack>
 
 
-                    <Stack sx={{mr: 2}}>
+                    <Stack style={{marginRight: 24}}>
                         <Typography variant='body2' style={{whiteSpace: 'nowrap'}}>Overlap
                             Separation</Typography>
                         <OverlapPresetToggles onChange={handleOverlapPresetChange}/>
+                    </Stack>
+
+                    <Stack style={{width: 180, marginRight: 0}}>
+                        <Typography variant='body2'>Remove boulders: {settings.removeLargestParticles}</Typography>
+                        <Slider
+                            value={settings.removeLargestParticles}
+                            min={0}
+                            max={20}
+                            step={1}
+                            onChange={(_, v) => handleParameterChange('removeLargestParticles', v)}
+                            style={{marginTop: 4}}
+                        />
                     </Stack>
 
                     {debugLevel >= 1 &&

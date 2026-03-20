@@ -22,7 +22,6 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
-import {sanitizeFileName} from '../../util/sanitizeValues.js'
 
 const defaultAggregateExportName = 'Multiple Samples - Aggregate'
 
@@ -107,10 +106,12 @@ export default function ExportButton({text}) {
 
     const handleDialogClose = useCallback(() => {
         document.activeElement.blur()
+        document.body.focus()
         setDialogOpen(false)
     }, [])
     const handleDialogCancel = useCallback(() => {
         document.activeElement.blur()
+        document.body.focus()
         handleDialogClose()
         handleClose()
         setAggregateExportName(defaultAggregateExportName)

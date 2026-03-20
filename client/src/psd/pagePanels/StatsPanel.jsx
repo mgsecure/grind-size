@@ -19,7 +19,7 @@ import UIContext from '../../context/UIContext.jsx'
 
 export default function StatsPanel() {
     const {activeItems, queue, aggregateQueueItem = {}} = useContext(DataContext)
-    const {currentColors, isDesktop, aggregateColor, customSampleParams, showTitleBar} = useContext(UIContext)
+    const {currentColors, isDesktop, aggregateColor, customSampleParams, isScreenshot} = useContext(UIContext)
 
     const domEl = useRef(null)
     const theme = useTheme()
@@ -146,7 +146,9 @@ export default function StatsPanel() {
             max: item.stats.max?.toFixed(0),
             avgShortAxis: parseFloat(item.stats?.avgShortAxis).toFixed(0),
             avgLongAxis: item.stats.avgLongAxis?.toFixed(0),
-            pixelScale: item.scale.detectedTemplate !== 'Multiple' ? `${parseFloat(item.scale.detectedPxPerMm ?? item.scale.pxPerMm).toFixed(2)} px/mm` : 'n/a',
+            pixelScale: item.scale.detectedPxPerMm !== 'multiple'
+                ? `${parseFloat(item.scale.detectedPxPerMm ?? item.scale.pxPerMm).toFixed(2)} px/mm`
+                : 'n/a',
             avgRoundness: item.stats.avgRoundness?.toFixed(1),
             efficiency: item.stats.efficiency?.toFixed(2),
             span: item.stats.span?.toFixed(2),
@@ -214,11 +216,11 @@ export default function StatsPanel() {
     }
 
     return (
-        <Paper sx={{p: isDesktop ? 2 : 1}} ref={domEl}>
+        <Paper sx={{p: isDesktop ? 2 : 1, pb:1}} ref={domEl}>
             <Stack direction='row' alignItems='flex-end' justifyContent='space-between'
                    sx={{fontSize: '1.1rem', fontWeight: 500}}>
                 STATISTICS
-                {!showTitleBar &&
+                {!isScreenshot &&
                     <FormControlLabel
                         labelPlacement={'start'}
                         control={
@@ -358,7 +360,7 @@ export default function StatsPanel() {
                     </Table>
                 }
             </Stack>
-            {showTitleBar &&
+            {isScreenshot &&
                 <Box sx={{
                     display: 'flex',
                     alignItems: 'center',

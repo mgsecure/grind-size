@@ -3,9 +3,9 @@ import Joi from 'joi'
 export const sampleSetSchema = Joi.array().items(
     Joi.object({
         'id': Joi.string().regex(/^[0-9a-f]{8}$/),
-        'seq': Joi.number().min(1),
         'name': Joi.string().min(1),
         'description': Joi.string().min(1),
+        'chartTitle': Joi.string().allow(''),
         'adminOnly': Joi.string().allow(''),
         'sourceName': Joi.string().min(1),
         'dataUrl': Joi.string().min(1),

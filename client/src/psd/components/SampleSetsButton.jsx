@@ -20,7 +20,7 @@ import AuthContext from '../../app/AuthContext.jsx'
 export default function SampleSetsButton({iconOnly = false, linkOnly = false}) {
 
     const {setQueue, setActiveIdList, sampleSets, setSampleSet, setSettings} = useContext(DataContext)
-    const {altButtonColor} = useContext(UIContext)
+    const {setChartTitle, altButtonColor} = useContext(UIContext)
     const {isAdmin} = useContext(AuthContext)
 
     const publicSampleSets = sampleSets.filter(s => !s.adminOnly)
@@ -31,6 +31,7 @@ export default function SampleSetsButton({iconOnly = false, linkOnly = false}) {
     const handleOpen = useCallback(event => setAnchorEl(event.currentTarget), [])
     const handleClose = useCallback(() => {
         document.activeElement.blur()
+        document.body.focus()
         setAnchorEl(null)
     }, [])
 
@@ -47,6 +48,7 @@ export default function SampleSetsButton({iconOnly = false, linkOnly = false}) {
                 loadImport(r.data, {queue: [], setQueue, setActiveIdList})
                 setSettings(prev => ({...prev, bins: sampleSet.binCount}))
                 setSampleSet(sampleSet)
+                setChartTitle(sampleSet.chartTitle)
             }
             enqueueSnackbar(`${cleanCount(sampleSet.sampleCount, 'sample', false)} loaded from the ${sampleSet.name} dataset.`, {
                 variant: 'success',
@@ -56,7 +58,7 @@ export default function SampleSetsButton({iconOnly = false, linkOnly = false}) {
             console.error('error loading dataset', e)
             enqueueSnackbar(`Error loading dataset: ${e.message || e}`, {variant: 'error'})
         })
-    }, [handleClose, sampleSets, setActiveIdList, setQueue, setSampleSet, setSettings])
+    }, [handleClose, sampleSets, setActiveIdList, setChartTitle, setQueue, setSampleSet, setSettings])
 
     const menuItemStyle = {padding: '10px 16px'}
 
@@ -105,11 +107,11 @@ export default function SampleSetsButton({iconOnly = false, linkOnly = false}) {
                     </MenuItem>
                 ))}
 
-                {isAdmin && adminSampleSets?.length &&
-                    <MenuItem disabled>Admin Only</MenuItem>
+                {!!isAdmin && !!adminSampleSets?.length &&
+                    (<MenuItem disabled>Admin Only</MenuItem>)
                 }
 
-                {isAdmin && adminSampleSets.map((set, idx) => (
+                {!!isAdmin && !!adminSampleSets?.length && adminSampleSets.map((set, idx) => (
                     <MenuItem key={idx} style={menuItemStyle} onClick={() => handleClick(set.id)}>
                         <ListItemText>{set.name}</ListItemText>
                     </MenuItem>

@@ -1,11 +1,12 @@
 import IconButton from '@mui/material/IconButton'
 import React, {useCallback, useContext} from 'react'
 import DataContext from '../../context/DataContext.jsx'
-import SaveIcon from '@mui/icons-material/Save'
-import DeleteIcon from '@mui/icons-material/Delete'
 import useWindowSize from '../../util/useWindowSize.jsx'
 import {PSD_DEFAULTS} from '@starter/shared'
 import {useTheme,alpha} from '@mui/material/styles'
+import SaveIcon from '@mui/icons-material/Save'
+import DeleteIcon from '@mui/icons-material/Delete'
+import PushPinIcon from '@mui/icons-material/PushPin'
 
 export default function CustomSettingsButtons() {
     const theme = useTheme()
@@ -39,7 +40,10 @@ export default function CustomSettingsButtons() {
     return (
         <>
             <IconButton onClick={toggleRetainCustomSettings} style={isCustomSettings ? undefined : disabledStyle}>
-                <SaveIcon fontSize='small' style={{color: retainCustomSettings ? theme.palette.success.main : alpha(theme.palette.text.primary, 0.7)}}/>
+                <PushPinIcon
+                    fontSize='medium'
+                    style={{color: retainCustomSettings ? theme.palette.success.main : alpha(theme.palette.text.primary, 0.7),
+                        transform: 'rotate(45deg)', marginTop: 2, marginLeft: -1}}/>
             </IconButton>
             <IconButton onClick={clearCustomSettings} style={isCustomSettings ? undefined : disabledStyle}>
                 <DeleteIcon fontSize='small' style={{color: retainCustomSettings ? theme.palette.text.primary : alpha(theme.palette.text.primary, 0.7)}}/>

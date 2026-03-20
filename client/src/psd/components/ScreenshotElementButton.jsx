@@ -7,7 +7,7 @@ import {useHotkeys} from 'react-hotkeys-hook'
 
 export default function ScreenshotElementButton({domEl, filename, disabled}) {
 
-    const {setShowTitleBar} = useContext(UIContext)
+    const {setisScreenshot} = useContext(UIContext)
 
     const downloadImage = useCallback(async () => {
         if (!domEl.current) return
@@ -23,14 +23,14 @@ export default function ScreenshotElementButton({domEl, filename, disabled}) {
 
     const takeScreenshot = useCallback(async () => {
         if (!domEl.current) return
-        setShowTitleBar(true)
+        setisScreenshot(true)
 
         setTimeout(() => {
             downloadImage()
-            setShowTitleBar(false)
+            setisScreenshot(false)
         }, 100)
 
-    }, [domEl, downloadImage, setShowTitleBar])
+    }, [domEl, downloadImage, setisScreenshot])
 
     useHotkeys('s', () => takeScreenshot())
 

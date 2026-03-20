@@ -319,7 +319,9 @@ async function getCrawlerUserAgents(jsonPath) {
 async function deleteFile(filePath) {
     try {
         await fs.unlink(filePath)
-        console.log(`File deleted successfully: ${filePath}`)
+        if (!prodEnvironment) {
+            console.log(`File deleted successfully: ${filePath}`)
+        }
     } catch (err) {
         if (err.code === 'ENOENT') {
             console.log('File does not exist')

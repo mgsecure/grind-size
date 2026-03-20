@@ -15,10 +15,11 @@ export default function PsdUIProvider({children}) {
         queue, activeIdList, aggregateQueueItem
     } = useContext(DataContext)
 
-    const [colorSwatches, setColorSwatches] = useLocalStorage('psd-colors', ['#bd1fff', '#00b', '#b00', '#0b0'])
-
-    const [showTitleBar, setShowTitleBar] = useState(false)
+    const [isScreenshot, setisScreenshot] = useState(false)
     const [imageViewMode, setImageViewMode] = useState(defaultImageViewMode) // original | mask | overlay | diagnostic
+    const [chartTitle, setChartTitle] = useState(undefined)
+
+    const [colorSwatches, setColorSwatches] = useLocalStorage('psd-colors', ['#bd1fff', '#00b', '#b00', '#0b0'])
 
     const [reverseColors, setReverseColors] = useState(false)
     const swapColors = useCallback(() => setReverseColors(prev => !prev), [])
@@ -60,8 +61,8 @@ export default function PsdUIProvider({children}) {
     const resetUI = useCallback(() => {
         setCustomSampleParams({})
         setImageViewMode(defaultImageViewMode)
-        setShowTitleBar(false)
-    }, [setCustomSampleParams, setImageViewMode, setShowTitleBar])
+        setisScreenshot(false)
+    }, [setCustomSampleParams, setImageViewMode, setisScreenshot])
 
     const value = useMemo(() => ({
         resetUI,
@@ -74,10 +75,11 @@ export default function PsdUIProvider({children}) {
         aggregateColor,
         altButtonColor,
         notErrorIdList,
-        showTitleBar, setShowTitleBar,
+        isScreenshot, setisScreenshot,
         imageViewMode, setImageViewMode,
         customSampleParams, setCustomSampleParams,
-        colorSwatches, setColorSwatches
+        colorSwatches, setColorSwatches,
+        chartTitle, setChartTitle
     }), [
         resetUI,
         theme,
@@ -88,10 +90,11 @@ export default function PsdUIProvider({children}) {
         swapColors,
         aggregateColor,
         notErrorIdList,
-        showTitleBar, setShowTitleBar,
+        isScreenshot, setisScreenshot,
         imageViewMode, setImageViewMode,
         customSampleParams, setCustomSampleParams,
-        colorSwatches, setColorSwatches
+        colorSwatches, setColorSwatches,
+        chartTitle, setChartTitle
     ])
 
     return (

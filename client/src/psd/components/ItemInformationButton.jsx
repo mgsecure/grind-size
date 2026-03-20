@@ -57,6 +57,7 @@ export default function ItemInformationButton({
         e.preventDefault()
         e.stopPropagation()
         document.activeElement.blur()
+        document.body.focus()
         setOpen(false)
         onClose && onClose()
     }, [onClose])

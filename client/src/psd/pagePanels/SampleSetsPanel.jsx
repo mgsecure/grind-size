@@ -21,7 +21,7 @@ export default function SampleSetsPanel() {
         setViewOnly,
         setSettings
     } = useContext(DataContext)
-    const {isDesktop} = useContext(UIContext)
+    const {setChartTitle, isDesktop} = useContext(UIContext)
     const {removeFilters} = useContext(MiniFilterContext)
 
     const [searchParams] = useSearchParams()
@@ -40,6 +40,7 @@ export default function SampleSetsPanel() {
                     //setViewOnly(true)
                     setSettings(prev => ({...prev, bins: sampleSetData.binCount}))
                     setSampleSet(sampleSetData)
+                    setChartTitle(sampleSetData.chartTitle)
                     removeFilters(['sampleSet'])
                 }
             }).catch(e => {
@@ -47,7 +48,7 @@ export default function SampleSetsPanel() {
             })
             loadedRef.current = true
         }
-    }, [queue, removeFilters, sampleSetData, setActiveIdList, setQueue, setSampleSet, setSettings, setViewOnly])
+    }, [queue, removeFilters, sampleSetData, setActiveIdList, setChartTitle, setQueue, setSampleSet, setSettings, setViewOnly])
 
     return (
         <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
@@ -58,7 +59,7 @@ export default function SampleSetsPanel() {
 
             {sampleSet &&
                 <div style={{width: '100%', fontSize: '0.9rem', marginTop: 5}}>
-                    <strong>{sampleSet?.name || 'Demo Sample Set'}</strong> | {sampleSet?.description || 'A collection of demo images.'}
+                    <strong>{sampleSet?.name || 'Demo Sample Set'}</strong> | {sampleSet?.description || 'A collection of demo samples.'}
                     <Tracker feature='SampleSetImport' page={sampleSet?.name} />
                 </div>
             }

@@ -26,6 +26,7 @@ import CurveLinearIcon from '../resources/CurveLinearIcon.jsx'
 import CurveCardinalIcon from '../resources/CurveCardinalIcon.jsx'
 import SeriesColorPicker from '../components/SeriesColorPicker.jsx'
 import Tracker from '../../app/Tracker.jsx'
+import TextField from '@mui/material/TextField'
 
 function fmtNumber(n, digits = 2) {
     if (!Number.isFinite(n)) return '—'
@@ -51,7 +52,9 @@ export default function HistogramPanel({domEl}) {
         chartColors,
         customSampleParams,
         setCustomSampleParams,
-        isDesktop
+        isDesktop,
+        isScreenshot,
+        chartTitle, setChartTitle
     } = useContext(UIContext)
 
     //TODO: Skip every other tick on mobile
@@ -226,7 +229,7 @@ export default function HistogramPanel({domEl}) {
     const chartHeight = isDesktop ? 450 : 250
 
     const commonProps = {
-        margin: {top: 20, right: 10, bottom: 60, left: 40},
+        margin: {top: 10, right: 10, bottom: 60, left: 40},
         enableLabel: false,
         onClick: swapColors,
         theme: {
@@ -318,8 +321,22 @@ export default function HistogramPanel({domEl}) {
         ? activeItems[0].filename.replace('Aggregate', 'aggregate')
         : 'multiple'
 
+    const toggleButtonStyle = {height: 32, padding: '0px 11px'}
+    const toggleButtonStyleIcon = {height: 32, padding: '0px 8px'}
+    const handleKeyDown = (event) => {
+        if (event.key === 'Enter') {
+            event.target.blur()
+        }
+    }
+
+    const trackerMemo = useMemo(() => (
+        <Tracker feature='Results'/>
+    ), [])
+
+    const test = 'bins'
+
     return (
-        <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
+        <Paper sx={{p: isDesktop ? 2 : 1, pb: 0, width: '100%'}}>
             <Stack direction='row' alignItems='flex-end' justifyContent='space-between'
                    sx={{fontSize: '1.1rem', fontWeight: 500}}
                    style={!chartData.length ? disabledStyle : undefined}>
@@ -328,6 +345,7 @@ export default function HistogramPanel({domEl}) {
             </Stack>
 
             <Stack direction='row' spacing={1} alignItems='center' flexWrap='wrap' justifyContent='space-between'
+                   sx={{marginTop: isDesktop ? 1 : 0.5, marginBottom: '5px'}}
                    style={!chartData.length ? disabledStyle : undefined}>
                 <ToggleButtonGroup
                     size='small'
@@ -338,11 +356,11 @@ export default function HistogramPanel({domEl}) {
                             setYAxis(v)
                         }
                     }}
-                    style={{margin: '10px 10px 10px 0'}}
+                    style={{marginRight: 10, marginBottom: 10}}
                 >
-                    <ToggleButton value='mass'>Mass</ToggleButton>
-                    <ToggleButton value='surface'>Surface Area</ToggleButton>
-                    <ToggleButton value='count'>Count</ToggleButton>
+                    <ToggleButton value='mass' style={toggleButtonStyle}>Mass</ToggleButton>
+                    <ToggleButton value='surface' style={toggleButtonStyle}>Surface Area</ToggleButton>
+                    <ToggleButton value='count' style={toggleButtonStyle}>Count</ToggleButton>
                 </ToggleButtonGroup>
 
                 <ToggleButtonGroup
@@ -350,51 +368,66 @@ export default function HistogramPanel({domEl}) {
                     value={binSpacing}
                     exclusive
                     onChange={(_, v) => v && setBinSpacing(v)}
-                    style={{margin: '10px 10px 10px 10px'}}
+                    style={{marginRight: 15, marginBottom: 10}}
                 >
-                    <ToggleButton value='log' style={{padding: 9}}>
-                        <ScaleLogIcon width={18} height={18} style={{
+                    <ToggleButton value='log' style={toggleButtonStyleIcon}>
+                        <ScaleLogIcon width={16} height={16} style={{
                             margin: '0px 1px',
                             fill: binSpacing === 'log' ? theme.palette.text.primary : theme.palette.text.secondary
                         }}/>
                     </ToggleButton>
-                    <ToggleButton value='linear' style={{padding: 9}}>
-                        <ScaleLinearIcon width={18} height={18} style={{
+                    <ToggleButton value='linear' style={toggleButtonStyleIcon}>
+                        <ScaleLinearIcon width={16} height={16} style={{
                             margin: '0px 1px',
                             fill: binSpacing === 'linear' ? theme.palette.text.primary : theme.palette.text.secondary
                         }}/>
                     </ToggleButton>
                 </ToggleButtonGroup>
 
-                <Stack direction='row' alignContent='center' justifyContent='flex-end' sx={{mb: 0, flexGrow: 1}}>
-                    <Stack sx={{mr: isDesktop ? 2 : 1, mt: 0}}>
-                        <Typography variant='body2'>
-                            Bin Count: {settings.bins}
-                        </Typography>
-                        <Slider
-                            value={settings.bins}
-                            min={10}
-                            max={40}
-                            step={1}
-                            onChange={(_, v) => setSettings(prev => ({...prev, bins: v}))}
-                            style={{width: 120}}
-                            size='medium'
-                        />
+                <Stack direction='row' style={{display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10}}>
+                    <Stack direction='row' alignContent='center' style={{fontSize: '0.8rem', whiteSpace: 'nowrap'}}>
+                        <strong>Bin Count</strong>: {settings.bins}
                     </Stack>
+                    {!isScreenshot &&
+                        <Stack direction='row' alignContent='center' sx={{mr: isDesktop ? 2 : 1}}>
+                            <Slider
+                                value={settings.bins}
+                                onChange={(_, v) => setSettings(prev => ({...prev, [test]: v}))}
+                                min={10}
+                                max={45}
+                                step={1}
+                                style={{width: 120, marginBottom: 1}}
+                                size='medium'
+                                sx={{
+                                    '& .MuiSlider-thumb': {
+                                        height: 16, width: 16
+                                    },
+                                    '& .MuiSlider-markLabel': {
+                                        fontSize: '0.5rem',
+                                        lineHeight: '0.5rem',
+                                        marginTop: '-7px',
+                                        color: theme.palette.text.secondary
+                                    }
+                                }}
+                                marks={[{value: 15}]}
+                            />
+                        </Stack>
+                    }
                 </Stack>
 
                 <Stack direction='row' alignItems='center' justifyContent={isDesktop ? 'flex-end' : 'flex-start'}
-                       sx={{flexGrow: 1}}>
-
+                       sx={{flexGrow: 1, marginBottom: '10px'}}>
                     <ToggleButtonGroup
                         size='small'
                         value={chartMode}
                         exclusive
                         onChange={(_, v) => v && setChartMode(v)}
-                        style={{margin: '10px 10px 10px 10px'}}
+                        style={{marginRight: 15, marginBottom: 10}}
                     >
-                        <ToggleButton value='bar' style={{}}><BarChartIcon/></ToggleButton>
-                        <ToggleButton value='line' style={{}}><ShowChartIcon/></ToggleButton>
+                        <ToggleButton value='bar' style={toggleButtonStyleIcon}>
+                            <BarChartIcon width={15} height={15}/></ToggleButton>
+                        <ToggleButton value='line' style={toggleButtonStyleIcon}>
+                            <ShowChartIcon width={15} height={15}/></ToggleButton>
                     </ToggleButtonGroup>
 
                     <ToggleButtonGroup
@@ -402,21 +435,24 @@ export default function HistogramPanel({domEl}) {
                         value={chartCurve}
                         exclusive
                         onChange={(_, v) => v && setChartCurve(v)}
-                        style={{margin: '10px 0px 10px 10px'}}
+                        style={{marginBottom: 10}}
                     >
-                        <ToggleButton value='linear' style={{}}>
+                        <ToggleButton value='linear' style={toggleButtonStyleIcon}>
                             <CurveLinearIcon width={16} height={16} style={{
                                 margin: '4px 5px',
                                 stroke: chartCurve === 'linear' ? theme.palette.text.primary : theme.palette.text.secondary
                             }}/>
                         </ToggleButton>
-                        <ToggleButton value='curve'>
+                        <ToggleButton value='curve' style={toggleButtonStyleIcon}>
                             <CurveCardinalIcon width={16} height={16} style={{
                                 margin: '4px 5px',
                                 stroke: chartCurve === 'curve' ? theme.palette.text.primary : theme.palette.text.secondary
                             }}/>
                         </ToggleButton>
                     </ToggleButtonGroup>
+                    {!!chartData.length &&
+                        <>{trackerMemo}</>
+                    }
 
                 </Stack>
             </Stack>
@@ -443,9 +479,28 @@ export default function HistogramPanel({domEl}) {
                 </Box>
             )}
 
-            {!!chartData.length && <Tracker feature='Results'/>}
-
-
+            {!!chartData.length && ((chartTitle?.length && isScreenshot) || !isScreenshot) &&
+                <Stack direction='row' flexWrap='wrap' spacing={2} justifyContent='center'
+                       sx={{mt: 0, pl: 4, fontSize: '0.75rem'}}>
+                    <TextField type='text' name='chartTitle' id='chartTitle'
+                               onChange={e => setChartTitle(e.target.value)} value={chartTitle || ''}
+                               onKeyDown={handleKeyDown}
+                               fullWidth
+                               style={{height: 42, minWidth: 280}}
+                               sx={{
+                                   '& .MuiInputBase-input': {
+                                       textAlign: 'center',
+                                       fontSize: chartTitle?.length ? '1.2rem' : '0.8rem',
+                                       fontWeight: chartTitle?.length ? 500 : 400,
+                                       color: chartTitle?.length ? theme.palette.text.primary : theme.palette.text.secondary
+                                   },
+                                   '& .MuiOutlinedInput-notchedOutline': {border: 'none'}
+                               }}
+                               size='small'
+                               placeholder='Add title'
+                               color='info'/>
+                </Stack>
+            }
             {!!chartData.length && chartMode === 'bar' && (
                 <Box sx={{height: chartData.length ? chartHeight : 175}}>
                     <ResponsiveBar

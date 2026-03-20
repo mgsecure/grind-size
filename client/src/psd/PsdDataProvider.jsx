@@ -256,7 +256,7 @@ export function PsdDataProvider({children}) {
             setQueue([])
             return
         }
-        const candidateFiles = Array.from(files).slice(0, 6)
+        const candidateFiles = Array.from(files)
         setQueue(prev => {
             const unprocessedFiles = candidateFiles
                 .filter(file => !prev.find(q => q.file.relativePath === file.path && q.status === 'done'))

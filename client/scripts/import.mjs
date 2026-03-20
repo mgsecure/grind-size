@@ -34,7 +34,6 @@ const sampleSetData = await importValidate('SampleSets', sampleSetSchema)
 const equipmentData = await importValidate('Equipment', equipmentSchema)
 
 
-
 // Load previous JSON for recently updated checks
 //const originalData = JSON.parse(fs.readFileSync('./src/data/data.json', 'utf8'))
 
@@ -49,12 +48,8 @@ const sampleSets = sampleSetData
         })
         return value
     })
-    .sort((a, b) => {
-        return a.seq.localeCompare(b.seq)
-    })
 console.log('Writing sampleSets.json...')
 fs.writeFileSync('../src/data/sampleSets.json', JSON.stringify(sampleSets, null, 2))
-
 
 console.log('Processing equipment data...')
 const equipment = equipmentData

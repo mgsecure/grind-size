@@ -1,20 +1,32 @@
 [
   {
-    "id": "a1581afe",
-    "seq": "1",
-    "name": "Kinu M47: 0.0.0 - 4.0.0",
-    "description": "Kinu M47 grinder using the Pour Over Burr at five different settings.",
+    "id": "4a3aeacf",
+    "name": "Kinu M47 Pour Over Burr vs. Baratza Encore ESP Pro",
+    "description": "Comparison of distribution at similar median particle sizes. The Kinu produces significantly fewer fine particles, with a much tighter distribution. ",
+    "chartTitle": "Kinu M47 Pour Over Burr vs. Baratza Encore ESP Pro",
     "adminOnly": false,
     "sourceName": "demo",
-    "dataUrl": "/data/Kinu_M47_POB_0-4_Compare.json",
+    "dataUrl": "/data/KinuM47POB-v-BaratzaESPPro.json",
     "sampleCount": "5",
-    "binCount": "19",
+    "binCount": "10",
+    "dataQuality": "5",
+    "notes": "This is just a demo dataset to show how the app works."
+  },
+  {
+    "id": "a1581afe",
+    "name": "Kinu M47 Pour Over Burr - Settings 0.0.0 to 4.0.0",
+    "description": "Kinu M47 grinder using the Pour Over Burr at five different settings. Worth noting that finer grind settings with the POB show a more even distribution of particle sizes, perhaps contributing to the contradictory levels of clarity/body reported at different ends of the spectrum.\n",
+    "chartTitle": "Kinu M47 Pour Over Burr - Settings 0.0.0 to 4.0.0",
+    "adminOnly": false,
+    "sourceName": "demo",
+    "dataUrl": "/data/Kinu_M47_POB_0-4.json",
+    "sampleCount": "5",
+    "binCount": "17",
     "dataQuality": "5",
     "notes": "This is just a demo dataset to show how the app works."
   },
   {
     "id": "a92951f6",
-    "seq": "2",
     "name": "Kinu M47: Stock vs Pour Over Burr at 2.0.0",
     "description": "Comparing the Stock and Pour Over burrs at setting 2.0.0 on the Kinu M47 grinder.",
     "adminOnly": false,
@@ -24,18 +36,5 @@
     "binCount": "15",
     "dataQuality": "3",
     "notes": "This is another demo dataset to show how the app works."
-  },
-  {
-    "id": "4a3aeacf",
-    "seq": "3",
-    "name": "Kinu M47: TEST",
-    "description": "Test",
-    "adminOnly": true,
-    "sourceName": "demo",
-    "dataUrl": "/data/Kinu_M47_POB_0-4_Compare.json",
-    "sampleCount": "5",
-    "binCount": "10",
-    "dataQuality": "5",
-    "notes": "This is just a demo dataset to show how the app works."
   }
 ]

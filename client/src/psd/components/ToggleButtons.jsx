@@ -10,6 +10,8 @@ export default function ToggleButtons({
         onChange(newValue)
     }
 
+    const toggleButtonStyle = {height: 32, padding: '0px 11px'}
+
     return (
         <ToggleButtonGroup
             size='small'
@@ -22,7 +24,7 @@ export default function ToggleButtons({
                     key={key}
                     value={value}
                     selected={currentValue.toString() === value.toString()}
-                    style={{...buttonStyle, backgroundColor: currentValue.toString() === value.toString() ? selectedBackground : undefined}}
+                    style={{...toggleButtonStyle, backgroundColor: currentValue.toString() === value.toString() ? selectedBackground : undefined, ...buttonStyle}}
                     >
                     {label}
                 </ToggleButton>)

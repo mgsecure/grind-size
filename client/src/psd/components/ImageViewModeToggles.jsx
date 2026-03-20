@@ -7,7 +7,7 @@ import UIContext from '../../context/UIContext.jsx'
 export default function ImageViewModeToggles() {
     const {
         queue,
-        activeIdList,
+        activeIdList
     } = useContext(DataContext)
 
     const {imageViewMode, setImageViewMode} = useContext(UIContext) // original | mask | overlay | diagnostic

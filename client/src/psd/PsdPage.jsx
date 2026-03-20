@@ -22,7 +22,7 @@ export default function PsdPage() {
     // TODO - need to be able to reset all data in both contexts
 
     const {manualSelectionId, viewOnly} = useContext(DataContext)
-    const {showTitleBar, isDesktop, resetUI} = useContext(UIContext)
+    const {isScreenshot, isDesktop, resetUI} = useContext(UIContext)
     const domEl = useRef(null)
 
     const resetContexts = useCallback(() => {
@@ -60,10 +60,10 @@ export default function PsdPage() {
                     <SettingsPanel/>
                 }
 
-                <Stack direction='column' spacing={(isDesktop && !showTitleBar) ? 1 : 1}
+                <Stack direction='column' spacing={(isDesktop && !isScreenshot) ? 1 : 1}
                        sx={{width: '100%', backgroundColor: theme.palette.background.default}} ref={domEl}>
 
-                    {showTitleBar && (
+                    {isScreenshot && (
                         <Paper sx={{p: 2, width: '100%'}}>
                             <Typography style={{fontSize: '1.5rem', fontWeight: 700}}>
                                 COFFEE GRINDS <span style={{fontWeight: 300}}> PARTICLE SIZE DISTRIBUTION</span>

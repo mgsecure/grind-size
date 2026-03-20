@@ -18,12 +18,15 @@ import {renderMaskPng, renderOverlayPng, renderDiagnosticPng, renderOriginalPng}
 import {getFileNameWithoutExtension} from '../../util/stringUtils.js'
 import defineROI from './pipeline/defineROI.js'
 import getColorTemperature from './pipeline/getColorTemperature.js'
+import getTrackerImage from '../../util/getTrackerImage.js'
 
 const debug = false
 const renderDiagnosticImage = false
 
+
 export async function analyzeImageFiles(item, settings, manualCorners = null, overlayOptions = null) {
     const startedAt = new Date().toISOString()
+
 
     const {testPipeline = false, correctPerspective = true, useMorphology = true, sampleName = null} = settings
     const file = item?.file
@@ -69,6 +72,7 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
     debug && console.log('Template scaleInfo:', scaleInfo)
 
     if (!scaleInfo) {
+        getTrackerImage({feature: 'analysis', err: 'noScaleInfo'})
         throw new Error('Could not determine pixel scale. Check your template and image quality.')
     }
 
@@ -241,6 +245,12 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
     }
 
     console.log(`Final analysis: ${particles.length} particles`)
+    getTrackerImage({
+        feature: 'analysis',
+        template: `${scaleInfo.templateSize}mm`,
+        particles: particles.length,
+        markers: uniqueMarkers.length
+    })
 
     const filteredValidIds = particles.map(p => p.id)
 
