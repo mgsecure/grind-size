@@ -21,14 +21,14 @@ export default function PsdPage() {
 
     // TODO - need to be able to reset all data in both contexts
 
-    const {manualSelectionId, viewOnly} = useContext(DataContext)
-    const {isScreenshot, isDesktop, resetUI} = useContext(UIContext)
+    const {manualSelectionId, viewOnly, resetDataContext} = useContext(DataContext)
+    const {isScreenshot, isDesktop, resetUIContext} = useContext(UIContext)
     const domEl = useRef(null)
 
     const resetContexts = useCallback(() => {
-        resetUI()
-        //resetData()
-    }, [resetUI])
+        resetUIContext()
+        resetDataContext()
+    }, [resetDataContext, resetUIContext])
 
     return (
         <>

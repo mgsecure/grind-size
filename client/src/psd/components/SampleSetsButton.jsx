@@ -20,7 +20,7 @@ import AuthContext from '../../app/AuthContext.jsx'
 export default function SampleSetsButton({iconOnly = false, linkOnly = false}) {
 
     const {setQueue, setActiveIdList, sampleSets, setSampleSet, setSettings} = useContext(DataContext)
-    const {setChartTitle, altButtonColor} = useContext(UIContext)
+    const {setChartTitle, altButtonColor, setCustomSampleParams} = useContext(UIContext)
     const {isAdmin} = useContext(AuthContext)
 
     const publicSampleSets = sampleSets.filter(s => !s.adminOnly)
@@ -45,7 +45,17 @@ export default function SampleSetsButton({iconOnly = false, linkOnly = false}) {
         fetchData(sampleSet.dataUrl).then(r => {
             if (r.data) {
                 setQueue([])
-                loadImport(r.data, {queue: [], setQueue, setActiveIdList})
+                loadImport(r.data, {queue: [], setQueue, setActiveIdList, setCustomSampleParams})
+                setActiveIdList(prev => {
+                    const newList = [...prev]
+                    newList.forEach(id => {
+                        const item = sampleSet?.items?.find(i => i.id === id)
+                        if (item) {
+                            item.active = true
+                        }
+                    })
+                    return newList
+                })
                 setSettings(prev => ({...prev, bins: sampleSet.binCount}))
                 setSampleSet(sampleSet)
                 setChartTitle(sampleSet.chartTitle)
@@ -58,7 +68,7 @@ export default function SampleSetsButton({iconOnly = false, linkOnly = false}) {
             console.error('error loading dataset', e)
             enqueueSnackbar(`Error loading dataset: ${e.message || e}`, {variant: 'error'})
         })
-    }, [handleClose, sampleSets, setActiveIdList, setChartTitle, setQueue, setSampleSet, setSettings])
+    }, [handleClose, sampleSets, setActiveIdList, setChartTitle, setCustomSampleParams, setQueue, setSampleSet, setSettings])
 
     const menuItemStyle = {padding: '10px 16px'}
 
@@ -71,7 +81,7 @@ export default function SampleSetsButton({iconOnly = false, linkOnly = false}) {
             {iconOnly &&
                 <Tooltip title='Import Data' arrow disableFocusListener>
                     <IconButton onClick={handleOpen}>
-                        <CloudDownloadIcon style={{color: altButtonColor}}/>
+                        <CloudDownloadIcon  color='info'/>
                     </IconButton>
                 </Tooltip>
             }
@@ -82,7 +92,7 @@ export default function SampleSetsButton({iconOnly = false, linkOnly = false}) {
                     size='small'
                     onClick={handleOpen}
                     startIcon={<CloudDownloadIcon style={{color: altButtonColor}}/>}
-                    style={{color: altButtonColor}}>
+                    color='info'>
                     Choose Dataset...
                 </Button>
             }

@@ -16,6 +16,8 @@ import Stack from '@mui/material/Stack'
 import DataContext from '../../context/DataContext.jsx'
 import Switch from '@mui/material/Switch'
 import UIContext from '../../context/UIContext.jsx'
+import helpStatistics from '../resources/helpStatistics.md?raw'
+import HelpContentDrawerButton from '../components/HelpContentDrawerButton.jsx'
 
 export default function StatsPanel() {
     const {activeItems, queue, aggregateQueueItem = {}} = useContext(DataContext)
@@ -36,9 +38,9 @@ export default function StatsPanel() {
 
     if (!activeItems.length || activeItems[0].status !== 'done') return (
         <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
-            <Stack direction='row' alignItems='flex-end' justifyContent='space-between'
-                   sx={{fontSize: '1.1rem', fontWeight: 500}} style={disabledStyle}>
-                STATISTICS
+            <Stack direction='row' alignItems='center' sx={{fontSize: '1.1rem', fontWeight: 500}} style={disabledStyle}>
+                <span style={{marginRight: 10}}>STATISTICS</span>
+                <HelpContentDrawerButton markdown={String(helpStatistics)}/>
             </Stack>
             <Box color={alpha(theme.palette.text.secondary, 0.4)}
                  sx={{
@@ -79,11 +81,11 @@ export default function StatsPanel() {
         {key: 'stdDev', label: 'Std Dev', unit: unit},
         {key: 'min', label: 'Min', unit: unit},
         {key: 'max', label: 'Max', unit: unit},
+        {key: 'span', label: 'Span', unit: '%'},
+        {key: 'efficiency', label: 'Efficiency', unit: '%'},
         {key: 'avgShortAxis', label: 'Avg Short Axis', unit: 'μm'},
         {key: 'avgLongAxis', label: 'Avg Long Axis', unit: 'μm'},
         {key: 'avgRoundness', label: 'Avg Roundness', unit: ''},
-        {key: 'efficiency', label: 'Efficiency', unit: '%'},
-        {key: 'span', label: 'Span', unit: '%'},
         {key: 'pixelScale', label: 'Pixel Scale', unit: ''}
     ]
 
@@ -96,17 +98,17 @@ export default function StatsPanel() {
         {key: 'D90', label: 'D90', unit: unit},
         {key: 'mode', label: 'Mode', unit: unit},
         {key: 'mean', label: 'Mean', unit: unit},
-        {key: 'stdDev', label: 'Std Dev', unit: unit}
+        {key: 'stdDev', label: 'Std Dev', unit: unit},
     ]
 
     const metricDataTwo = [
+        {key: 'span', label: 'Span', unit: '%'},
+        {key: 'efficiency', label: 'Efficiency', unit: '%'},
         {key: 'min', label: 'Min', unit: unit},
         {key: 'max', label: 'Max', unit: unit},
         {key: 'avgShortAxis', label: 'Avg Short Axis', unit: 'μm'},
         {key: 'avgLongAxis', label: 'Avg Long Axis', unit: 'μm'},
         {key: 'avgRoundness', label: 'Avg Roundness', unit: ''},
-        {key: 'efficiency', label: 'Efficiency', unit: '%'},
-        {key: 'span', label: 'Span', unit: '%'},
         {key: 'pixelScale', label: 'Pixel Scale', unit: ''}
     ]
 
@@ -150,8 +152,8 @@ export default function StatsPanel() {
                 ? `${parseFloat(item.scale.detectedPxPerMm ?? item.scale.pxPerMm).toFixed(2)} px/mm`
                 : 'n/a',
             avgRoundness: item.stats.avgRoundness?.toFixed(1),
-            efficiency: item.stats.efficiency?.toFixed(2),
-            span: item.stats.span?.toFixed(2),
+            efficiency: item.stats.efficiency !== null ? (item.stats.efficiency * 100).toFixed(1) : undefined,
+            span: item.stats.span !== null ? (item.stats.span * 100).toFixed(1) : undefined,
 
             name: item.settings?.name,
             testPipeline: item.settings?.testPipeline ? 'Enabled' : 'Disabled',
@@ -204,8 +206,8 @@ export default function StatsPanel() {
                             fontWeight: 'bold',
                             backgroundColor: theme.palette.background.paper,
                             whiteSpace: 'nowrap',
-                            color: item.id === aggregateQueueItem?.id ? aggregateColor : customSampleParams[item.sampleName]?.color || currentColors[noErrorIdList.indexOf(item.id)],
-                            borderBottom: `2px solid ${item.id === aggregateQueueItem?.id ? aggregateColor : customSampleParams[item.sampleName]?.color || currentColors[noErrorIdList.indexOf(item.id)]}`
+                            color: item.id === aggregateQueueItem?.id ? aggregateColor : customSampleParams[item.id]?.color || currentColors[noErrorIdList.indexOf(item.id)],
+                            borderBottom: `2px solid ${item.id === aggregateQueueItem?.id ? aggregateColor : customSampleParams[item.id]?.color || currentColors[noErrorIdList.indexOf(item.id)]}`
                         }} key={item.id}>
                             {tableData[item.id]?.sampleName}
                         </TableCell>
@@ -219,7 +221,10 @@ export default function StatsPanel() {
         <Paper sx={{p: isDesktop ? 2 : 1, pb:1}} ref={domEl}>
             <Stack direction='row' alignItems='flex-end' justifyContent='space-between'
                    sx={{fontSize: '1.1rem', fontWeight: 500}}>
-                STATISTICS
+                <Stack direction='row' alignItems='center' sx={{fontSize: '1.1rem', fontWeight: 500}}>
+                    <span style={{marginRight: 10}}>STATISTICS</span>
+                    <HelpContentDrawerButton markdown={String(helpStatistics)}/>
+                </Stack>
                 {!isScreenshot &&
                     <FormControlLabel
                         labelPlacement={'start'}

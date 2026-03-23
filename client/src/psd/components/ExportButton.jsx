@@ -8,7 +8,7 @@ import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 import Tooltip from '@mui/material/Tooltip'
 import {enqueueSnackbar} from 'notistack'
-import React, {useCallback, useContext, useState} from 'react'
+import React, {useCallback, useContext, useMemo, useState} from 'react'
 import DataContext from '../../context/DataContext.jsx'
 import download from '../../util/download'
 import Button from '@mui/material/Button'
@@ -37,8 +37,32 @@ export default function ExportButton({text}) {
         aggregateQueueItem
     } = useContext(DataContext)
 
-    const {altButtonColor} = useContext(UIContext)
+    const {altButtonColor, customSampleParams} = useContext(UIContext)
     const [aggregateExportName, setAggregateExportName] = useState(defaultAggregateExportName)
+
+    const aggregateSourceInfo = useMemo(() => {
+        return queue
+            .filter(item => item?.result && item?.result?.particles?.length > 0)
+            .filter(item => item.id !== aggregateQueueItem?.id)
+            .map((item, idx) => {
+                return {
+                    sampleName: item.sampleName,
+                    id: item.id,
+                    source: 'aggregate info',
+                    result: {
+                        analysisVersion: item.result.analysisVersion,
+                        filename: item.result.filename,
+                        parameters: item.result.parameters,
+                        settings: item.result.settings,
+                        template: item.result.template
+                    },
+                    file: {
+                        name: item.file?.name || item.filename || `source file ${idx + 1}`,
+                        path: item.file?.path || `source file ${idx + 1}`
+                    }
+                }
+            })
+    }, [aggregateQueueItem, queue])
 
     const cleanQueueItems = useCallback((items) => {
         if (!items) return []
@@ -51,6 +75,7 @@ export default function ExportButton({text}) {
                 newResult.particles = newResult.particles?.map(p => ({...p, contour: []}))
                 newResult.histograms = activeItems?.find(i => i.id === item.id).histograms
                 newResult.sampleName = activeItems?.find(i => i.id === item.id).sampleName
+                newResult.customSampleParams = customSampleParams[item.id] || {}
                 let newItem = {
                     ...item, result: newResult, source: 'export', file: {}, id: `${item.id}-${genHexString(8)}`
                 }
@@ -61,11 +86,12 @@ export default function ExportButton({text}) {
                     newItem.result.filename = aggregateExportName
                     newItem.result.sampleName = aggregateExportName
                     newItem.file.name = aggregateExportName
+                    newItem.aggregateSourceInfo = aggregateSourceInfo
                 }
 
                 return newItem
             })
-    }, [activeIdList, activeItems, aggregateExportName, aggregateQueueItem])
+    }, [activeIdList, activeItems, aggregateExportName, aggregateQueueItem, aggregateSourceInfo, customSampleParams])
 
     const [anchorEl, setAnchorEl] = useState(null)
     const open = Boolean(anchorEl)

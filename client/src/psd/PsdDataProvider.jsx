@@ -462,7 +462,13 @@ export function PsdDataProvider({children}) {
         }
     ))
 
+    const resetDataContext = useCallback(() => {
+        setQueue([])
+        setSampleSet(null)
+    }, [])
+
     const value = useMemo(() => ({
+        resetDataContext,
         debugLevel, setDebugLevel,
         settings, setSettings,
         customSettings, setCustomSettings,
@@ -496,7 +502,7 @@ export function PsdDataProvider({children}) {
         overlapSplitPresets, overlapPreset, setOverlapPreset,
         viewOnly, setViewOnly,
         sampleSets, sampleSet, setSampleSet
-    }), [debugLevel, setDebugLevel, settings, customSettings, setCustomSettings, retainCustomSettings, isCustomSettings, queue, processingComplete, droppedFiles, activeIdList, xAxis, yAxis, binSpacing, resetToggle, isAnalyzing, manualSelectionId, manualSelectionUrl, overlayOptions, aggregateQueueItem, aggregateItem, queueItems, allItems, activeItems, getItemDetails, globalMaxY, onFiles, analyzeAll, handleQueueRemove, processMultipleSettings, handleManualCorners, cancelManual, overlapPreset, viewOnly, sampleSet])
+    }), [resetDataContext, debugLevel, setDebugLevel, settings, customSettings, setCustomSettings, retainCustomSettings, isCustomSettings, queue, processingComplete, droppedFiles, activeIdList, xAxis, yAxis, binSpacing, resetToggle, isAnalyzing, manualSelectionId, manualSelectionUrl, overlayOptions, aggregateQueueItem, aggregateItem, queueItems, allItems, activeItems, getItemDetails, globalMaxY, onFiles, analyzeAll, handleQueueRemove, processMultipleSettings, handleManualCorners, cancelManual, overlapPreset, viewOnly, sampleSets, sampleSet])
 
     return (
         <DataContext.Provider value={value}>

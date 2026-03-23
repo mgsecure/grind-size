@@ -111,9 +111,9 @@ function ImageGallery(props) {
                                     padding: '6px 12px'
                                 },
                                 '& .MuiImageListItemBar-title': {
-                                    color: customSampleParams[title]?.color || currentColors[noErrorIdList.indexOf(id)],
+                                    color: customSampleParams[id]?.color || currentColors[noErrorIdList.indexOf(id)],
                                     fontWeight: 500,
-                                    borderBottom: `1px solid ${customSampleParams[title]?.color || currentColors[noErrorIdList.indexOf(id)]}`
+                                    borderBottom: `1px solid ${customSampleParams[id]?.color || currentColors[noErrorIdList.indexOf(id)]}`
                                 },
                                 '& .MuiImageListItemBar-subtitle': {
                                     lineHeight: '1.4rem'

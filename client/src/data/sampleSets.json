@@ -8,9 +8,22 @@
     "sourceName": "demo",
     "dataUrl": "/data/KinuM47POB-v-BaratzaESPPro.json",
     "sampleCount": "5",
-    "binCount": "10",
+    "binCount": "17",
     "dataQuality": "5",
     "notes": "This is just a demo dataset to show how the app works."
+  },
+  {
+    "id": "a92951f6",
+    "name": "Kinu M47 Pour Over Burr vs. Stock Burr (2.0.0 and 3.5.0)",
+    "description": "Comparing the Pour Over Burr (POB) and Stock Burr at similar median particle sizes on the Kinu M47 grinder. The POB produces significantly fewer fine particles, with a tighter distribution. Note that the POB requires 1-1.5 x fewer rotations for the same median particle size.\n",
+    "chartTitle": "Kinu M47 Pour Over Burr vs. Stock Burr (2.0.0 and 3.5.0)",
+    "adminOnly": false,
+    "sourceName": "demo",
+    "dataUrl": "/data/KinuM47POB-v-Stock.json",
+    "sampleCount": "2",
+    "binCount": "10",
+    "dataQuality": "3",
+    "notes": "This is another demo dataset to show how the app works."
   },
   {
     "id": "a1581afe",
@@ -21,20 +34,44 @@
     "sourceName": "demo",
     "dataUrl": "/data/Kinu_M47_POB_0-4.json",
     "sampleCount": "5",
-    "binCount": "17",
+    "binCount": "13",
     "dataQuality": "5",
     "notes": "This is just a demo dataset to show how the app works."
   },
   {
-    "id": "a92951f6",
-    "name": "Kinu M47: Stock vs Pour Over Burr at 2.0.0",
-    "description": "Comparing the Stock and Pour Over burrs at setting 2.0.0 on the Kinu M47 grinder.",
+    "id": "551bfa59",
+    "name": "Dust & Boulders",
+    "description": "Homogenous samples of very fine particles as well as sifted boulders.",
+    "chartTitle": "Dust & Boulders",
     "adminOnly": false,
     "sourceName": "demo",
-    "dataUrl": "/data/Kinu_M47_POB_Stock_2.0.0_Compare.json",
+    "dataUrl": "/data/Dust-v-Boulders.json",
     "sampleCount": "2",
-    "binCount": "15",
-    "dataQuality": "3",
-    "notes": "This is another demo dataset to show how the app works."
+    "binCount": "10",
+    "dataQuality": "4"
+  },
+  {
+    "id": "95ae12ff",
+    "name": "Sample Distribution Consistency - Baratza ESP Pro",
+    "description": "Four different samples",
+    "chartTitle": "Sample Distribution Consistency - Baratza ESP Pro",
+    "adminOnly": false,
+    "sourceName": "demo",
+    "dataUrl": "/data/SampleDistributionConsistency_BEP40.json",
+    "sampleCount": "2",
+    "binCount": "10",
+    "dataQuality": "4"
+  },
+  {
+    "id": "ca0cd5cf",
+    "name": "Kinu M47 Pour Over Burr vs. MHW-3BOMBER R3",
+    "description": "Kinu M47 Pour Over Burr @ 3.0.0  vs.  MHW-3BOMBER R3 @ 2+06",
+    "chartTitle": "Kinu M47 Pour Over Burr @ 3.0.0  vs.  MHW-3BOMBER R3 @ 2+06",
+    "adminOnly": false,
+    "sourceName": "demo",
+    "dataUrl": "/data/Kinu-M47-POB-v-MHW-3BOMBER.json",
+    "sampleCount": "6",
+    "binCount": "17",
+    "dataQuality": "4"
   }
 ]

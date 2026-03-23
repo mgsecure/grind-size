@@ -14,7 +14,7 @@ import {cleanCount} from '../../util/stringUtils.js'
 export default function ImportButton({iconOnly = false, linkOnly = false}) {
 
     const {queue, setQueue, setActiveIdList} = useContext(DataContext)
-    const {altButtonColor} = useContext(UIContext)
+    const {altButtonColor, setCustomSampleParams} = useContext(UIContext)
 
     const hiddenFileInput = useRef(null)
     const handleClick = useCallback(() => {
@@ -49,16 +49,18 @@ export default function ImportButton({iconOnly = false, linkOnly = false}) {
 
         try {
             const fileContents = await Promise.all(promises)
-            console.log('All files read:', fileContents)
+            //console.log('All files read:', fileContents)
 
             fileContents.forEach(file => {
                 try {
                     const jsonData = JSON.parse(file.content.toString())
-                    loadImport(jsonData, {queue, setQueue, setActiveIdList})
+                    loadImport(jsonData, {queue, setQueue, setActiveIdList, setCustomSampleParams})
                 } catch (err) {
                     console.error('Error parsing JSON:', err)
+                    throw new Error(`Error parsing JSON in file ${file.name}: ${err.message || err}`)
                 }
             })
+
             enqueueSnackbar(`${cleanCount(fileContents.length, 'import', false)} completed`, {
                 variant: 'success',
                 autoHideDuration: 2000
@@ -70,7 +72,7 @@ export default function ImportButton({iconOnly = false, linkOnly = false}) {
             hiddenFileInput.current.value = null
             setLoading(false)
         }
-    }, [queue, setActiveIdList, setQueue])
+    }, [queue, setActiveIdList, setCustomSampleParams, setQueue])
 
 
     return (

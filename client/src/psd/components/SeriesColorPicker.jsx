@@ -19,6 +19,7 @@ export default function SeriesColorPicker({seriesItem}) {
     const open = Boolean(anchorEl)
     const id = open ? 'simple-popover' : undefined
     const [color, setColor] = useState(chartColors[seriesItem.index] || '#bbb')
+    const [lineWeight, setLineWeight] = useState(2)
 
     const updateSwatches = useCallback((color) => {
         const newSwatches = [...colorSwatches]
@@ -38,32 +39,34 @@ export default function SeriesColorPicker({seriesItem}) {
         document.activeElement.blur()
         document.body.focus()
         setAnchorEl(null)
+        setLineWeight(2)
         updateSwatches(color)
     }
-
-
+    
     useEffect(() => {
-        if (customSampleParams[seriesItem.id]?.color && color !== customSampleParams[seriesItem.id]?.color) {
-            setColor(customSampleParams[seriesItem.id]?.color)
-        } else if (!customSampleParams[seriesItem.id]?.color) {
+        if (customSampleParams[seriesItem.itemId]?.color && color !== customSampleParams[seriesItem.itemId]?.color) {
+            setColor(customSampleParams[seriesItem.itemId]?.color)
+        } else if (!customSampleParams[seriesItem.itemId]?.color) {
             setColor(chartColors[seriesItem.index] || '#bbb')
         }
-    }, [chartColors, color, customSampleParams, seriesItem.id, seriesItem.index])
+        if (customSampleParams[seriesItem.itemId]?.stroke && setLineWeight !== customSampleParams[seriesItem.itemId]?.stroke) {
+            setLineWeight(customSampleParams[seriesItem.itemId]?.stroke)
+        }
+    }, [chartColors, color, customSampleParams, seriesItem.itemId, seriesItem.index])
 
     const handleColorChange = useCallback((color) => {
         setColor(color)
         const newSeriesParams = {...customSampleParams}
-        setDeep(newSeriesParams, [seriesItem.id, 'color'], color)
+        setDeep(newSeriesParams, [seriesItem.itemId, 'color'], color)
         setCustomSampleParams(newSeriesParams)
-    }, [customSampleParams, seriesItem.id, setCustomSampleParams])
+    }, [customSampleParams, seriesItem.itemId, setCustomSampleParams])
 
-    const [lineWeight, setLineWeight] = useState(2)
-    const handleLineWeight = (weight) => {
+    const handleLineWeight = useCallback((weight) => {
         setLineWeight(weight)
         const newSeriesParams = {...customSampleParams}
-        setDeep(newSeriesParams, [seriesItem.id, 'stroke'], weight)
+        setDeep(newSeriesParams, [seriesItem.itemId, 'stroke'], weight)
         setCustomSampleParams(newSeriesParams)
-    }
+    }, [customSampleParams, seriesItem.itemId, setCustomSampleParams])
 
     return (
         <>

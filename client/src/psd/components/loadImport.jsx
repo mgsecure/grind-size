@@ -1,6 +1,6 @@
 import {enqueueSnackbar} from 'notistack'
 
-export default function loadImport(jsonData, {queue=[], setQueue, setActiveIdList}) {
+export default function loadImport(jsonData, {queue = [], setQueue, setActiveIdList, setCustomSampleParams}) {
 
     const validImportItems = jsonData.filter(item => item.id && item.result?.particles?.length > 0)
     const nonDuplicateIds =
@@ -18,6 +18,9 @@ export default function loadImport(jsonData, {queue=[], setQueue, setActiveIdLis
         .map(item => ({...item, source: item.source === 'export' ? 'import' : item.source}))
     setQueue(prev => [...prev, ...importQueueClean])
     setActiveIdList(prev => [...prev, ...nonDuplicateIds])
+    importQueueClean.forEach(item => setCustomSampleParams(prev => {
+        return {...prev, [item.id]: item.result.customSampleParams}
+    }))
 
-   // console.log(`Imported ${cleanCount(importQueueClean.length, 'sample', false)}: ${importQueueClean.map(item => item.id).join(', ')}`)
+    // console.log(`Imported ${cleanCount(importQueueClean.length, 'sample', false)}: ${importQueueClean.map(item => item.id).join(', ')}`)
 }

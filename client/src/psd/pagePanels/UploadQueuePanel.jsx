@@ -72,14 +72,14 @@ export default function UploadQueuePanel({resetContexts}) {
     }, [activeIdList, fullQueue, selectEnabled, setActiveIdList])
 
     useEffect(() => {
-        if (queue.length === 1 && activeIdList.includes(aggregateQueueItem?.id)) {
+        if (queue.length === 1 && activeIdList.includes('CurrentAggregateResults')) {
             //console.log('only one active item, clearing CurrentAggregateResults')
-            setActiveIdList(prev => prev.filter(i => i !== aggregateQueueItem?.id))
+            setActiveIdList(prev => prev.filter(i => i !== 'CurrentAggregateResults'))
         } else if (queue.length === 0 && activeIdList.length > 0) {
             //console.log('no active items, clearing selection')
             setActiveIdList([])
         }
-    }, [activeIdList, aggregateQueueItem, handleSelect, queue, setActiveIdList])
+    }, [activeIdList, aggregateQueueItem, queue, setActiveIdList])
 
     const handleDelete = useCallback((id) => {
         handleQueueRemove(id)
@@ -147,7 +147,7 @@ export default function UploadQueuePanel({resetContexts}) {
                                                             style={{
                                                                 marginRight: 8,
                                                                 color: (item.id !== aggregateQueueItem?.id
-                                                                        ? customSampleParams[item.sampleName]?.color || currentColors[noErrorIdList.indexOf(item.id)]
+                                                                        ? customSampleParams[item.id]?.color || currentColors[noErrorIdList.indexOf(item.id)]
                                                                         : aggregateColor)
                                                                     || theme.palette.primary.main
                                                             }}/>

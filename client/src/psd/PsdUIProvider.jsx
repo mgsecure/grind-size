@@ -15,7 +15,7 @@ export default function PsdUIProvider({children}) {
         queue, activeIdList, aggregateQueueItem
     } = useContext(DataContext)
 
-    const [isScreenshot, setisScreenshot] = useState(false)
+    const [isScreenshot, setIsScreenshot] = useState(false)
     const [imageViewMode, setImageViewMode] = useState(defaultImageViewMode) // original | mask | overlay | diagnostic
     const [chartTitle, setChartTitle] = useState(undefined)
 
@@ -58,14 +58,16 @@ export default function PsdUIProvider({children}) {
 
     const [customSampleParams, setCustomSampleParams] = useState({})
 
-    const resetUI = useCallback(() => {
+    const resetUIContext = useCallback(() => {
         setCustomSampleParams({})
         setImageViewMode(defaultImageViewMode)
-        setisScreenshot(false)
-    }, [setCustomSampleParams, setImageViewMode, setisScreenshot])
+        setIsScreenshot(false)
+        setChartTitle(undefined)
+        setReverseColors(false)
+    }, [])
 
     const value = useMemo(() => ({
-        resetUI,
+        resetUIContext,
         theme,
         isDesktop,
         isMobile,
@@ -75,13 +77,13 @@ export default function PsdUIProvider({children}) {
         aggregateColor,
         altButtonColor,
         notErrorIdList,
-        isScreenshot, setisScreenshot,
+        isScreenshot, setIsScreenshot,
         imageViewMode, setImageViewMode,
         customSampleParams, setCustomSampleParams,
         colorSwatches, setColorSwatches,
         chartTitle, setChartTitle
     }), [
-        resetUI,
+        resetUIContext,
         theme,
         isDesktop,
         isMobile,
@@ -90,7 +92,7 @@ export default function PsdUIProvider({children}) {
         swapColors,
         aggregateColor,
         notErrorIdList,
-        isScreenshot, setisScreenshot,
+        isScreenshot, setIsScreenshot,
         imageViewMode, setImageViewMode,
         customSampleParams, setCustomSampleParams,
         colorSwatches, setColorSwatches,
