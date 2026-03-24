@@ -25,15 +25,15 @@ export default function PsdUIProvider({children}) {
     const swapColors = useCallback(() => setReverseColors(prev => !prev), [])
 
     const allColors = useMemo(() => theme.palette.mode === 'dark'
-            ? ['#a6cee3', '#038be6', '#f7a65f', '#ff3916',
+            ? ['#a6cee3', '#006dc5', '#f7a65f', '#ff3916',
                 '#b2df8a', '#33a02c']
-            : ['#5eb9e3', '#038be6', '#ffb670', '#ff3916',
+            : ['#5eb9e3', '#006dc5', '#ffb670', '#ff3916',
                 '#8ad743', '#0fad04']
         , [theme.palette.mode])
     const swappedColors = useMemo(() => theme.palette.mode === 'dark'
-            ? ['#038be6', '#a6cee3', '#ff3916', '#f7a65f',
+            ? ['#006dc5', '#a6cee3', '#ff3916', '#f7a65f',
                 '#33a02c', '#b2df8a']
-            : ['#038be6', '#5eb9e3', '#ff3916', '#ffb670',
+            : ['#006dc5', '#5eb9e3', '#ff3916', '#ffb670',
                 '#0fad04', '#8ad743']
         , [theme.palette.mode])
     const currentColors = useMemo(() => reverseColors

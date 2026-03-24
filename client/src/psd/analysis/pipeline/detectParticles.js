@@ -8,12 +8,14 @@ export async function detectParticles(maskObj, {minAreaPx = 8, minSolidity = 0.3
 
     // 1. Labeling / Component Analysis
     if (!externalLabels) {
+        let nextLabelId = 0
         for (let y = 0; y < height; y++) {
             for (let x = 0; x < width; x++) {
                 const idx = y * width + x
                 if (mask[idx] === 0 || labels[idx] !== 0) continue
 
-                const particleId = particles.length + 1
+                nextLabelId++
+                const particleId = nextLabelId
                 const comp = flood(mask, labels, width, height, x, y, particleId)
 
                 if (comp.area >= minAreaPx) {

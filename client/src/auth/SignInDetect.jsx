@@ -9,7 +9,7 @@ import ScopedDialog from '../misc/ScopedDialog.jsx'
 
 export default function SignInDetect({
                                          newSignIn = false,
-                                         setNewSignIn = (_) => {}, //eslint-disable-line
+                                         setNewSignIn = (_) => {},
                                          dialog,
                                          required,
                                          linkText = 'You must be signed in to use this page.',

@@ -4,8 +4,8 @@ export const sampleSetSchema = Joi.array().items(
     Joi.object({
         'id': Joi.string().regex(/^[0-9a-f]{8}$/),
         'name': Joi.string().min(1),
-        'description': Joi.string().min(1),
-        'chartTitle': Joi.string().allow(''),
+        'description': Joi.string().allow(''),
+        'chartTitle': Joi.string().min(1),
         'adminOnly': Joi.string().allow(''),
         'sourceName': Joi.string().min(1),
         'dataUrl': Joi.string().min(1),

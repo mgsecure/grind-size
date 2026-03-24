@@ -6,7 +6,6 @@ import Button from '@mui/material/Button'
 import useWindowSize from '../util/useWindowSize'
 import FilterContext from '../context/FilterContext'
 import {useTheme} from '@mui/material/styles'
-import {alpha} from '@mui/material'
 
 export default function ResetFiltersButton({
                                                forceText,
@@ -25,7 +24,7 @@ export default function ResetFiltersButton({
         clearAdvancedFilterGroups && clearAdvancedFilterGroups()
         closeDrawer && closeDrawer()
         window.scrollTo({top: 0, behavior: 'smooth'})
-    }, [clearAdvancedFilterGroups, clearFilters, closeDrawer])
+    }, [clearAdvancedFilterGroups, clearFilters, closeDrawer, setShowAdvancedSearch])
 
     const buttonVariant = drawer
         ? 'text'

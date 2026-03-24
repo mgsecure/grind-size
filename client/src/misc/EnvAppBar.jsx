@@ -13,7 +13,7 @@ import Slide from '@mui/material/Slide'
 import {useNavigate} from 'react-router-dom'
 
 export default function EnvAppBar() {
-    const {admin, setAdmin, beta, setBeta} = useContext(AppContext)
+    const {admin} = useContext(AppContext)
     const navigate = useNavigate()
 
     const [showFull, setShowFull] = useState(false)
@@ -39,7 +39,7 @@ export default function EnvAppBar() {
         handleClose()
         setShowFull(false)
         navigate(url)
-    }, [navigate, setShowFull])
+    }, [handleClose, navigate])
 
     const menuItems = routes[0].children.map(route => (
         <MenuItem key={route.path} onClick={handleClick(route.path)}>{route.name || route.path}</MenuItem>

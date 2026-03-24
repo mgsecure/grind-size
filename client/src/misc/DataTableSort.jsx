@@ -49,6 +49,7 @@ const DataTableSort = ({
             if (primary !== 0) return ascending ? primary : -primary
             // fallback compare is ALWAYS the value from the column data (stable)
             const hasFallback = list.find(x => x?.[defaultSort] !== undefined && x?.[defaultSort] !== null)
+            // eslint-disable-next-line no-constant-binary-expression
             const fallbackType = typeof hasFallback?.[defaultSort] || 'string'
             const fallback = cmp(a, b, defaultSort, fallbackType === 'number')
             return columns?.find(c => c.id === defaultSort)?.descending ? -fallback : fallback

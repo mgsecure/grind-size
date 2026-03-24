@@ -25,7 +25,8 @@ export default function CooldownCheck({id, windowMs = 60_000, onInit}) {
     const stopTimer = useCallback(() => {
         try {
             if (intervalRef.current) clearInterval(intervalRef.current)
-        } catch (_) {
+        } catch (e) {
+            console.error('Error stopping timer:', e)
         }
         intervalRef.current = null
     }, [])
@@ -66,7 +67,7 @@ export default function CooldownCheck({id, windowMs = 60_000, onInit}) {
         }
         onInit(api)
         // No cleanup necessary; parent should drop references as needed.
-    }, [id, windowMs, onInit, startCooldown])
+    }, [id, windowMs, onInit, startCooldown, beta])
 
     useEffect(() => () => stopTimer(), [stopTimer])
 

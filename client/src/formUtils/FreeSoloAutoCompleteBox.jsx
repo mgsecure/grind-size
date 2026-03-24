@@ -17,7 +17,7 @@ export default function FreeSoloAutoCompleteBox({name, changeHandler, options, v
                 options={options}
                 name={name}
                 value={value}
-                onChange={(event, newValue) => {
+                onChange={(_event, newValue) => {
                     const update = {target: {name: name, value: newValue}}
                     changeHandler(update)
                 }}

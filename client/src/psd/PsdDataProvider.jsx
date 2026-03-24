@@ -324,7 +324,7 @@ export function PsdDataProvider({children}) {
                         sampleName: item.sampleName
                     }, null, overlayOptions)
 
-                    console.log('Analysis result:', result)
+                    console.log(`Analysis result (${result.stats?.count} particles)`, result)
 
                     if (!result.template && !result.scale?.detectedTemplate) {
                         setManualSelectionId(item.id)

@@ -45,6 +45,7 @@ export default function SampleSetsButton({iconOnly = false, linkOnly = false}) {
         fetchData(sampleSet.dataUrl).then(r => {
             if (r.data) {
                 setQueue([])
+                setActiveIdList([])
                 loadImport(r.data, {queue: [], setQueue, setActiveIdList, setCustomSampleParams})
                 setActiveIdList(prev => {
                     const newList = [...prev]

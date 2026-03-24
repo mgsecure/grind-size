@@ -3,20 +3,20 @@
     "id": "4a3aeacf",
     "name": "Kinu M47 Pour Over Burr vs. Baratza Encore ESP Pro",
     "description": "Comparison of distribution at similar median particle sizes. The Kinu produces significantly fewer fine particles, with a much tighter distribution. ",
-    "chartTitle": "Kinu M47 Pour Over Burr vs. Baratza Encore ESP Pro",
+    "chartTitle": "Kinu M47 Pour Over Burr  vs.  Baratza Encore ESP Pro",
     "adminOnly": false,
     "sourceName": "demo",
     "dataUrl": "/data/KinuM47POB-v-BaratzaESPPro.json",
     "sampleCount": "5",
-    "binCount": "17",
+    "binCount": "12",
     "dataQuality": "5",
     "notes": "This is just a demo dataset to show how the app works."
   },
   {
     "id": "a92951f6",
-    "name": "Kinu M47 Pour Over Burr vs. Stock Burr (2.0.0 and 3.5.0)",
+    "name": "Kinu M47 Pour Over Burr vs. Stock Burr",
     "description": "Comparing the Pour Over Burr (POB) and Stock Burr at similar median particle sizes on the Kinu M47 grinder. The POB produces significantly fewer fine particles, with a tighter distribution. Note that the POB requires 1-1.5 x fewer rotations for the same median particle size.\n",
-    "chartTitle": "Kinu M47 Pour Over Burr vs. Stock Burr (2.0.0 and 3.5.0)",
+    "chartTitle": "Kinu M47 Pour Over Burr (2.0.0)  vs.  Stock Burr (3.5.0)",
     "adminOnly": false,
     "sourceName": "demo",
     "dataUrl": "/data/KinuM47POB-v-Stock.json",
@@ -24,6 +24,18 @@
     "binCount": "10",
     "dataQuality": "3",
     "notes": "This is another demo dataset to show how the app works."
+  },
+  {
+    "id": "ca0cd5cf",
+    "name": "Kinu M47 Pour Over Burr vs. MHW-3BOMBER R3",
+    "description": "Kinu M47 Pour Over Burr (3.0.0)  vs. MHW-3BOMBER R3 (2+06)",
+    "chartTitle": "Kinu M47 Pour Over Burr (3.0.0)   vs.  MHW-3BOMBER R3 (2+06)",
+    "adminOnly": false,
+    "sourceName": "demo",
+    "dataUrl": "/data/KinuM47POB-v-MHW-3Bomber-R3.json",
+    "sampleCount": "6",
+    "binCount": "11",
+    "dataQuality": "4"
   },
   {
     "id": "a1581afe",
@@ -39,9 +51,20 @@
     "notes": "This is just a demo dataset to show how the app works."
   },
   {
+    "id": "5230bf25",
+    "name": "Clump Remediation",
+    "chartTitle": "Clump Remediation - Kinu M47 POB (3.0.0)",
+    "adminOnly": false,
+    "sourceName": "demo",
+    "dataUrl": "/data/ClumpRemediation-KinuM47POB.json",
+    "sampleCount": "3",
+    "binCount": "11",
+    "dataQuality": "5"
+  },
+  {
     "id": "551bfa59",
     "name": "Dust & Boulders",
-    "description": "Homogenous samples of very fine particles as well as sifted boulders.",
+    "description": "Homogeneous samples of very fine particles as well as sifted boulders. Fines were the result of actively shaking off a previous sample but not *wiping* it off.",
     "chartTitle": "Dust & Boulders",
     "adminOnly": false,
     "sourceName": "demo",
@@ -52,26 +75,14 @@
   },
   {
     "id": "95ae12ff",
-    "name": "Sample Distribution Consistency - Baratza ESP Pro",
+    "name": "Sample Distribution Consistency",
     "description": "Four different samples",
-    "chartTitle": "Sample Distribution Consistency - Baratza ESP Pro",
+    "chartTitle": "Sample Distribution Consistency - Baratza ESP Pro (40.0)",
     "adminOnly": false,
     "sourceName": "demo",
     "dataUrl": "/data/SampleDistributionConsistency_BEP40.json",
     "sampleCount": "2",
     "binCount": "10",
-    "dataQuality": "4"
-  },
-  {
-    "id": "ca0cd5cf",
-    "name": "Kinu M47 Pour Over Burr vs. MHW-3BOMBER R3",
-    "description": "Kinu M47 Pour Over Burr @ 3.0.0  vs.  MHW-3BOMBER R3 @ 2+06",
-    "chartTitle": "Kinu M47 Pour Over Burr @ 3.0.0  vs.  MHW-3BOMBER R3 @ 2+06",
-    "adminOnly": false,
-    "sourceName": "demo",
-    "dataUrl": "/data/Kinu-M47-POB-v-MHW-3BOMBER.json",
-    "sampleCount": "6",
-    "binCount": "17",
     "dataQuality": "4"
   }
 ]

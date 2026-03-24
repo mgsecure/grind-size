@@ -40,7 +40,7 @@ export default function SelectBox({
                 placeholder={placeholder}
                 variant={variant}
             >
-                {optionsList.map((option, index) =>
+                {optionsList.map((_option, index) =>
                     optionsList[index] === 'divider'
                     ? <Divider key={index}/>
                     : <MenuItem key={index}

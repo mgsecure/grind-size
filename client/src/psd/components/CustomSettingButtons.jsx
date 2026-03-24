@@ -4,7 +4,6 @@ import DataContext from '../../context/DataContext.jsx'
 import useWindowSize from '../../util/useWindowSize.jsx'
 import {PSD_DEFAULTS} from '@starter/shared'
 import {useTheme,alpha} from '@mui/material/styles'
-import SaveIcon from '@mui/icons-material/Save'
 import DeleteIcon from '@mui/icons-material/Delete'
 import PushPinIcon from '@mui/icons-material/PushPin'
 

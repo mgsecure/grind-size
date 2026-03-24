@@ -2,7 +2,8 @@ export async function separateOverlaps(detectFn, detectResult, cleaned, settings
 
     try {
         const dt = distanceTransform(cleaned)
-        const minPeakDist = 3 + (settings.splitSensitivity || 0.5) * 20
+        const pxPerMm = settings.pxPerMm || 20
+        const minPeakDist = (3 + (settings.splitSensitivity || 0.5) * 20) * (pxPerMm / 20)
         const watershedLabels = watershed(dt, detectResult.labels, minPeakDist, settings.minAreaPx, settings)
         return await detectFn(cleaned, {
             minAreaPx: settings.minAreaPx,
@@ -74,6 +75,7 @@ export function distanceTransform(maskObj) {
 // Standard Watershed using a Priority Queue based on distance
 export function watershed(distObj, originalLabels, minPeakDist = 5, minAreaPx = 8, settings) {
     const { width, height, dist } = distObj
+    const pxPerMm = settings?.pxPerMm || 20
 
     // 1. Find local maxima in distance transform to serve as seeds
     let seeds = []
@@ -106,7 +108,7 @@ export function watershed(distObj, originalLabels, minPeakDist = 5, minAreaPx = 
     // 2a. Pre-filter seeds: prominence check (H-maxima-like approach)
     // We only keep seeds that are not "too close" in value to an existing higher seed
     // that belongs to the same original particle.
-    const hMaximaThreshold = 1.2 // Increased slightly to be more conservative on smooth peaks
+    const hMaximaThreshold = 1.2 * (pxPerMm / 20) // Scale prominence threshold with resolution
     const filteredSeedsByHeight = []
     for (const seed of seeds) {
         let isSuppressed = false

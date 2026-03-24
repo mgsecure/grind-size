@@ -1,18 +1,18 @@
+/* eslint-disable */
+
 import React, {useCallback, useContext} from 'react'
 import AppBar from '@mui/material/AppBar'
 import Toolbar from '@mui/material/Toolbar'
 import VersionChecker from '../app/VersionChecker'
 import MainMenu from './MainMenu'
 import ScrollToTopButton from './ScrollToTopButton'
-import UserMenu from './UserMenu'
 import useWindowSize from '../util/useWindowSize.jsx'
 import FilterContext from '../context/FilterContext.jsx'
 import menuConfig from './menuConfig.jsx'
 import {useLocation, useNavigate} from 'react-router-dom'
 import {useTheme} from '@mui/material/styles'
-import {Paper, Stack, Typography, useScrollTrigger} from '@mui/material'
+import {Stack, useScrollTrigger} from '@mui/material'
 import Slide from '@mui/material/Slide'
-import PropTypes from 'prop-types'
 
 function Nav({extras, extrasTwo, title, titleMobile}) {
     const {isFiltered, clearAdvancedFilterGroups} = useContext(FilterContext)

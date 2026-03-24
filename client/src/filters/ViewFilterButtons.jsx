@@ -1,5 +1,4 @@
 import SortTextButton from './SortTextButton.jsx'
-import FilterTextButton from './FilterTextButton.jsx'
 import AdvancedFilterDrawerButton from './AdvancedFilterDrawerButton.jsx'
 import React, {useContext} from 'react'
 import useWindowSize from '../util/useWindowSize.jsx'

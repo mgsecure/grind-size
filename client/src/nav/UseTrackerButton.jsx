@@ -2,11 +2,7 @@ import Tooltip from '@mui/material/Tooltip'
 import React, {useCallback, useContext} from 'react'
 import IconButton from '@mui/material/IconButton'
 import AppContext from '../app/AppContext'
-import BlockIcon from '@mui/icons-material/Block'
 import CampaignIcon from '@mui/icons-material/Campaign'
-import MicIcon from '@mui/icons-material/Mic'
-import MicOffIcon from '@mui/icons-material/MicOff'
-
 
 function UseTrackerButton() {
     const {useTracker, setUseTracker} = useContext(AppContext)

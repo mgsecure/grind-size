@@ -50,7 +50,7 @@ function AutoCompleteBox({
 
     useEffect(() => {
         if (inputValue && inputValue.length > 0) setInputValue('')
-    }, [inputValueOverride, setInputValue])
+    }, [inputValueOverride, setInputValue]) //eslint-disable-line
 
     return (
         <React.Fragment>

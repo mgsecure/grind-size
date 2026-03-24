@@ -20,19 +20,19 @@ import defineROI from './pipeline/defineROI.js'
 import getColorTemperature from './pipeline/getColorTemperature.js'
 import getTrackerImage from '../../util/getTrackerImage.js'
 
-const debug = true
+const debug = false
 const renderDiagnosticImage = false
-
 
 export async function analyzeImageFiles(item, settings, manualCorners = null, overlayOptions = null) {
     const startedAt = new Date().toISOString()
 
-    console.log('analyzeImageFiles', settings)
+    console.log('Analysis settings', settings)
 
     const {testPipeline = false, correctPerspective = true, useMorphology = true, sampleName = null} = settings
     const file = item?.file
 
-    console.log('Test Pipeline', testPipeline, 'Analyzing item:', item)
+    testPipeline && console.log('Test Pipeline Active')
+    console.log('Analyzing item', item)
 
     if (!file) throw new Error('No file provided')
 
@@ -49,7 +49,7 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
         data: imageData.data.slice()
     })
 
-    console.log(`Markers detected: ${item.result?.markers ? '[reusing] ' + markers.length : markers.length}`)
+    debug && console.log(`Markers detected: ${item.result?.markers ? '[reusing] ' + markers.length : markers.length}`)
 
     if (markers.length < 3 && !manualCorners && !item.result?.scale) return {
         filename: sampleName || getFileNameWithoutExtension(file.name),
@@ -88,7 +88,6 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
         pxPerMm
     } = scaleInfo || {}
 
-
     let analysisImageData = imageData
     let warpSize = settings.warpSizePx || 2400
 
@@ -101,16 +100,14 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
                 warpSize = Math.min(width, height)
                 //warpSize = 2000
 
-                console.log('warpSize', warpSize)
-
                 analysisImageData = warpPerspective(imageData, templateCorners, warpSize)
+
             } catch (e) {
                 console.error('Perspective warp failed', e)
                 // Fallback to original image if warp fails
                 analysisImageData = imageData
                 warpSize = null
             }
-            // No snapping needed here as it's a fixed geometric warp
         }
     }
 
@@ -187,7 +184,7 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
     const maxAreaMm2 = settings.maxAreaMm2 || 10
     const splitMaxAreaPx = maxAreaMm2 * (scaleInfo.pxPerMm ** 2) * (settings.splitMaxAreaFactor ?? 0.5)
     const overlapResult = settings.splitOverlaps
-        ? await spearationFn(detectFn, detectResult, mask, {...settings, splitMaxAreaPx})
+        ? await spearationFn(detectFn, detectResult, mask, {...settings, splitMaxAreaPx, pxPerMm: scaleInfo.pxPerMm})
         : null
     let particles = (overlapResult && overlapResult.particles && overlapResult.particles.length > 0)
         ? overlapResult.particles
@@ -220,16 +217,6 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
         debug && console.log(`After ROI filtering: ${particles.length} particles`)
     }
 
-    // Remove the top N largest particles
-    if (settings.removeLargestParticles > 0) {
-        const n = settings.removeLargestParticles
-        const sorted = [...particles].sort((a, b) => b.areaPx - a.areaPx)
-        const removedIds = new Set(sorted.slice(0, n).map(p => p.id))
-        particles = particles.filter(p => !removedIds.has(p.id))
-        debug && console.log(`After removing ${n} largest particles: ${particles.length} particles`)
-    }
-
-
     if (particles.length === 0) {
         throw new Error('All particles were filtered out (outside analysis region).')
     }
@@ -259,11 +246,21 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
         }
     }
 
+    // Remove the top N largest particles
+    if (settings.removeLargestParticles > 0) {
+        const n = settings.removeLargestParticles
+        const sorted = [...particles].sort((a, b) => b.areaPx - a.areaPx)
+        const removedIds = new Set(sorted.slice(0, n).map(p => p.id))
+        particles = particles.filter(p => !removedIds.has(p.id))
+        debug && console.log(`After removing ${n} largest particles: ${particles.length} particles`)
+    }
+
     if (particles.length === 0) {
         throw new Error('No valid particles remaining after filtering.')
     }
 
-    console.log(`Final analysis: ${particles.length} particles`)
+    debug && console.log(`Final analysis: ${particles.length} particles`)
+
     getTrackerImage({
         feature: 'analysis',
         template: `${scaleInfo.templateSize}mm`,

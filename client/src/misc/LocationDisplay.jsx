@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function LocationDisplay(location = [], display = 'text') {
+export default function LocationDisplay(location = []) {
 
     const locationData = location.filter(Boolean)
     return (

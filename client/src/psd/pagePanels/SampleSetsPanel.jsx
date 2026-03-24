@@ -8,6 +8,9 @@ import fetchData from '../../util/fetchData.js'
 import loadImport from '../components/loadImport.jsx'
 import MiniFilterContext from '../../context/MiniFilterContext.jsx'
 import Tracker from '../../app/Tracker.jsx'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import rehypeExternalLinks from 'rehype-external-links'
 
 export default function SampleSetsPanel() {
 
@@ -30,6 +33,8 @@ export default function SampleSetsPanel() {
 
     //console.log('sampleSet', sampleSetId, sampleSetData)
     const loadedRef = useRef(null)
+
+    const markdown = `**${sampleSet?.name || 'Demo Sample Set'}** • ${sampleSet?.description || 'A collection of demo samples.'}`
 
     useEffect(() => {
         if (sampleSetData && sampleSetData.dataUrl && !loadedRef.current) {
@@ -58,8 +63,14 @@ export default function SampleSetsPanel() {
             </Stack>
 
             {sampleSet &&
-                <div style={{width: '100%', fontSize: '0.9rem', marginTop: 5}}>
-                    <strong>{sampleSet?.name || 'Demo Sample Set'}</strong> | {sampleSet?.description || 'A collection of demo samples.'}
+                <div style={{width: '100%', fontSize: '1.0rem', marginTop: 5}}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[[rehypeExternalLinks, {
+                        target: '_blank',
+                        rel: ['nofollow', 'noopener', 'noreferrer']
+                    }]]}>
+                        {String(markdown)}
+                    </ReactMarkdown>
+
                     <Tracker feature='SampleSetImport' page={sampleSet?.name} />
                 </div>
             }
