@@ -133,7 +133,54 @@ export function watershed(distObj, originalLabels, minPeakDist = 5, minAreaPx = 
     }
     seeds = filteredSeedsByHeight
 
-    // 2b. Secondary seed detection for irregular clumps: "Prominent Local Inflexions"
+    // 2b. For highly round/solid particles, keep only the single best seed to prevent
+    // large smooth particles from being incorrectly split by the watershed.
+    const splitRoundnessThreshold = settings.splitRoundnessThreshold ?? 0.85
+    if (splitRoundnessThreshold < 1.0) {
+        const earlyStats = new Map()
+        for (let i = 0; i < originalLabels.length; i++) {
+            const id = originalLabels[i]
+            if (id === 0) continue
+            if (!earlyStats.has(id)) earlyStats.set(id, { area: 0, sumX: 0, sumY: 0, sumX2: 0, sumY2: 0, sumXY: 0 })
+            const s = earlyStats.get(id)
+            const x = i % width
+            const y = (i / width) | 0
+            s.area++; s.sumX += x; s.sumY += y; s.sumX2 += x * x; s.sumY2 += y * y; s.sumXY += x * y
+        }
+        const earlyEllipseFactor = settings.ellipseFactor || 5.0
+        const earlySolidity = new Map()
+        for (const [id, s] of earlyStats.entries()) {
+            const mu20 = s.sumX2 / s.area - (s.sumX / s.area) ** 2
+            const mu02 = s.sumY2 / s.area - (s.sumY / s.area) ** 2
+            const mu11 = s.sumXY / s.area - (s.sumX / s.area) * (s.sumY / s.area)
+            const common = Math.sqrt(Math.max(0, (mu20 - mu02) ** 2 + 4 * mu11 ** 2))
+            const majorPx = Math.sqrt(Math.max(0, earlyEllipseFactor * (mu20 + mu02 + common)))
+            const minorPx = Math.sqrt(Math.max(0, earlyEllipseFactor * (mu20 + mu02 - common)))
+            const ellipseAreaPx = Math.PI * (minorPx / 2) * (majorPx / 2)
+            earlySolidity.set(id, ellipseAreaPx > 0 ? s.area / ellipseAreaPx : 1.0)
+        }
+        const seedsByParticle = new Map()
+        for (const seed of seeds) {
+            if (!seedsByParticle.has(seed.originalId)) seedsByParticle.set(seed.originalId, [])
+            seedsByParticle.get(seed.originalId).push(seed)
+        }
+        const splitMaxAreaPx = settings.splitMaxAreaPx ?? Infinity
+        const roundFilteredSeeds = []
+        for (const [id, particleSeeds] of seedsByParticle.entries()) {
+            const solidity = earlySolidity.get(id) || 1.0
+            const area = earlyStats.get(id)?.area ?? 0
+            const tooBig = area > splitMaxAreaPx
+            if ((tooBig || solidity >= splitRoundnessThreshold) && particleSeeds.length > 1) {
+                particleSeeds.sort((a, b) => b.val - a.val)
+                roundFilteredSeeds.push(particleSeeds[0])
+            } else {
+                roundFilteredSeeds.push(...particleSeeds)
+            }
+        }
+        seeds = roundFilteredSeeds
+    }
+
+    // 2c. Secondary seed detection for irregular clumps: "Prominent Local Inflexions"
     // We use the solidity of the original particle to decide how aggressive to be.
     // If a particle is already very solid/round, we should be conservative.
     const originalParticleStats = new Map() // id -> { area, sumX, sumY, sumX2, sumY2, sumXY }
@@ -174,10 +221,16 @@ export function watershed(distObj, originalLabels, minPeakDist = 5, minAreaPx = 
     }
 
     // Identify particles that might need more seeds
+    const splitMaxAreaPx2c = settings.splitMaxAreaPx ?? Infinity
     const candidateParticlesForExtraSeeds = new Set()
     for (const id of originalParticleStats.keys()) {
         const count = originalParticleSeedCount.get(id) || 0
         const solidity = originalParticleSolidity.get(id) || 1.0
+        const area = originalParticleStats.get(id)?.area ?? 0
+
+        // Skip particles that are too large or too round — they should not be split further.
+        if (area > splitMaxAreaPx2c) continue
+        if (solidity >= (settings.splitRoundnessThreshold ?? 0.85) && count >= 1) continue
 
         // If it's very solid (> 0.9), only add extra seeds if it currently has NO seeds.
         // If it's irregular (< 0.85), we are more open to extra seeds.
@@ -271,14 +324,9 @@ export function watershed(distObj, originalLabels, minPeakDist = 5, minAreaPx = 
     }
 
     // 4. Watershed region growing
-    let swivel = 0
-    const maxSwivel = width * height * 4 // Use a more conservative multiplier
+    // No swivel limit needed: each pixel is pushed at most once (we check seedLabels[nidx]===0
+    // before pushing), so the PQ is bounded by the total number of foreground pixels.
     while (!pq.isEmpty()) {
-        swivel++
-        if (swivel > maxSwivel) {
-            console.error('Watershed: Possible infinite loop detected in region growing.')
-            break
-        }
         const idx = pq.pop()
         const x = idx % width
         const y = Math.floor(idx / width)
@@ -296,11 +344,48 @@ export function watershed(distObj, originalLabels, minPeakDist = 5, minAreaPx = 
         }
     }
 
-    // 5. Restore "lost" particles that didn't have a watershed seed
+    // 5. Restore "lost" foreground pixels by BFS from all labeled boundary pixels.
+    // Unlabeled foreground pixels adjacent to a labeled pixel inherit that label.
+    // This prevents large particles with a single seed from getting a "donut" pattern.
+    const getNeighborIdxs = (x, y) => {
+        const ns = []
+        if (x > 0) ns.push(y * width + x - 1)
+        if (x < width - 1) ns.push(y * width + x + 1)
+        if (y > 0) ns.push((y - 1) * width + x)
+        if (y < height - 1) ns.push((y + 1) * width + x)
+        return ns
+    }
+    {
+        const bfsQueue = []
+        for (let i = 0; i < seedLabels.length; i++) {
+            if (seedLabels[i] === 0) continue
+            const x = i % width
+            const y = (i / width) | 0
+            for (const nidx of getNeighborIdxs(x, y)) {
+                if (dist[nidx] > 0 && seedLabels[nidx] === 0) {
+                    bfsQueue.push(i)
+                    break
+                }
+            }
+        }
+        let head = 0
+        while (head < bfsQueue.length) {
+            const idx = bfsQueue[head++]
+            const label = seedLabels[idx]
+            const x = idx % width
+            const y = (idx / width) | 0
+            for (const nidx of getNeighborIdxs(x, y)) {
+                if (dist[nidx] > 0 && seedLabels[nidx] === 0) {
+                    seedLabels[nidx] = label
+                    bfsQueue.push(nidx)
+                }
+            }
+        }
+    }
+    // Any remaining unlabeled foreground pixels (truly isolated) get new labels
     for (let i = 0; i < seedLabels.length; i++) {
         if (dist[i] > 0 && seedLabels[i] === 0) {
             nextId++
-            // Simple flood fill for the lost component
             const stack = [i]
             seedLabels[i] = nextId
             let safetyCount = 0
@@ -314,11 +399,7 @@ export function watershed(distObj, originalLabels, minPeakDist = 5, minAreaPx = 
                 const currIdx = stack.pop()
                 const cx = currIdx % width
                 const cy = Math.floor(currIdx / width)
-
-                const neighbors = [[cx - 1, cy], [cx + 1, cy], [cx, cy - 1], [cx, cy + 1]]
-                for (const [nx, ny] of neighbors) {
-                    if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue
-                    const nidx = ny * width + nx
+                for (const nidx of getNeighborIdxs(cx, cy)) {
                     if (dist[nidx] > 0 && seedLabels[nidx] === 0) {
                         seedLabels[nidx] = nextId
                         stack.push(nidx)

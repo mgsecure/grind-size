@@ -128,7 +128,10 @@ export default function StatsPanel() {
         {key: 'splitOverlaps', label: 'Split Overlaps', unit: ''},
         {key: 'splitSensitivity', label: 'Split Sensitivity', unit: ''},
         {key: 'extraSeedSensitivity', label: 'Extra Seed Sensitivity', unit: ''},
-        {key: 'extraSeedMinDistFactor', label: 'Extra Seed Distance Factor', unit: ''}
+        {key: 'extraSeedMinDistFactor', label: 'Extra Seed Distance Factor', unit: ''},
+        {key: 'splitRoundnessThreshold', label: 'Split Roundness Threshold', unit: ''},
+        {key: 'splitMaxAreaFactor', label: 'Split Max Area Factor', unit: ''},
+        {key: 'removeLargestParticles', label: 'Remove Largest Particles', unit: ''}
     ]
 
     const tableData = activeItems.reduce((acc, item) => {
@@ -172,10 +175,13 @@ export default function StatsPanel() {
             weighting: item.settings?.weighting,
             metric: item.settings?.metric,
             chartMode: item.settings?.chartMode,
+            removeLargestParticles: item.settings?.removeLargestParticles,
             splitOverlaps: item.settings?.overlapSplitPreset,
             splitSensitivity: (item.settings?.overlapSplitPreset !== 'off') ? item.settings?.splitSensitivity : 'n/a',
             extraSeedSensitivity: (item.settings?.overlapSplitPreset !== 'off') ? item.settings?.extraSeedSensitivity : 'n/a',
             extraSeedMinDistFactor: (item.settings?.overlapSplitPreset !== 'off') ? item.settings?.extraSeedMinDistFactor : 'n/a',
+            splitRoundnessThreshold: (item.settings?.overlapSplitPreset !== 'off') ? item.settings?.splitRoundnessThreshold : 'n/a',
+            splitMaxAreaFactor: (item.settings?.overlapSplitPreset !== 'off') ? item.settings?.splitMaxAreaFactor : 'n/a',
             ellipseFactor: item.settings?.ellipseFactor,
             analysisChannel: item.settings?.analysisChannel,
             value: item.settings?.value,

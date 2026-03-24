@@ -1,4 +1,4 @@
-export default function defineROI({scaleInfo, settings, correctPerspective, debug}) {
+export default function defineROI({scaleInfo, settings, correctPerspective, warpSize, debug}) {
 
     const {template,
         presentCorners,
@@ -14,10 +14,8 @@ export default function defineROI({scaleInfo, settings, correctPerspective, debu
         const innerMm = template?.innerMm
         if (!outerMm || !innerMm) return roi
         const marginMm = (outerMm - innerMm) / 2
-        // If we want 20 px/mm as target
-        const targetPxPerMm = 20
-        const sizePx = Math.round(outerMm * targetPxPerMm)
-        const marginPx = marginMm * targetPxPerMm
+        const sizePx = warpSize !== null ? warpSize : Math.round(outerMm * 20)
+        const marginPx = (marginMm / outerMm) * sizePx
         roi = {
             ...roi,
             actualBounds: {

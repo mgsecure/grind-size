@@ -28,10 +28,10 @@ export default function RefreshSingleButton({id}) {
     const refreshSingle = useCallback((e) => {
         e.stopPropagation()
         e.preventDefault()
-        if (!needsRefresh && !debugError) return
+        if (!needsRefresh && !debugError && debugLevel < 1) return
         const newItems = [...queue].map(item => item.id === id ? {...item, status: 'queued', error: null} : item)
         setQueue(newItems)
-    }, [debugError, id, needsRefresh, queue, setQueue])
+    }, [debugError, debugLevel, id, needsRefresh, queue, setQueue])
 
 
     return (

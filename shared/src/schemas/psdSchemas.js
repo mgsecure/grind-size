@@ -13,6 +13,8 @@ export const PsdParametersSchema = z.object({
     splitSensitivity: z.number().min(0).max(1),
     extraSeedSensitivity: z.number().min(0).max(1).optional(),
     extraSeedMinDistFactor: z.number().min(0.5).max(5).optional(),
+    splitRoundnessThreshold: z.number().min(0).max(1).optional(),
+    splitMaxAreaFactor: z.number().min(0).max(10).optional(),
     bins: z.number().int().positive(),
     binSpacing: z.enum(['linear', 'log']),
     weighting: z.enum(['count', 'surface', 'volume']),

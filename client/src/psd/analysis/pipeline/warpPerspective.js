@@ -7,7 +7,7 @@ import * as CV_pkg from 'js-aruco2/src/cv.js'
 // In Vite/Rollup production, CV might not be exported as a named export.
 const _CV = CV_pkg.CV || (typeof window !== 'undefined' ? window.CV : null) || CV_pkg.default?.CV || CV_pkg
 
-export function warpPerspective(imageData, corners, targetSize = 2000) {
+export function warpPerspective(imageData, corners, targetSize = 3000) {
     const { width, height, data } = imageData
 
     console.log(`Warping image from ${width}x${height} to ${targetSize}x${targetSize} using corners:`, corners)

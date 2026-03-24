@@ -15,6 +15,24 @@ export const overlapSplitPresets = {
         extraSeedSensitivity: 0,
         extraSeedMinDistFactor: 0,
     },
+    'Test01': {
+        overlapPresetName: 'Test01',
+        splitOverlaps: true,
+        splitSensitivity: 0.7,
+        extraSeedSensitivity: 0.15,
+        extraSeedMinDistFactor: 1.5,
+        splitRoundnessThreshold: 0.75,
+        splitMaxAreaFactor: 0.5,
+    },
+    'Test02': {
+        overlapPresetName: 'Test02',
+        splitOverlaps: true,
+        splitSensitivity: 0.3,
+        extraSeedSensitivity: 0.3,
+        extraSeedMinDistFactor: 1.2,
+        splitRoundnessThreshold: 0.85,
+        splitMaxAreaFactor: 0.5,
+    },
     'Low': {
         overlapPresetName: 'Low',
         splitOverlaps: true,
@@ -40,8 +58,8 @@ export const overlapSplitPresets = {
 }
 
 export const defaultOverlapPreset = 'Normal'
-
 export const defaultSettingsPreset = 'hi-res'
+
 export const PSD_PRESETS = {
     'hi-res': {
         name: 'Hi-Res',
@@ -109,7 +127,7 @@ export const PSD_DEFAULTS = {
     removeLargestParticles: 5,
     useMorphology: true,
     correctPerspective: true,
-    warpSizePx: 2000,
+    warpSizePx: 3400,
     insetPx: 18,
     bgSigma: 35,
     adaptiveBlockSize: 201,
@@ -127,6 +145,8 @@ export const PSD_DEFAULTS = {
     splitSensitivity: overlapSplitPresets[defaultOverlapPreset].splitSensitivity,
     extraSeedSensitivity: overlapSplitPresets[defaultOverlapPreset].extraSeedSensitivity,
     extraSeedMinDistFactor: overlapSplitPresets[defaultOverlapPreset].extraSeedMinDistFactor,
+    splitRoundnessThreshold: 0.85,
+    splitMaxAreaFactor: 0.5,
     ellipseFactor: 5.0,
     minSolidity: 0.3,
     analysisChannel: 'grayscale', // 'grayscale' | 'blue' | 'auto'

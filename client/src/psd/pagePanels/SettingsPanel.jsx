@@ -337,6 +337,30 @@ export default function SettingsPanel() {
                                         style={{marginTop: 4}}
                                     />
                                 </Stack>
+                                <Stack style={{width: sliderWidth}}>
+                                    <Typography variant='body2'>Roundness
+                                        Threshold: {settings.splitRoundnessThreshold ?? 0.85}</Typography>
+                                    <Slider
+                                        value={settings.splitRoundnessThreshold ?? 0.85}
+                                        min={0.0}
+                                        max={1.0}
+                                        step={0.05}
+                                        onChange={(_, v) => handleParameterChange('splitRoundnessThreshold', v)}
+                                        style={{marginTop: 4}}
+                                    />
+                                </Stack>
+                                <Stack style={{width: sliderWidth}}>
+                                    <Typography variant='body2'>Max Area
+                                        Factor: {settings.splitMaxAreaFactor ?? 0.5}</Typography>
+                                    <Slider
+                                        value={settings.splitMaxAreaFactor ?? 0.5}
+                                        min={0.0}
+                                        max={12.0}
+                                        step={0.05}
+                                        onChange={(_, v) => handleParameterChange('splitMaxAreaFactor', v)}
+                                        style={{marginTop: 4}}
+                                    />
+                                </Stack>
                             </Stack>
                         </Stack>
                     }

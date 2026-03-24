@@ -20,13 +20,14 @@ import defineROI from './pipeline/defineROI.js'
 import getColorTemperature from './pipeline/getColorTemperature.js'
 import getTrackerImage from '../../util/getTrackerImage.js'
 
-const debug = false
+const debug = true
 const renderDiagnosticImage = false
 
 
 export async function analyzeImageFiles(item, settings, manualCorners = null, overlayOptions = null) {
     const startedAt = new Date().toISOString()
 
+    console.log('analyzeImageFiles', settings)
 
     const {testPipeline = false, correctPerspective = true, useMorphology = true, sampleName = null} = settings
     const file = item?.file
@@ -88,41 +89,49 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
     } = scaleInfo || {}
 
 
-    const roi = item.result?.roi || defineROI({scaleInfo, settings, correctPerspective, debug})
-
     let analysisImageData = imageData
-    let warpSize = settings.warpSizePx || 2000
+    let warpSize = settings.warpSizePx || 2400
 
     if (template) {
         if (presentCorners.length === 4) {
             analysisImageData = imageData
             if (correctPerspective) try {
-                // Use a fixed target px/mm so that both high-res and low-res images of the
-                // same physical template produce the same warp output size and therefore
-                // the same measurement scale. 20 px/mm is a good default for all templates.
-                const targetPxPerMm = 20
-                warpSize = Math.round(template.outerMm * targetPxPerMm)
 
-                // TODO fix to not enlarge image. may mess with image viewer
-                // warpSize = Math.min(width, height, warpSize)
+                //warpSize = Math.min(width, height, warpSize)
+                warpSize = Math.min(width, height)
+                //warpSize = 2000
+
+                console.log('warpSize', warpSize)
 
                 analysisImageData = warpPerspective(imageData, templateCorners, warpSize)
             } catch (e) {
                 console.error('Perspective warp failed', e)
                 // Fallback to original image if warp fails
                 analysisImageData = imageData
+                warpSize = null
             }
             // No snapping needed here as it's a fixed geometric warp
         }
+    }
+
+    const roi = defineROI({
+        scaleInfo,
+        settings,
+        correctPerspective,
+        warpSize: (correctPerspective && presentCorners?.length === 4 ? warpSize : null),
+        debug
+    })
+
+    if (template) {
         scaleInfo = {
             ...scaleInfo,
-            pxPerMm: correctPerspective && presentCorners.length === 4 ? warpSize / template.outerMm : pxPerMm,
-            mmPerPx: 1 / (correctPerspective && presentCorners.length === 4 ? warpSize / template.outerMm : pxPerMm),
+            pxPerMm: correctPerspective && presentCorners.length === 4 && warpSize !== null ? warpSize / template.outerMm : pxPerMm,
+            mmPerPx: 1 / (correctPerspective && presentCorners.length === 4 && warpSize !== null ? warpSize / template.outerMm : pxPerMm),
             detectedPxPerMm: pxPerMm,
             templateSize: template.sizeMm,
             detectedTemplate: template.sizeMm,
             markerCount: template.markers.length,
-            isWarped: correctPerspective && presentCorners.length === 4,
+            isWarped: correctPerspective && presentCorners.length === 4 && warpSize !== null,
             warpSize: correctPerspective && presentCorners.length === 4 ? warpSize : null
         }
         debug && console.log('Scale info:', scaleInfo)
@@ -170,13 +179,22 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
 
     debug && console.log('Initial particle detection:', detectResult)
 
+
     // Optional Overlap Separation (Watershed)
     const spearationFn = testPipeline ? separateOverlapsCandidate : separateOverlaps
     debug && console.log(`Using spearation function: ${testPipeline ? 'separateOverlapsCandidate' : 'separateOverlaps'}`)
 
-    const overlapResult = settings.overlapSplitPreset !== 'off' ? await spearationFn(detectFn, detectResult, mask, settings) : null
-    let particles = (overlapResult && overlapResult.particles && overlapResult.particles.length > 0) ? overlapResult.particles : detectResult.particles
-    let analysisLabels = (overlapResult && overlapResult.labels) ? overlapResult.labels : detectResult.labels
+    const maxAreaMm2 = settings.maxAreaMm2 || 10
+    const splitMaxAreaPx = maxAreaMm2 * (scaleInfo.pxPerMm ** 2) * (settings.splitMaxAreaFactor ?? 0.5)
+    const overlapResult = settings.splitOverlaps
+        ? await spearationFn(detectFn, detectResult, mask, {...settings, splitMaxAreaPx})
+        : null
+    let particles = (overlapResult && overlapResult.particles && overlapResult.particles.length > 0)
+        ? overlapResult.particles
+        : detectResult.particles
+    let analysisLabels = (overlapResult && overlapResult.labels)
+        ? overlapResult.labels
+        : detectResult.labels
 
     debug && console.log(`Initial detection: ${particles.length} particles`)
 
@@ -185,7 +203,6 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
     }
 
     // Size filter (Max Surface)
-    const maxAreaMm2 = settings.maxAreaMm2 || 10
     const maxAreaPx = maxAreaMm2 * (scaleInfo.pxPerMm ** 2)
 
     particles = particles.filter(p => p.areaPx <= maxAreaPx)
@@ -202,6 +219,16 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
         )
         debug && console.log(`After ROI filtering: ${particles.length} particles`)
     }
+
+    // Remove the top N largest particles
+    if (settings.removeLargestParticles > 0) {
+        const n = settings.removeLargestParticles
+        const sorted = [...particles].sort((a, b) => b.areaPx - a.areaPx)
+        const removedIds = new Set(sorted.slice(0, n).map(p => p.id))
+        particles = particles.filter(p => !removedIds.has(p.id))
+        debug && console.log(`After removing ${n} largest particles: ${particles.length} particles`)
+    }
+
 
     if (particles.length === 0) {
         throw new Error('All particles were filtered out (outside analysis region).')
@@ -234,14 +261,6 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
 
     if (particles.length === 0) {
         throw new Error('No valid particles remaining after filtering.')
-    }
-
-    // Remove the top N largest particles
-    if (settings.removeLargestParticles > 0) {
-        const n = settings.removeLargestParticles
-        const sorted = [...particles].sort((a, b) => b.areaPx - a.areaPx)
-        const removedIds = new Set(sorted.slice(0, n).map(p => p.id))
-        particles = particles.filter(p => !removedIds.has(p.id))
     }
 
     console.log(`Final analysis: ${particles.length} particles`)

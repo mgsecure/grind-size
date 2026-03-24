@@ -42,7 +42,7 @@ export default function SeriesColorPicker({seriesItem}) {
         setLineWeight(2)
         updateSwatches(color)
     }
-    
+
     useEffect(() => {
         if (customSampleParams[seriesItem.itemId]?.color && color !== customSampleParams[seriesItem.itemId]?.color) {
             setColor(customSampleParams[seriesItem.itemId]?.color)

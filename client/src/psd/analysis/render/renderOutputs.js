@@ -54,9 +54,9 @@ export async function renderMaskPng(maskObj, width, height, originalImageData, v
                 if (!validSet || validSet.has(label)) {
                     const p = i * 4
                     img.data[p] = 255     // R
-                    img.data[p + 1] = 0   // G
-                    img.data[p + 2] = 0   // B
-                    img.data[p + 3] = 255
+                    img.data[p + 1] = 70   // G
+                    img.data[p + 2] = 70   // B
+                    img.data[p + 3] = 225
                 }
             }
         }
@@ -138,7 +138,7 @@ export async function renderMaskPng(maskObj, width, height, originalImageData, v
             const radiusY = (p.shortAxisPx || p.eqDiameterPx) / 2
             const rotation = p.angleRad || 0
 
-            ctx.strokeStyle = '#0033ff'
+            ctx.strokeStyle = '#0129c4'
             ctx.beginPath()
             ctx.ellipse(p.cxPx, p.cyPx, radiusX, radiusY, rotation, 0, Math.PI * 2)
             ctx.stroke()
