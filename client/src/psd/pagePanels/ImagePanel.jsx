@@ -48,7 +48,7 @@ export default function ImagePanel() {
     const disabledStyle = !activeIdList.length ? {opacity: 0.5, pointerEvents: 'none'} : undefined
 
     return (
-        <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
+        <Paper sx={{p: isDesktop ? 2 : 1, width: '100%', height: '100%'}}>
             <Typography style={{...disabledStyle, fontSize: '1.1rem', fontWeight: 500}}>PARTICLE DETECTION
                 IMAGES</Typography>
             {entry.media?.length > 0 &&

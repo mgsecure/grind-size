@@ -12,11 +12,15 @@ import MainMenuItem from './MainMenuItem'
 import menuConfig from './menuConfig.jsx'
 import AuthContext from '../app/AuthContext.jsx'
 import CloseIcon from '@mui/icons-material/Close'
+import SignInButton from '../auth/SignInButton.jsx'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import LogoutIcon from '@mui/icons-material/Logout'
+import ListItemText from '@mui/material/ListItemText'
 
 function MainMenu() {
     const {beta} = useContext(AppContext)
     const {adminRole} = useContext(DBContext)
-    const {userClaims} = useContext(AuthContext)
+    const {isLoggedIn, logout, userClaims} = useContext(AuthContext)
     const [open, setOpen] = useState(false)
 
     const openDrawer = useCallback(() => {
@@ -29,6 +33,11 @@ function MainMenu() {
         document.body.focus()
         setOpen(false)
     }, [])
+
+    const handleLogout = useCallback(() => {
+        closeDrawer()
+        logout()
+    }, [closeDrawer, logout])
 
     return (
         <React.Fragment>
@@ -82,6 +91,20 @@ function MainMenu() {
                                 <Divider style={{margin: 0}}/>
                             </React.Fragment>
                         )}
+
+                    {isLoggedIn &&
+                        <MenuItem onClick={handleLogout}>
+                            <ListItemIcon>
+                                <LogoutIcon fontSize='small'/>
+                            </ListItemIcon>
+                            <ListItemText>Sign Out</ListItemText>
+                        </MenuItem>
+                    }
+
+                    <MenuItem onClick={closeDrawer}>
+                        <SignInButton onClick={closeDrawer}/>
+                    </MenuItem>
+
                 </Stack>
             </SwipeableDrawer>
         </React.Fragment>

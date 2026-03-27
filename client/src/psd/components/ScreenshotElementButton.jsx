@@ -28,7 +28,7 @@ export default function ScreenshotElementButton({domEl, filename, disabled}) {
         setTimeout(() => {
             downloadImage()
             setIsScreenshot(false)
-        }, 100)
+        }, 10)
 
     }, [domEl, downloadImage, setIsScreenshot])
 

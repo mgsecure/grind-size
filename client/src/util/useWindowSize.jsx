@@ -1,6 +1,10 @@
 import {useState, useEffect, useMemo} from 'react'
+import {useTheme} from '@mui/material/styles'
 
 export default function useWindowSize() {
+    const theme = useTheme()
+    const breakpointKeys = [...theme.breakpoints.keys].reverse()
+
     const [width, setWidth] = useState(window.innerWidth)
 
     useEffect(() => {
@@ -27,8 +31,11 @@ export default function useWindowSize() {
     const isMobile = width < 650
     const isDesktop = width > 649
 
+    const breakpoint = breakpointKeys.find(key => width >= theme.breakpoints.values[key])
+
     return useMemo(() => ({
         width,
+        breakpoint,
         isDesktop,
         isMobile,
         flexStyle: !isMobile ? 'flex' : 'block',
@@ -38,5 +45,5 @@ export default function useWindowSize() {
         rowStyle: !isMobile
             ? {display: 'flex', flexDirection: 'row'}
             : {display: 'flex', flexDirection: 'column'}
-    }), [isDesktop, isMobile, width])
+    }), [breakpoint, isDesktop, isMobile, width])
 }

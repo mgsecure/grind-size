@@ -14,7 +14,8 @@ export function ColorModeProvider({children}) {
                 sm: 600,
                 md: 800,
                 lg: 1200,
-                xl: 1536
+                xl: 1536,
+                xxl: 1800,
             }
         },
         components: {

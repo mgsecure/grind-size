@@ -24,7 +24,7 @@ export default function SampleSetsPanel() {
         setViewOnly,
         setSettings
     } = useContext(DataContext)
-    const {setChartTitle, isDesktop} = useContext(UIContext)
+    const {setChartTitle, isDesktop, setCustomSampleParams} = useContext(UIContext)
     const {removeFilters} = useContext(MiniFilterContext)
 
     const [searchParams] = useSearchParams()
@@ -41,37 +41,37 @@ export default function SampleSetsPanel() {
             fetchData(sampleSetData.dataUrl).then(r => {
                 if (r.data) {
                     setQueue([])
-                    loadImport(r.data, {queue, setQueue, setActiveIdList})
+                    loadImport(r.data, {queue, setQueue, setActiveIdList, setCustomSampleParams})
                     //setViewOnly(true)
                     setSettings(prev => ({...prev, bins: sampleSetData.binCount}))
                     setSampleSet(sampleSetData)
                     setChartTitle(sampleSetData.chartTitle)
-                    removeFilters(['sampleSet'])
                 }
             }).catch(e => {
                 console.error('error fetching sample set', e)
-            })
+            }).finally(() => removeFilters(['sampleSet']))
             loadedRef.current = true
         }
-    }, [queue, removeFilters, sampleSetData, setActiveIdList, setChartTitle, setQueue, setSampleSet, setSettings, setViewOnly])
+    }, [queue, removeFilters, sampleSetData, setActiveIdList, setChartTitle, setCustomSampleParams, setQueue, setSampleSet, setSettings, setViewOnly])
 
     return (
-        <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
-            <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{width: '100%'}}>
+        <Paper sx={{p: isDesktop ? 2 : 1, width: '100%', height: '100%'}}>
+            <Stack direction='row' alignItems='center' justifyContent='space-between' width='100%'>
                 <Typography style={{fontSize: '1.1rem', fontWeight: 500}}>EXAMPLE DATASETS</Typography>
                 <SampleSetsButton iconOnly={false}/>
             </Stack>
 
             {sampleSet &&
                 <div style={{width: '100%', fontSize: '1.0rem', marginTop: 5}}>
-                    <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[[rehypeExternalLinks, {
-                        target: '_blank',
-                        rel: ['nofollow', 'noopener', 'noreferrer']
-                    }]]}>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}
+                                   rehypePlugins={[[rehypeExternalLinks, {
+                                       target: '_blank',
+                                       rel: ['nofollow', 'noopener', 'noreferrer']
+                                   }]]}>
                         {String(markdown)}
                     </ReactMarkdown>
 
-                    <Tracker feature='SampleSetImport' page={sampleSet?.name} />
+                    <Tracker feature='SampleSetImport' page={sampleSet?.name}/>
                 </div>
             }
         </Paper>

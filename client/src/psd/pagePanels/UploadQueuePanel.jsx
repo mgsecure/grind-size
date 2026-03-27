@@ -92,7 +92,7 @@ export default function UploadQueuePanel({resetContexts}) {
     }, [activeIdList, handleQueueRemove, queue, resetContexts, setActiveIdList])
 
     return (
-        <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
+        <Paper sx={{p: isDesktop ? 2 : 1, width: '100%', height: '100%', flexGrow: 1, display: 'flex', flexDirection: 'column'}}>
             <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{width: '100%'}}>
                 <Typography style={{fontSize: '1.1rem', fontWeight: 500}}>SAMPLE QUEUE</Typography>
                 <ImportButton iconOnly={false}/>
@@ -110,10 +110,10 @@ export default function UploadQueuePanel({resetContexts}) {
                             label='Drop grind photos here (max 6)'
                             zoneStyle={{
                                 fontSize: '0.9rem', height: '100%', width: '100%',
-                                borderRadius: 5,
+                                borderRadius: 0,
                                 padding: isDesktop ? '20px' : '5px'
                             }}
-                            messgageStyle={{fontSize: '0.9rem', height: '100%', margin: '4px 0px'}}
+                            messgageStyle={{fontSize: '0.85rem', height: '100%', margin: '4px 0px'}}
                         />
                     </Box>
                     {fullQueue.length > 0 &&
@@ -179,7 +179,9 @@ export default function UploadQueuePanel({resetContexts}) {
                                                         fontSize: '0.9rem', marginLeft: 8
                                                     }}>
                                                         {item.id !== 'CurrentAggregateResults' &&
-                                                            <>{item.status === 'done' ? item.result?.settings?.name : item.status}</>
+                                                            <span style={{whiteSpace: 'nowrap'}}>
+                                                                {item.status === 'done' ? item.result?.settings?.name : item.status}
+                                                            </span>
                                                         }
                                                         {item.id !== 'CurrentAggregateResults' &&
                                                             <>{item.source && item.source !== 'upload' && ` (${item.source})`}</>

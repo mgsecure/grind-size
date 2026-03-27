@@ -105,8 +105,8 @@ export default function SettingsPanel() {
     const toggleButtonStyle = {padding: '4px 11px'}
 
     return (
-        <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
-            <Stack direction='row' flexWrap='wrap' alignItems='center' justifyContent='space-between'>
+        <Paper sx={{p: isDesktop ? 2 : 1, width: '100%', height: '100%'}}>
+            <Stack direction='row' flexWrap='wrap' alignItems='center' justifyContent='space-between' width='100%'>
                 <Stack direction='row' alignItems='center' sx={{fontSize: '1.1rem', fontWeight: 500}}>
                     <span style={{marginRight: 10}}>SETTINGS</span>
                     <HelpContentDrawerButton markdown={String(helpSettings)}/>
@@ -130,7 +130,8 @@ export default function SettingsPanel() {
                                 {Object.entries(PSD_PRESETS)
                                     .filter(([_key, preset]) => preset.debugOnly !== true)
                                     .map(([key, preset]) => (
-                                        <ToggleButton key={key} value={key} style={toggleButtonStyle}>{preset.name}</ToggleButton>
+                                        <ToggleButton key={key} value={key}
+                                                      style={toggleButtonStyle}>{preset.name}</ToggleButton>
                                     ))}
                             </ToggleButtonGroup>
 
@@ -146,7 +147,8 @@ export default function SettingsPanel() {
                                     {Object.entries(PSD_PRESETS)
                                         .filter(([_key, preset]) => preset.debugOnly)
                                         .map(([key, preset]) => (
-                                            <ToggleButton key={key} value={key} style={toggleButtonStyle}>{preset.name}</ToggleButton>
+                                            <ToggleButton key={key} value={key}
+                                                          style={toggleButtonStyle}>{preset.name}</ToggleButton>
                                         ))}
                                 </ToggleButtonGroup>
                             }
@@ -248,9 +250,28 @@ export default function SettingsPanel() {
                     </Stack>
                 }
 
-                <Stack direction='row' alignItems='top' sx={{mb: 2, mt: 2, alignContent: 'top', flexWrap: 'wrap'}}>
-                    <Stack direction='row' style={{width: 350}}>
-                        <Stack style={{width: sliderWidth, marginRight: 24}}>
+                <Stack direction='row' alignItems='top' sx={{mb: 2, alignContent: 'top', flexWrap: 'wrap'}}>
+
+                    <Stack style={{marginTop: 16, marginRight: 24}}>
+                        <Typography variant='body2' style={{whiteSpace: 'nowrap'}}>Overlap
+                            Separation</Typography>
+                        <OverlapPresetToggles onChange={handleOverlapPresetChange}/>
+                    </Stack>
+
+                    <Stack style={{marginTop: 16,marginRight: 34}}>
+                        <Typography variant='body2'>Remove boulders: {settings.removeLargestParticles}</Typography>
+                        <Slider
+                            value={settings.removeLargestParticles}
+                            min={0}
+                            max={20}
+                            step={1}
+                            onChange={(_, v) => handleParameterChange('removeLargestParticles', v)}
+                            style={{width: 140, marginTop: 4}}
+                        />
+                    </Stack>
+
+                    <Stack direction='row' style={{marginTop: 16, width: 300}}>
+                        <Stack style={{marginRight: 24}}>
                             <Typography variant='body2'>Min Area (px): {settings.minAreaPx}</Typography>
                             <Slider
                                 value={settings.minAreaPx}
@@ -258,10 +279,10 @@ export default function SettingsPanel() {
                                 max={100}
                                 step={1}
                                 onChange={(_, v) => handleParameterChange('minAreaPx', v)}
-                                style={{marginTop: 4}}
+                                style={{width: 140, marginTop: 4}}
                             />
                         </Stack>
-                        <Stack style={{width: sliderWidth, marginRight: 24}}>
+                        <Stack style={{marginRight: 0}}>
                             <Typography variant='body2' style={{whiteSpace: 'nowrap'}}>Max Surface
                                 (mm²): {settings.maxAreaMm2}</Typography>
                             <Slider
@@ -270,29 +291,11 @@ export default function SettingsPanel() {
                                 max={100}
                                 step={1}
                                 onChange={(_, v) => handleParameterChange('maxAreaMm2', v)}
-                                style={{marginTop: 4}}
+                                style={{width: 140, marginTop: 4}}
                             />
                         </Stack>
                     </Stack>
 
-
-                    <Stack style={{marginRight: 24}}>
-                        <Typography variant='body2' style={{whiteSpace: 'nowrap'}}>Overlap
-                            Separation</Typography>
-                        <OverlapPresetToggles onChange={handleOverlapPresetChange}/>
-                    </Stack>
-
-                    <Stack style={{width: 180, marginRight: 0}}>
-                        <Typography variant='body2'>Remove boulders: {settings.removeLargestParticles}</Typography>
-                        <Slider
-                            value={settings.removeLargestParticles}
-                            min={0}
-                            max={20}
-                            step={1}
-                            onChange={(_, v) => handleParameterChange('removeLargestParticles', v)}
-                            style={{marginTop: 4}}
-                        />
-                    </Stack>
 
                     {debugLevel >= 1 &&
                         <Stack style={{

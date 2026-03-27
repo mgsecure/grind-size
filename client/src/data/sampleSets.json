@@ -80,7 +80,7 @@
     "chartTitle": "Sample Distribution Consistency - Baratza ESP Pro (40.0)",
     "adminOnly": false,
     "sourceName": "demo",
-    "dataUrl": "/data/SampleDistributionConsistency_BEP40.json",
+    "dataUrl": "/data/SampleDistributionConsistency.json",
     "sampleCount": "2",
     "binCount": "10",
     "dataQuality": "4"

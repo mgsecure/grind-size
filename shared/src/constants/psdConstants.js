@@ -14,50 +14,29 @@ export const overlapSplitPresets = {
         splitSensitivity: 0,
         extraSeedSensitivity: 0,
         extraSeedMinDistFactor: 0,
+        removeLargestParticles: 0,
     },
-    'Test01': {
-        overlapPresetName: 'Test01',
+    'FinerGrind': {
+        overlapPresetName: 'Finer Grind',
+        splitOverlaps: true,
+        splitSensitivity: 0.3,
+        extraSeedSensitivity: 0.3,
+        extraSeedMinDistFactor: 1.2,
+        splitRoundnessThreshold: 0.75,
+        splitMaxAreaFactor: 0.4,
+    },
+    'CoarseGrind': {
+        overlapPresetName: 'Coarse Grind',
         splitOverlaps: true,
         splitSensitivity: 0.7,
         extraSeedSensitivity: 0.15,
         extraSeedMinDistFactor: 1.5,
         splitRoundnessThreshold: 0.75,
-        splitMaxAreaFactor: 0.5,
-    },
-    'Test02': {
-        overlapPresetName: 'Test02',
-        splitOverlaps: true,
-        splitSensitivity: 0.3,
-        extraSeedSensitivity: 0.3,
-        extraSeedMinDistFactor: 1.2,
-        splitRoundnessThreshold: 0.85,
-        splitMaxAreaFactor: 0.5,
-    },
-    'Low': {
-        overlapPresetName: 'Low',
-        splitOverlaps: true,
-        splitSensitivity: 0.5,
-        extraSeedSensitivity: 0.3,
-        extraSeedMinDistFactor: 1.4,
-    },
-    'Normal': {
-        overlapPresetName: 'Normal',
-        splitOverlaps: true,
-        splitSensitivity: 0.3,
-        extraSeedSensitivity: 0.3,
-        extraSeedMinDistFactor: 1.2,
-    },
-    'High': {
-        overlapPresetName: 'High ?',
-        disabled: true,
-        splitOverlaps: true,
-        splitSensitivity: 0.25,
-        extraSeedSensitivity: 0.3,
-        extraSeedMinDistFactor: 0.5,
+        splitMaxAreaFactor: 0.4,
     },
 }
 
-export const defaultOverlapPreset = 'Normal'
+export const defaultOverlapPreset = 'FinerGrind'
 export const defaultSettingsPreset = 'hi-res'
 
 export const PSD_PRESETS = {

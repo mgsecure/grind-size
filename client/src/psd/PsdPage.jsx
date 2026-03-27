@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useRef} from 'react'
-import {Stack, Paper, Typography} from '@mui/material'
+import {Stack, Paper, Typography, Grid} from '@mui/material'
 import UploadQueuePanel from './pagePanels/UploadQueuePanel.jsx'
 import ImagePanel from './pagePanels/ImagePanel.jsx'
 import SettingsPanel from './pagePanels/SettingsPanel.jsx'
@@ -21,8 +21,8 @@ export default function PsdPage() {
 
     // TODO - need to be able to reset all data in both contexts
 
-    const {manualSelectionId, viewOnly, resetDataContext} = useContext(DataContext)
-    const {isScreenshot, isDesktop, resetUIContext} = useContext(UIContext)
+    const {manualSelectionId, resetDataContext} = useContext(DataContext)
+    const {isScreenshot, isDesktop, resetUIContext, breakpoint} = useContext(UIContext)
     const domEl = useRef(null)
 
     const resetContexts = useCallback(() => {
@@ -31,60 +31,95 @@ export default function PsdPage() {
     }, [resetDataContext, resetUIContext])
 
     return (
-        <>
-            <Stack spacing={isDesktop ? 1 : 1} sx={{width: '100%'}}>
-                <Paper sx={{p: isDesktop ? 2 : 1, width: '100%'}}>
-                    <Stack direction='row' spacing={1} alignItems='center' justifyContent='space-between'>
-                        <Typography style={{fontSize: '1.5rem', fontWeight: 700, lineHeight: '1.2em', marginTop: 8}}>
-                            COFFEE GRINDS
-                            {!isDesktop && <br/>}
-                            <span style={{fontWeight: 300}}> PARTICLE SIZE DISTRIBUTION</span>
-                        </Typography>
-                        <VersionChecker/>
-                    </Stack>
+        <Stack direction='column' justifyContent='center' spacing={2}
+               maxWidth={{xs: '100%', lg: '1200px', xl: '1600px'}}>
+            <Grid container spacing={1} padding={isDesktop ? 1 : 0} sx={{width: '100%'}} justifyContent='center'>
+                <Grid container spacing={1} size={{xs: 12, sm: 12, md: 11, lg: 10, xl: 12}} width='100%'>
+                    <Grid container spacing={1} alignItems='stretch' height='100%'>
+                        <Grid size={{xs: 12, xl: 8}}>
+                            <Paper sx={{p: isDesktop ? 2 : 1}}>
+                                <Stack direction='row' spacing={1} alignItems='center' justifyContent='space-between'>
+                                    <Typography
+                                        style={{
+                                            fontSize: '1.5rem',
+                                            fontWeight: 700,
+                                            lineHeight: '1.2em',
+                                            marginTop: 8
+                                        }}>
+                                        COFFEE GRINDS
+                                        {!isDesktop && <br/>}
+                                        <span style={{fontWeight: 300}}> PARTICLE SIZE DISTRIBUTION</span>
+                                    </Typography>
+                                    <VersionChecker/>
+                                </Stack>
+                                <IntroCopy introCopy={{markdown: introCopyMarkdown}}
+                                           style={{fontSize: '0.9rem', padding: '0px 0px 0px 0px'}}/>
+                            </Paper>
+                        </Grid>
+                        <Grid size={{xs: 12, xl: 4}}>
+                            <SampleSetsPanel/>
+                        </Grid>
+                    </Grid>
+                </Grid>
 
-                    <IntroCopy introCopy={{markdown: introCopyMarkdown}}
-                               style={{fontSize: '0.9rem', padding: '0px 0px 0px 0px'}}/>
-
-                </Paper>
-
-                <SampleSetsPanel/>
+                <Grid container spacing={1} size={{xs: 12, sm: 12, md: 11, lg: 10, xl: 5}}>
+                    <Grid container spacing={1} alignItems='stretch' height='100%'>
+                        <Grid size={12}>
+                            <UploadQueuePanel resetContexts={resetContexts}/>
+                        </Grid>
+                        <Grid size={12}>
+                            <SettingsPanel/>
+                        </Grid>
+                    </Grid>
+                </Grid>
 
                 {manualSelectionId && (
-                    <ManualCornerPanel/>
+                    <Grid size={12}>
+                        <ManualCornerPanel/>
+                    </Grid>
                 )}
 
-                <UploadQueuePanel resetContexts={resetContexts}/>
 
-                {!viewOnly &&
-                    <SettingsPanel/>
-                }
-
-                <Stack direction='column' spacing={(isDesktop && !isScreenshot) ? 1 : 1}
-                       sx={{width: '100%', backgroundColor: theme.palette.background.default}} ref={domEl}>
-
+                <Grid container spacing={1} size={{xs: 12, sm: 12, md: 11, lg: 10, xl: 7}} alignItems='stretch'
+                      sx={{width: '100%', backgroundColor: theme.palette.background.default}} ref={domEl}>
                     {isScreenshot && (
-                        <Paper sx={{p: 2, width: '100%'}}>
-                            <Typography style={{fontSize: '1.5rem', fontWeight: 700}}>
-                                COFFEE GRINDS <span style={{fontWeight: 300}}> PARTICLE SIZE DISTRIBUTION</span>
-                            </Typography>
-                        </Paper>
+                        <Grid direction='column' spacing={(isDesktop && !isScreenshot) ? 1 : 1}
+                              sx={{width: '100%', backgroundColor: theme.palette.background.default}}>
+                            <Paper sx={{p: 2, width: '100%'}}>
+                                <Typography style={{fontSize: '1.5rem', fontWeight: 700}}>
+                                    COFFEE GRINDS <span style={{fontWeight: 300}}> PARTICLE SIZE DISTRIBUTION</span>
+                                </Typography>
+                            </Paper>
+                        </Grid>
                     )}
 
                     <HistogramPanel domEl={domEl}/>
 
+                    {isScreenshot && (
+                        <Grid size={12}><StatsPanel/></Grid>
+                    )}
+                </Grid>
+
+                {breakpoint === 'xxl' && (
+                    <Grid size={{xs: 12, sm: 12, md: 11, lg: 10, xl: 5}} alignItems='stretch'>
+                        <ImagePanel/>
+                    </Grid>
+                )}
+
+                <Grid size={{xs: 12, sm: 12, md: 11, lg: 10, xl: 7}} alignItems='stretch'>
                     <StatsPanel/>
+                </Grid>
 
-                </Stack>
+                {breakpoint !== 'xxl' && (
+                    <Grid size={{xs: 12, sm: 12, md: 11, lg: 10, xl: 5}} alignItems='stretch'>
+                        <ImagePanel/>
+                    </Grid>
+                )}
 
-                {!viewOnly &&
-                    <ImagePanel/>
-                }
-
-            </Stack>
+            </Grid>
             <Tracker feature='MainPage'/>
             <Footer/>
 
-        </>
+        </Stack>
     )
 }

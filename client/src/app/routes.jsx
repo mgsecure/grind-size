@@ -6,18 +6,19 @@ import LoadingDisplay from '../misc/LoadingDisplay.jsx'
 import EnvAppBar from '../misc/EnvAppBar.jsx'
 
 const style = {
-    maxWidth: 800,
+   // maxWidth: 800,
     marginLeft: 'auto',
     marginRight: 'auto',
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center'
+    alignItems: 'center',
+    fontFamily: 'Roboto, system-ui, sans-serif'
 }
 
 const AppShell = () => (
     <React.Fragment>
         <EnvAppBar/>
-        <div style={{...style, fontFamily: 'Roboto, system-ui, sans-serif'}}>
+        <div style={style}>
             <Outlet/>
         </div>
     </React.Fragment>
@@ -92,6 +93,14 @@ export default [{
             lazy: async () => {
                 const {default: PrivacyRoute} = await import('../privacy/PrivacyRoute')
                 return {element: <Suspense><PrivacyRoute/></Suspense>}
+            }
+        },
+        {
+            path: '/screenshot',
+            name: 'screenshot',
+            lazy: async () => {
+                const {default: ScreenshotRoute} = await import('../screenshot/ScreenshotRoute')
+                return {element: <Suspense><ScreenshotRoute/></Suspense>}
             }
         },
         {

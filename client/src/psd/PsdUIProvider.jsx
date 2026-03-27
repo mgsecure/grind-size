@@ -10,7 +10,7 @@ const defaultImageViewMode = 'mask'
 
 export default function PsdUIProvider({children}) {
     const theme = useTheme()
-    const {isDesktop, isMobile} = useWindowSize()
+    const {isDesktop, isMobile, breakpoint} = useWindowSize()
     const {
         queue, activeIdList, aggregateQueueItem
     } = useContext(DataContext)
@@ -57,6 +57,7 @@ export default function PsdUIProvider({children}) {
     }, [notErrorIdList, aggregateColor, currentColors, queue, activeIdList])
 
     const [customSampleParams, setCustomSampleParams] = useState({})
+    const [showSettings, setShowSettings] = useState(false)
 
     const resetUIContext = useCallback(() => {
         setCustomSampleParams({})
@@ -71,6 +72,7 @@ export default function PsdUIProvider({children}) {
         theme,
         isDesktop,
         isMobile,
+        breakpoint,
         currentColors,
         chartColors,
         swapColors,
@@ -81,12 +83,14 @@ export default function PsdUIProvider({children}) {
         imageViewMode, setImageViewMode,
         customSampleParams, setCustomSampleParams,
         colorSwatches, setColorSwatches,
-        chartTitle, setChartTitle
+        chartTitle, setChartTitle,
+        showSettings, setShowSettings,
     }), [
         resetUIContext,
         theme,
         isDesktop,
         isMobile,
+        breakpoint,
         currentColors,
         chartColors,
         swapColors,
@@ -96,7 +100,8 @@ export default function PsdUIProvider({children}) {
         imageViewMode, setImageViewMode,
         customSampleParams, setCustomSampleParams,
         colorSwatches, setColorSwatches,
-        chartTitle, setChartTitle
+        chartTitle, setChartTitle,
+        showSettings, setShowSettings,
     ])
 
     return (

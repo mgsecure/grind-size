@@ -1,4 +1,4 @@
-import React, {useContext, useMemo, useRef, useState} from 'react'
+import React, {useContext, useMemo, useRef} from 'react'
 import {
     alpha,
     Box,
@@ -21,13 +21,12 @@ import HelpContentDrawerButton from '../components/HelpContentDrawerButton.jsx'
 
 export default function StatsPanel() {
     const {activeItems, queue, aggregateQueueItem = {}} = useContext(DataContext)
-    const {currentColors, isDesktop, aggregateColor, customSampleParams, isScreenshot} = useContext(UIContext)
+    const {currentColors, isDesktop, aggregateColor, customSampleParams, isScreenshot, showSettings, setShowSettings} = useContext(UIContext)
 
     const domEl = useRef(null)
     const theme = useTheme()
     const disabledStyle = {opacity: 0.5, pointerEvents: 'none'}
 
-    const [showSettings, setShowSettings] = useState(false)
 
     const noErrorIdList = useMemo(() => {
         return queue

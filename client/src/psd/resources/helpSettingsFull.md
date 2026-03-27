@@ -7,9 +7,11 @@ These settings directly control how the image is processed and how particles are
 *   **Maximum Surface (mm²):** The maximum surface area a particle can have. This is used to exclude objects that are clearly too large to be coffee grounds, such as hair or parts of the template itself.
 
 #### Detection & Image Processing
-  
-* **Overlap Separation:** When enabled, uses a watershed algorithm to try and separate particles that are touching or slightly overlapping.
-* **Remove boulders:** Adjusts how aggressive the overlap separation is. Higher sensitivity will more readily break up clusters, but may incorrectly split elongated single particles.
+*   **Lighting Sigma (`bgSigma`):** Used for background normalization. It helps smooth out uneven lighting or shadows across the image before detection.
+*   **Adaptive Block Size:** The size of the neighborhood used for the adaptive thresholding algorithm. Larger blocks are better for images with soft lighting transitions, while smaller blocks can capture more localized detail.
+*   **Adaptive Constant:** A constant subtracted from the mean during thresholding. Increasing this value makes the detection more "conservative," filtering out noise but potentially missing faint particles.
+*   **Split Overlaps (`splitOverlaps`):** When enabled, uses a watershed algorithm to try and separate particles that are touching or slightly overlapping.
+*   **Split Sensitivity:** Adjusts how aggressive the overlap separation is. Higher sensitivity will more readily break up clusters, but may incorrectly split elongated single particles.
 
 ---
 
@@ -17,6 +19,18 @@ These settings directly control how the image is processed and how particles are
 
 These settings affect how the results are presented in the histograms and statistics.
 
+*   **Bin Count:** The number of intervals (bars) used in the histogram. More bins provide more detail but can make the chart look "noisy."
+*   **Bin Type:**
+    *   *Default:* Uses fixed, standardized bin ranges.
+    *   *Dynamic:* Adjusts the bin ranges based on the actual size distribution of the current samples for better resolution.
+*   **Bin Spacing:**
+    *   *Log:* Uses logarithmic intervals. This is standard in coffee science as it better represents the wide range of particle sizes (from fines to coarse).
+    *   *Linear:* Uses equal-sized intervals.
+*   **Metric:** The primary dimension used for the X-axis (Diameter, Surface Area, or Volume).
+*   **Weighting:** How much "importance" each particle has on the Y-axis.
+    *   *Mass/Volume:* Larger particles contribute more to the percentage (standard for brewing).
+    *   *Surface Area:* Represents the available surface for extraction.
+    *   *Count:* Every particle counts as 1, regardless of size (highlights the number of fines).
 
 ---
 

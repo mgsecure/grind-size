@@ -101,7 +101,7 @@ export default function Dropzone({
         color: '#eee',
         outline: 'none',
         transition: 'border .24s ease-in-out',
-        minWidth: 150,
+        minWidth: 130,
         backgroundColor: theme.palette.divider,
         ...zoneStyle
     }

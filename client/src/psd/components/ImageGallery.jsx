@@ -6,7 +6,6 @@ import Tooltip from '@mui/material/Tooltip'
 import licenses from '../../data/licenses.js'
 import IconButton from '@mui/material/IconButton'
 import LaunchIcon from '@mui/icons-material/Launch'
-import ytIcon from '../../resources/yt.png'
 import ImageViewer from './ImageViewer.jsx'
 import UIContext from '../../context/UIContext.jsx'
 import DataContext from '../../context/DataContext.jsx'
@@ -25,7 +24,8 @@ function ImageGallery(props) {
     } = props
 
     const {queue} = useContext(DataContext)
-    const {currentColors, customSampleParams, isDesktop} = useContext(UIContext)
+    const {currentColors, customSampleParams, breakpoint} = useContext(UIContext)
+
     const noErrorIdList = useMemo(() => {
         return queue
             .filter(item => (item.status === 'done'))
@@ -36,10 +36,6 @@ function ImageGallery(props) {
     const [open, setOpen] = useState(initiallyOpen)
 
     const fullMedia = allMedia ?? media
-
-    const handleVideoClick = useCallback(url => () => {
-        return window.open(url, '_blank', 'noopener,noreferrer')
-    }, [])
 
     const handleOpen = useCallback(sequenceId => () => {
         onOpenImage(sequenceId)
@@ -64,7 +60,9 @@ function ImageGallery(props) {
         return () => removeEventListener('hashchange', handler)
     })
 
-    const cols = columns ?? (isDesktop ? 4 : 2)
+    const breakpointValue = breakpoint === 'xs' ? 2 : breakpoint === 'sm' ? 3 : breakpoint === 'md' ? 4 : breakpoint === 'lg' ? 4 : 3
+    const cols = columns ?? breakpointValue
+    console.log('Breakpoint:', breakpoint, '| cols:', cols)
 
     return (
         <React.Fragment>
@@ -87,24 +85,6 @@ function ImageGallery(props) {
                                 style={{paddingBottom: subtitle ? 60 : 48, cursor: 'pointer'}}
                                 onClick={handleOpen(sequenceId)}
                             />
-                        {
-                            fullUrl?.match(/youtube\.com/) &&
-                            <img
-                                src={ytIcon}
-                                alt={title}
-                                style={{
-                                    alignItems: 'center',
-                                    position: 'absolute',
-                                    top: 'calc(50% - 65px)',
-                                    left: 'calc(50% - 40px)',
-                                    width: 80,
-                                    height: 80,
-                                    cursor: 'pointer'
-                                }}
-                                onClick={handleVideoClick(fullUrl)}
-                            />
-                        }
-
                         <ImageListItemBar
                             sx={{
                                 '& .MuiImageListItemBar-titleWrap': {

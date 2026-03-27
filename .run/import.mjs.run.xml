@@ -1,0 +1,8 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="import.mjs" type="NodeJSConfigurationType" nameIsGenerated="true" path-to-js-file="import.mjs" working-dir="$PROJECT_DIR$/client/scripts">
+    <EXTENSION ID="com.intellij.javascript.debugger.execution.StartBrowserRunConfigurationExtension">
+      <browser with-js-debugger="true" />
+    </EXTENSION>
+    <method v="2" />
+  </configuration>
+</component>

@@ -1,5 +1,5 @@
 {
-  "name": "lockpickers-united",
+  "name": "coffee-grind",
   "version": "1.0.0",
   "main": "client/index.html",
   "keywords": [],
@@ -56,7 +56,6 @@
     ]
   },
   "dependencies": {
-    "@nivo/pie": "^0.99.0",
     "baseline-browser-mapping": "^2.9.11",
     "csv-parse": "^6.1.0",
     "fast-levenshtein": "^3.0.0",
