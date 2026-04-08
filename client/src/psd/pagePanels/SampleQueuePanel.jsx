@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useEffect, useMemo} from 'react'
+import React, {useCallback, useContext, useEffect, useMemo, useRef, useState} from 'react'
 import {
     List,
     Paper,
@@ -23,8 +23,10 @@ import ExportButton from '../components/ExportButton.jsx'
 import ImportButton from '../components/ImportButton.jsx'
 import UIContext from '../../context/UIContext.jsx'
 import LoadingDisplaySmall from '../../misc/LoadingDisplaySmall.jsx'
+import UploadPanel from './UploadPanel.jsx'
+import Collapse from '@mui/material/Collapse'
 
-export default function UploadQueuePanel({resetContexts}) {
+export default function SampleQueuePanel({resetContexts}) {
     const theme = useTheme()
 
     const {
@@ -35,10 +37,11 @@ export default function UploadQueuePanel({resetContexts}) {
         handleQueueRemove,
         activeIdList, setActiveIdList,
         processMultipleSettings,
+        processingComplete,
         isAnalyzing,
         debugLevel
     } = useContext(DataContext)
-    const {currentColors, aggregateColor, customSampleParams, isDesktop} = useContext(UIContext)
+    const {currentColors, aggregateColor, altButtonColor, customSampleParams, isDesktop} = useContext(UIContext)
 
     // console.log('queue', queue)
     // console.log('customSampleParams', customSampleParams)
@@ -48,6 +51,10 @@ export default function UploadQueuePanel({resetContexts}) {
     const fullQueue = useMemo(() => {
         return aggregateQueueItem?.result ? [...queue, aggregateQueueItem] : queue
     }, [queue, aggregateQueueItem])
+
+    const hasFiles = useMemo(() => {
+        return !!queue.find(item => item.file.path && (item.status === 'done' || item.status === 'error'))
+    }, [queue])
 
     const validIdList = useMemo(() => {
         return fullQueue
@@ -82,20 +89,45 @@ export default function UploadQueuePanel({resetContexts}) {
         }
     }, [activeIdList, aggregateQueueItem, queue, setActiveIdList])
 
+    const [showDetails, setShowDetails] = useState(false)
+    const queueRef = useRef(null)
+    const domRef = useRef(null)
+    const toggleShowDetails = useCallback(() => {
+        !showDetails
+            ? domRef.current?.scrollIntoView({behavior: 'smooth'})
+            : queueRef.current?.scrollIntoView({behavior: 'smooth'})
+
+        setShowDetails(!showDetails)
+    }, [setShowDetails, showDetails])
+
     const handleDelete = useCallback((id) => {
         handleQueueRemove(id)
         const newActiveIdList = activeIdList.filter(i => (i !== id && queue.find(q => q.id === i)))
         setActiveIdList(newActiveIdList)
         if (id === 'all' || queue.length === 0 || (queue.length === 1 && queue[0].id === id)) {
             resetContexts()
+            setShowDetails(false)
         }
     }, [activeIdList, handleQueueRemove, queue, resetContexts, setActiveIdList])
 
+    const uploadDisabled = !activeIdList.length || !processingComplete || !hasFiles
+
     return (
-        <Paper sx={{p: isDesktop ? 2 : 1, width: '100%', height: '100%', flexGrow: 1, display: 'flex', flexDirection: 'column'}}>
+        <Paper ref={queueRef} sx={{
+            p: isDesktop ? 2 : 1,
+            width: '100%',
+            height: '100%',
+            flexGrow: 1,
+            display: 'flex',
+            flexDirection: 'column'
+        }}>
             <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{width: '100%'}}>
                 <Typography style={{fontSize: '1.1rem', fontWeight: 500}}>SAMPLE QUEUE</Typography>
-                <ImportButton iconOnly={false}/>
+                <Button onClick={() => handleDelete('all')}
+                        style={{marginRight: 8}} size='small'
+                        disabled={isAnalyzing || !queue.length}>
+                    Remove All
+                </Button>
             </Stack>
             <Stack direction='column' spacing={1} sx={{width: '100%'}}>
                 <Stack direction={isDesktop ? 'row' : 'column'} spacing={1} sx={{width: '100%'}}>
@@ -170,7 +202,10 @@ export default function UploadQueuePanel({resetContexts}) {
                                                     }}>
                                                         {item.sampleName || item.file?.name || 'Unnamed Sample'}
                                                         {item.id === aggregateQueueItem?.id &&
-                                                            <span style={{fontWeight: 300, fontSize: '0.85rem'}}> ({queue.length})</span>
+                                                            <span style={{
+                                                                fontWeight: 300,
+                                                                fontSize: '0.85rem'
+                                                            }}> ({queue.length})</span>
                                                         }
                                                     </div>
 
@@ -232,13 +267,25 @@ export default function UploadQueuePanel({resetContexts}) {
                                 ))}
                             </List>
 
-                            <Stack direction='row' alignItems='center' justifyContent='space-between'
-                                   sx={{width: '100%', pl: 4}} style={{marginTop: 0}}>
-                                <ExportButton text={true}/>
-                                <Button onClick={() => handleDelete('all')}
-                                        style={{marginRight: 8}}
-                                        disabled={isAnalyzing || !queue.length}>
-                                    Remove All
+                            <Stack direction={{xs: 'column', sm: 'row'}} alignItems='center'
+                                   justifyContent='space-between' spacing={0}
+                                   sx={{width: '100%'}} style={{marginTop: 0}}>
+                                <Stack direction='row' alignItems='center' justifyContent='left' spacing={2}
+                                       sx={{width: '100%', pl: 4}} style={{marginTop: 0}}>
+                                    <ExportButton text={true}/>
+                                    <ImportButton iconOnly={false}/>
+                                </Stack>
+                                <Button onClick={toggleShowDetails}
+                                        style={{
+                                            width: 150,
+                                            whiteSpace: 'nowrap',
+                                            color: uploadDisabled
+                                                ? theme.palette.divider
+                                                : !showDetails ? altButtonColor : theme.palette.success.main
+                                        }}
+                                        size='small'
+                                        disabled={uploadDisabled}>
+                                    Submit Images
                                 </Button>
                             </Stack>
                         </Stack>
@@ -246,6 +293,11 @@ export default function UploadQueuePanel({resetContexts}) {
                 </Stack>
             </Stack>
 
+            <Collapse in={showDetails} sx={{width: '100%'}} ref={domRef}>
+                {showDetails &&
+                    <UploadPanel showDetails={showDetails} setShowDetails={setShowDetails} queueRef={queueRef}/>
+                }
+            </Collapse>
         </Paper>
     )
 }

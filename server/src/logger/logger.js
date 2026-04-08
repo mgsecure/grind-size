@@ -36,7 +36,7 @@ if (isDev) {
     const fileTransport = pino.transport({
         target: 'pino/file',
         options: {
-            destination: '../logs/nodeserver.log', // ensure the directory exists & is writable
+            destination: '/home/coffee_tracker/coffee-grind-node/logs/nodeserver.log', // ensure the directory exists & is writable
             mkdir: true               // pino v9: creates parent dirs if missing
         }
     })

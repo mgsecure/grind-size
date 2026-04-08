@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { app } from '../src/lockpickersUnitedServer.js'
+import { app } from '../src/cgServer.js'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 
 // Ensure dev-like defaults so routes are under /api

@@ -24,15 +24,28 @@ export const overlapSplitPresets = {
         extraSeedMinDistFactor: 1.2,
         splitRoundnessThreshold: 0.75,
         splitMaxAreaFactor: 0.4,
+        removeLargestParticles: 5,
     },
     'CoarseGrind': {
-        overlapPresetName: 'Coarse Grind',
+        overlapPresetName: 'Coarse',
         splitOverlaps: true,
         splitSensitivity: 0.7,
         extraSeedSensitivity: 0.15,
         extraSeedMinDistFactor: 1.5,
         splitRoundnessThreshold: 0.75,
         splitMaxAreaFactor: 0.4,
+        removeLargestParticles: 5,
+    },
+    'Heavy': {
+        overlapPresetName: 'Heavy Clumping',
+        splitOverlaps: true,
+        splitSensitivity: 0.45,
+        extraSeedSensitivity: 0.3,
+        extraSeedMinDistFactor: 1.2,
+        splitRoundnessThreshold: 0.75,
+        splitMaxAreaFactor: 0.4,
+        removeLargestParticles: 10,
+        maxAreaMm2: 20,
     },
 }
 
@@ -121,21 +134,22 @@ export const PSD_DEFAULTS = {
     chartMode: 'bar', // 'bar' | 'line'
     splitOverlaps: false,
     overlapSplitPreset: defaultOverlapPreset,
-    splitSensitivity: overlapSplitPresets[defaultOverlapPreset].splitSensitivity,
-    extraSeedSensitivity: overlapSplitPresets[defaultOverlapPreset].extraSeedSensitivity,
-    extraSeedMinDistFactor: overlapSplitPresets[defaultOverlapPreset].extraSeedMinDistFactor,
-    splitRoundnessThreshold: 0.85,
-    splitMaxAreaFactor: 0.5,
+    //splitSensitivity: overlapSplitPresets[defaultOverlapPreset].splitSensitivity,
+    //extraSeedSensitivity: overlapSplitPresets[defaultOverlapPreset].extraSeedSensitivity,
+    //extraSeedMinDistFactor: overlapSplitPresets[defaultOverlapPreset].extraSeedMinDistFactor,
+    //splitRoundnessThreshold: 0.85,
+    //splitMaxAreaFactor: 0.5,
     ellipseFactor: 5.0,
     minSolidity: 0.3,
     analysisChannel: 'grayscale', // 'grayscale' | 'blue' | 'auto'
     value: 'mass',
     templateSize: 75,
-    ...PSD_PRESETS[defaultSettingsPreset].params
+    ...PSD_PRESETS[defaultSettingsPreset].params,
+    ...overlapSplitPresets[defaultOverlapPreset],
 }
 
 export const BIN_DEFAULTS = {
-    min: 75,
+    min: 110,
     max: 3000,
     nBins: 15
 }

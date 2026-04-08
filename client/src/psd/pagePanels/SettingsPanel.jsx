@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useMemo, useState} from 'react'
+import React, {useCallback, useContext, useMemo, useRef, useState} from 'react'
 import {Paper, Stack, Typography, Slider, FormControlLabel} from '@mui/material'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
 import ToggleButton from '@mui/material/ToggleButton'
@@ -28,11 +28,17 @@ export default function SettingsPanel() {
     } = useContext(DataContext)
 
     const {isDesktop} = useContext(UIContext)
+    const domRef = useRef(null)
 
     // console.log('customSettings', customSettings)
 
-    const [showDetails, setShowDetails] = useState(false)
     const [preset, setPreset] = useState('hi-res') // 'hi-res' | 'standard' | 'coarse' | 'fines' | 'custom'
+
+    const [showDetails, setShowDetails] = useState(false)
+    const toggleShowDetails = useCallback(() => {
+        setShowDetails(!showDetails)
+        domRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }, [showDetails])
 
     const needsRefresh = useMemo(() => {
         return queueItems
@@ -105,17 +111,16 @@ export default function SettingsPanel() {
     const toggleButtonStyle = {padding: '4px 11px'}
 
     return (
-        <Paper sx={{p: isDesktop ? 2 : 1, width: '100%', height: '100%'}}>
+        <Paper sx={{p: isDesktop ? 2 : 1, width: '100%', height: '100%'}} ref={domRef}>
             <Stack direction='row' flexWrap='wrap' alignItems='center' justifyContent='space-between' width='100%'>
                 <Stack direction='row' alignItems='center' sx={{fontSize: '1.1rem', fontWeight: 500}}>
                     <span style={{marginRight: 10}}>SETTINGS</span>
                     <HelpContentDrawerButton markdown={String(helpSettings)}/>
                 </Stack>
-                <ExpandButton expanded={showDetails} onChange={() => setShowDetails(!showDetails)}/>
+                <ExpandButton expanded={showDetails} onChange={toggleShowDetails}/>
             </Stack>
 
-            <Collapse in={showDetails} sx={{ml: isDesktop ? 1 : 0}}>
-
+            <Collapse in={showDetails} sx={{ml: isDesktop ? 0 : 0}}>
                 <Stack direction='row' flexWrap='wrap' alignItems='center' justifyContent='space-between'>
                     <Stack direction='row' alignItems='center' justifyContent='space-between' style={{flexGrow: 1}}>
                         <Stack direction='row' flexWrap='wrap' alignItems='center'>
@@ -160,7 +165,7 @@ export default function SettingsPanel() {
                                     key={'custom'}
                                     exclusive
                                     onChange={(_, v) => v && handlePresetChange(v)}
-                                    style={{margin: isDesktop ? '10px 8px 10px 20px' : 0}}
+                                    style={{margin: isDesktop ? '10px 0px 10px 10px' : 0}}
                                 >
                                     <ToggleButton key='custom' value='custom'
                                                   onClick={handleCustomClick}
@@ -177,7 +182,8 @@ export default function SettingsPanel() {
                             <Button variant='contained'
                                     disabled={!needsRefresh || queueItems.length === 0}
                                     onClick={handleRecalculate}
-                                    style={{margin: 10}}>
+                                    size='small'
+                                    style={{margin: 0}}>
                                 Refresh All
                             </Button>
                         </Stack>
@@ -393,7 +399,6 @@ export default function SettingsPanel() {
                     </Stack>
 
                     <Stack style={{width: sliderWidth, marginRight: 24}}>
-
                         <Typography variant='body2'>Adaptive Constant: {settings.adaptiveC}</Typography>
                         <Slider
                             value={settings.adaptiveC}

@@ -3,8 +3,6 @@ import {useTheme} from '@mui/material/styles'
 
 export default function useWindowSize() {
     const theme = useTheme()
-    const breakpointKeys = [...theme.breakpoints.keys].reverse()
-
     const [width, setWidth] = useState(window.innerWidth)
 
     useEffect(() => {
@@ -31,6 +29,7 @@ export default function useWindowSize() {
     const isMobile = width < 650
     const isDesktop = width > 649
 
+    const breakpointKeys = [...theme.breakpoints.keys].reverse()
     const breakpoint = breakpointKeys.find(key => width >= theme.breakpoints.values[key])
 
     return useMemo(() => ({

@@ -162,6 +162,7 @@ export function PsdDataProvider({children}) {
                     id: q.id,
                     filename: q.filename || result.filename || q.file?.name || '',
                     sampleName: q.sampleName || result.filename || q.file?.name || '',
+                    hasFile: !!q.file?.path,
                     stats: stats,
                     histograms: hists,
                     scale: result.scale || {},

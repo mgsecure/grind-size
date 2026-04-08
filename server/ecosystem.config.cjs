@@ -16,4 +16,4 @@ module.exports = {
 
 //tail -f ~/.pm2/logs/lockpickersUnitedServer-out.log
 //pm2 start ecosystem.config.cjs --env production
-//NODE_ENV=production pm2 start './server/src/lockpickersUnitedServer.js' --name 'lpuNodeServer'
+//NODE_ENV=production pm2 start './server/src/cgServer.js' --name 'lpuNodeServer'

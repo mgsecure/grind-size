@@ -65,6 +65,7 @@ export default function ItemInformationButton({
     const saveName = useCallback((e) => {
         e.preventDefault()
         e.stopPropagation()
+        item.file.sampleName = name
         setQueue(prev => prev.map(i => i.id === item.id ? {...item, sampleName: name} : i))
         setEditOpen(false)
     }, [item, name, setQueue])

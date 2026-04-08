@@ -32,6 +32,7 @@ const importValidate = async (tab, schema) => {
 
 const sampleSetData = await importValidate('SampleSets', sampleSetSchema)
 const equipmentData = await importValidate('Equipment', equipmentSchema)
+const psdGrindersData = await importValidate('GrindersPSD', equipmentSchema)
 
 
 // Load previous JSON for recently updated checks
@@ -75,8 +76,36 @@ const equipment = equipmentData
     .sort((a, b) => {
         return a.fullName?.localeCompare(b.fullName)
     })
-
 console.log('Writing equipment.json...')
 fs.writeFileSync('../src/data/equipment.json', JSON.stringify(equipment, null, 2))
+
+
+console.log('Processing PSD Grinder data...')
+const psdGrinders = psdGrindersData
+    .map(datum => {
+        const model = datum['Model']
+        const value = {
+            id: datum.ID,
+            type: datum.Type,
+            brand: datum.Brand,
+            model: model,
+            fullName: (datum.Brand && model)
+                ? `${datum.Brand} ${model}`
+                : `${datum.Brand || ''}${model || ''}` || '',
+        }
+
+        // Clean up empty values to reduce payload size
+        Object.keys(value).forEach(key => {
+            if (typeof value[key] === 'string' && value[key] === '') value[key] = undefined
+            else if (Array.isArray(value[key]) && value[key].length === 0) value[key] = undefined
+        })
+        return value
+    })
+    .sort((a, b) => {
+        return a.fullName?.localeCompare(b.fullName)
+    })
+
+console.log('Writing psdGrinders.json...')
+fs.writeFileSync('../src/data/psdGrinders.json', JSON.stringify(psdGrinders, null, 2))
 
 console.log('Complete.')

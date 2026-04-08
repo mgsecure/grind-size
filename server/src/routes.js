@@ -18,6 +18,7 @@ export function registerRoutes(app, { prefix = '/api' } = {}) {
 
     app.use(prefix, r)
 
+    lazyMount(app, `${prefix}/psd`, () => import('./psd/psd.bundle.js'))
     lazyMount(app, `${prefix}/discord`, () => import('./sendToDiscord/discord.bundle.js'))
 
 }

@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer'
-import {emailConfigs} from '../keys/users.js'
+import {emailConfigs} from '../../keys/users.js'
 
 /**
  * @prop emailConfig

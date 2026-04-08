@@ -62,7 +62,6 @@ function ImageGallery(props) {
 
     const breakpointValue = breakpoint === 'xs' ? 2 : breakpoint === 'sm' ? 3 : breakpoint === 'md' ? 4 : breakpoint === 'lg' ? 4 : 3
     const cols = columns ?? breakpointValue
-    console.log('Breakpoint:', breakpoint, '| cols:', cols)
 
     return (
         <React.Fragment>

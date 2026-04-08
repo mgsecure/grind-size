@@ -31,7 +31,7 @@ const corsOrigin = process.env.CORS_ORIGIN
 app.use(cors({origin: corsOrigin, credentials: true}))
 
 const envText = isDev ? ' (DEV)' : ''
-const apiPort = isDev ? 4000 : 9082
+const apiPort = isDev ? 4000 : 8083
 const apiPrefix = isDev ? '/api' : ''
 
 registerRoutes(app, { prefix: apiPrefix })

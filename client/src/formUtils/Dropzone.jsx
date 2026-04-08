@@ -176,28 +176,30 @@ export default function Dropzone({
         setErrorMessage('')
     }, [files, handleDroppedFiles, warningCheck, zoneId])
 
-    const thumbs = files.map((file, index) => (
-        <div style={thumb} key={index}>
-            <div style={thumbInner}>
-                <img
-                    src={file.preview}
-                    style={img}
-                    alt='Upload preview'
-                    // Revoke data uri after image is loaded
-                    onLoad={() => {
-                        //URL.revokeObjectURL(file.preview)
-                    }}
-                />
+    const thumbs = showThumbs
+        ? files.map((file, index) => (
+            <div style={thumb} key={index}>
+                <div style={thumbInner}>
+                    <img
+                        src={file.preview}
+                        style={img}
+                        alt='Upload preview'
+                        // Revoke data uri after image is loaded
+                        onLoad={() => {
+                            URL.revokeObjectURL(file.preview)
+                        }}
+                    />
+                </div>
+                <IconButton style={{
+                    margin: '0px 0px 0px -16px',
+                    backgroundColor: '#000',
+                    padding: 0,
+                    height: 15,
+                    width: 15
+                }} onClick={(event) => clearFile(event, file.name)}><CancelIcon/></IconButton>
             </div>
-            <IconButton style={{
-                margin: '0px 0px 0px -16px',
-                backgroundColor: '#000',
-                padding: 0,
-                height: 15,
-                width: 15
-            }} onClick={(event) => clearFile(event, file.name)}><CancelIcon/></IconButton>
-        </div>
-    ))
+        ))
+        : []
 
     useEffect(() => {
         // Make sure to revoke the data uris to avoid memory leaks, will run on unmount
@@ -210,7 +212,8 @@ export default function Dropzone({
 
     return (
 
-        <section className='container' style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+        <section className='container'
+                 style={{width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
             <div {...getRootProps({style})}>
                 <input {...getInputProps()} />
                 {maxFilesHit

@@ -1,5 +1,5 @@
 import request from 'supertest'
-import { app } from '../src/lockpickersUnitedServer.js'
+import { app } from '../src/cgServer.js'
 import { describe, it, expect } from 'vitest'
 
 // Ensure we run with development-like defaults for route prefix (/api)

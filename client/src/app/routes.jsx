@@ -50,7 +50,14 @@ export default [{
                         const {default: PsdRoute} = await import('../psd/PsdRoute.jsx')
                         return {element: <Suspense fallback={<LoadingDisplay/>}><PsdRoute/></Suspense>}
                     },
-                }
+                },
+                {
+                    path: '/psd/upload',
+                    lazy: async () => {
+                        const {default: PsdUploadRoute} = await import('../psd/PsdUploadRoute.jsx')
+                        return {element: <Suspense fallback={<LoadingDisplay/>}><PsdUploadRoute/></Suspense>}
+                    },
+                },
             ]
         },
         {

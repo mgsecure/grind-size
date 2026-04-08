@@ -1,0 +1,1605 @@
+[
+  {
+    "id": "80717d96",
+    "type": "Grinder",
+    "brand": "1Zpresso",
+    "model": "J",
+    "fullName": "1Zpresso J"
+  },
+  {
+    "id": "25cbae5f",
+    "type": "Grinder",
+    "brand": "1Zpresso",
+    "model": "J-Max",
+    "fullName": "1Zpresso J-Max"
+  },
+  {
+    "id": "f2f07b9b",
+    "type": "Grinder",
+    "brand": "1Zpresso",
+    "model": "J-Ultra",
+    "fullName": "1Zpresso J-Ultra"
+  },
+  {
+    "id": "e5296df1",
+    "type": "Grinder",
+    "brand": "1Zpresso",
+    "model": "JE-Plus",
+    "fullName": "1Zpresso JE-Plus"
+  },
+  {
+    "id": "6959f182",
+    "type": "Grinder",
+    "brand": "1Zpresso",
+    "model": "JE-Plus S",
+    "fullName": "1Zpresso JE-Plus S"
+  },
+  {
+    "id": "2d38fb37",
+    "type": "Grinder",
+    "brand": "1Zpresso",
+    "model": "JX",
+    "fullName": "1Zpresso JX"
+  },
+  {
+    "id": "d8b921a7",
+    "type": "Grinder",
+    "brand": "1Zpresso",
+    "model": "JX-Pro",
+    "fullName": "1Zpresso JX-Pro"
+  },
+  {
+    "id": "f84928d0",
+    "type": "Grinder",
+    "brand": "1Zpresso",
+    "model": "K-Max",
+    "fullName": "1Zpresso K-Max"
+  },
+  {
+    "id": "16ed14f0",
+    "type": "Grinder",
+    "brand": "1Zpresso",
+    "model": "K-Plus",
+    "fullName": "1Zpresso K-Plus"
+  },
+  {
+    "id": "32e8a658",
+    "type": "Grinder",
+    "brand": "1Zpresso",
+    "model": "K-Ultra",
+    "fullName": "1Zpresso K-Ultra"
+  },
+  {
+    "id": "781ded61",
+    "type": "Grinder",
+    "brand": "1Zpresso",
+    "model": "Q",
+    "fullName": "1Zpresso Q"
+  },
+  {
+    "id": "c2ad8d91",
+    "type": "Grinder",
+    "brand": "1Zpresso",
+    "model": "Q Air",
+    "fullName": "1Zpresso Q Air"
+  },
+  {
+    "id": "16ddb291",
+    "type": "Grinder",
+    "brand": "1Zpresso",
+    "model": "Q2",
+    "fullName": "1Zpresso Q2"
+  },
+  {
+    "id": "aaab1648",
+    "type": "Grinder",
+    "brand": "1Zpresso",
+    "model": "X-Pro",
+    "fullName": "1Zpresso X-Pro"
+  },
+  {
+    "id": "513f00e2",
+    "type": "Grinder",
+    "brand": "1Zpresso",
+    "model": "X-Ultra",
+    "fullName": "1Zpresso X-Ultra"
+  },
+  {
+    "id": "86e1bca9",
+    "type": "Grinder",
+    "brand": "1Zpresso",
+    "model": "Z-Pro",
+    "fullName": "1Zpresso Z-Pro"
+  },
+  {
+    "id": "72e1c942",
+    "type": "Grinder",
+    "brand": "1Zpresso",
+    "model": "ZP6 Special",
+    "fullName": "1Zpresso ZP6 Special"
+  },
+  {
+    "id": "266383d0",
+    "type": "Grinder",
+    "brand": "Amzchef",
+    "model": "Burr Coffee Grinder with Detachable Funnel Stand (48 Grind Settings)",
+    "fullName": "Amzchef Burr Coffee Grinder with Detachable Funnel Stand (48 Grind Settings)"
+  },
+  {
+    "id": "e009e185",
+    "type": "Grinder",
+    "brand": "Amzchef",
+    "model": "Coffee Grinder with Removable Funnel Base",
+    "fullName": "Amzchef Coffee Grinder with Removable Funnel Base"
+  },
+  {
+    "id": "da09887b",
+    "type": "Grinder",
+    "brand": "Amzchef",
+    "model": "Precision Burr Coffee Grinder (75 Grind Settings)",
+    "fullName": "Amzchef Precision Burr Coffee Grinder (75 Grind Settings)"
+  },
+  {
+    "id": "23d38a30",
+    "type": "Grinder",
+    "brand": "Baratza",
+    "model": "Encore",
+    "fullName": "Baratza Encore"
+  },
+  {
+    "id": "acd99eaf",
+    "type": "Grinder",
+    "brand": "Baratza",
+    "model": "Encore ESP",
+    "fullName": "Baratza Encore ESP"
+  },
+  {
+    "id": "302474c5",
+    "type": "Grinder",
+    "brand": "Baratza",
+    "model": "Encore ESP Pro",
+    "fullName": "Baratza Encore ESP Pro"
+  },
+  {
+    "id": "0f86f854",
+    "type": "Grinder",
+    "brand": "Baratza",
+    "model": "Forte AP",
+    "fullName": "Baratza Forte AP"
+  },
+  {
+    "id": "f3f37b4b",
+    "type": "Grinder",
+    "brand": "Baratza",
+    "model": "Forte BG",
+    "fullName": "Baratza Forte BG"
+  },
+  {
+    "id": "f6b7cf55",
+    "type": "Grinder",
+    "brand": "Baratza",
+    "model": "Sette 270",
+    "fullName": "Baratza Sette 270"
+  },
+  {
+    "id": "95e83aa9",
+    "type": "Grinder",
+    "brand": "Baratza",
+    "model": "Sette 270Wi",
+    "fullName": "Baratza Sette 270Wi"
+  },
+  {
+    "id": "38b39b7f",
+    "type": "Grinder",
+    "brand": "Baratza",
+    "model": "Sette 30",
+    "fullName": "Baratza Sette 30"
+  },
+  {
+    "id": "05ec2b76",
+    "type": "Grinder",
+    "brand": "Baratza",
+    "model": "Vario",
+    "fullName": "Baratza Vario"
+  },
+  {
+    "id": "241ad953",
+    "type": "Grinder",
+    "brand": "Baratza",
+    "model": "Vario W+",
+    "fullName": "Baratza Vario W+"
+  },
+  {
+    "id": "c75619dc",
+    "type": "Grinder",
+    "brand": "Baratza",
+    "model": "Vario+",
+    "fullName": "Baratza Vario+"
+  },
+  {
+    "id": "455eabfa",
+    "type": "Grinder",
+    "brand": "Baratza",
+    "model": "Virtuoso",
+    "fullName": "Baratza Virtuoso"
+  },
+  {
+    "id": "f4160edf",
+    "type": "Grinder",
+    "brand": "Baratza",
+    "model": "Virtuoso+",
+    "fullName": "Baratza Virtuoso+"
+  },
+  {
+    "id": "279db086",
+    "type": "Grinder",
+    "brand": "Bodum",
+    "model": "Bistro Adjustable Burr Grinder",
+    "fullName": "Bodum Bistro Adjustable Burr Grinder"
+  },
+  {
+    "id": "91121ef3",
+    "type": "Grinder",
+    "brand": "Bodum",
+    "model": "Bistro Burr Grinder",
+    "fullName": "Bodum Bistro Burr Grinder"
+  },
+  {
+    "id": "27b6d9ac",
+    "type": "Grinder",
+    "brand": "Bodum",
+    "model": "Bistro Electric Coffee Grinder (blade)",
+    "fullName": "Bodum Bistro Electric Coffee Grinder (blade)"
+  },
+  {
+    "id": "91fe84b2",
+    "type": "Grinder",
+    "brand": "Breville",
+    "model": "Dose Control Pro (BCG600)",
+    "fullName": "Breville Dose Control Pro (BCG600)"
+  },
+  {
+    "id": "aecbc82a",
+    "type": "Grinder",
+    "brand": "Breville",
+    "model": "Smart Grinder Pro (BCG820)",
+    "fullName": "Breville Smart Grinder Pro (BCG820)"
+  },
+  {
+    "id": "c26642e4",
+    "type": "Grinder",
+    "brand": "Breville",
+    "model": "The Barista Express (built-in grinder)",
+    "fullName": "Breville The Barista Express (built-in grinder)"
+  },
+  {
+    "id": "f051c4b0",
+    "type": "Grinder",
+    "brand": "Breville",
+    "model": "The Barista Pro (built-in grinder)",
+    "fullName": "Breville The Barista Pro (built-in grinder)"
+  },
+  {
+    "id": "f8695477",
+    "type": "Grinder",
+    "brand": "Breville",
+    "model": "The Barista Touch (built-in grinder)",
+    "fullName": "Breville The Barista Touch (built-in grinder)"
+  },
+  {
+    "id": "8937fbee",
+    "type": "Grinder",
+    "brand": "Breville",
+    "model": "The Oracle (built-in grinder)",
+    "fullName": "Breville The Oracle (built-in grinder)"
+  },
+  {
+    "id": "5ab93eb6",
+    "type": "Grinder",
+    "brand": "Breville",
+    "model": "The Oracle Touch (built-in grinder)",
+    "fullName": "Breville The Oracle Touch (built-in grinder)"
+  },
+  {
+    "id": "746d751f",
+    "type": "Grinder",
+    "brand": "Ceado",
+    "model": "E37J",
+    "fullName": "Ceado E37J"
+  },
+  {
+    "id": "9b503250",
+    "type": "Grinder",
+    "brand": "Ceado",
+    "model": "E37S",
+    "fullName": "Ceado E37S"
+  },
+  {
+    "id": "4b7f41bc",
+    "type": "Grinder",
+    "brand": "Ceado",
+    "model": "E37SD",
+    "fullName": "Ceado E37SD"
+  },
+  {
+    "id": "214950d2",
+    "type": "Grinder",
+    "brand": "Ceado",
+    "model": "E37SL",
+    "fullName": "Ceado E37SL"
+  },
+  {
+    "id": "efe88929",
+    "type": "Grinder",
+    "brand": "Ceado",
+    "model": "E37Z Hero",
+    "fullName": "Ceado E37Z Hero"
+  },
+  {
+    "id": "a1745bdc",
+    "type": "Grinder",
+    "brand": "Ceado",
+    "model": "E5P",
+    "fullName": "Ceado E5P"
+  },
+  {
+    "id": "1e08db97",
+    "type": "Grinder",
+    "brand": "Ceado",
+    "model": "E5SD",
+    "fullName": "Ceado E5SD"
+  },
+  {
+    "id": "c05c9874",
+    "type": "Grinder",
+    "brand": "Ceado",
+    "model": "E6P",
+    "fullName": "Ceado E6P"
+  },
+  {
+    "id": "74187dcf",
+    "type": "Grinder",
+    "brand": "Ceado",
+    "model": "E7X",
+    "fullName": "Ceado E7X"
+  },
+  {
+    "id": "4ce98770",
+    "type": "Grinder",
+    "brand": "Ceado",
+    "model": "E92",
+    "fullName": "Ceado E92"
+  },
+  {
+    "id": "2c18e854",
+    "type": "Grinder",
+    "brand": "Ceado",
+    "model": "Life",
+    "fullName": "Ceado Life"
+  },
+  {
+    "id": "fd7b6c88",
+    "type": "Grinder",
+    "brand": "Ceado",
+    "model": "Life X",
+    "fullName": "Ceado Life X"
+  },
+  {
+    "id": "769cb9a1",
+    "type": "Grinder",
+    "brand": "Comandante",
+    "model": "C40 Hammerhead",
+    "fullName": "Comandante C40 Hammerhead"
+  },
+  {
+    "id": "a6bb4c03",
+    "type": "Grinder",
+    "brand": "Comandante",
+    "model": "C40 MK3",
+    "fullName": "Comandante C40 MK3"
+  },
+  {
+    "id": "f29d57a2",
+    "type": "Grinder",
+    "brand": "Comandante",
+    "model": "C40 MK4",
+    "fullName": "Comandante C40 MK4"
+  },
+  {
+    "id": "db074fef",
+    "type": "Grinder",
+    "brand": "Comandante",
+    "model": "C40 Nitro Blade",
+    "fullName": "Comandante C40 Nitro Blade"
+  },
+  {
+    "id": "4b365080",
+    "type": "Grinder",
+    "brand": "Comandante",
+    "model": "C40 Tigershark",
+    "fullName": "Comandante C40 Tigershark"
+  },
+  {
+    "id": "cce945a3",
+    "type": "Grinder",
+    "brand": "Comandante",
+    "model": "C60",
+    "fullName": "Comandante C60"
+  },
+  {
+    "id": "02ee6141",
+    "type": "Grinder",
+    "brand": "Comandante",
+    "model": "X25 Trailmaster",
+    "fullName": "Comandante X25 Trailmaster"
+  },
+  {
+    "id": "152c4f4d",
+    "type": "Grinder",
+    "brand": "DF",
+    "model": "DC63",
+    "fullName": "DF DC63"
+  },
+  {
+    "id": "7250c7a5",
+    "type": "Grinder",
+    "brand": "DF",
+    "model": "DF54",
+    "fullName": "DF DF54"
+  },
+  {
+    "id": "c6ed1f1e",
+    "type": "Grinder",
+    "brand": "DF",
+    "model": "DF64",
+    "fullName": "DF DF64"
+  },
+  {
+    "id": "dbfb4efd",
+    "type": "Grinder",
+    "brand": "DF",
+    "model": "DF64 Gen 2",
+    "fullName": "DF DF64 Gen 2"
+  },
+  {
+    "id": "6358851f",
+    "type": "Grinder",
+    "brand": "DF",
+    "model": "DF64E",
+    "fullName": "DF DF64E"
+  },
+  {
+    "id": "792ba101",
+    "type": "Grinder",
+    "brand": "DF",
+    "model": "DF64P",
+    "fullName": "DF DF64P"
+  },
+  {
+    "id": "31ae46c0",
+    "type": "Grinder",
+    "brand": "DF",
+    "model": "DF64V",
+    "fullName": "DF DF64V"
+  },
+  {
+    "id": "60b8b2de",
+    "type": "Grinder",
+    "brand": "DF",
+    "model": "DF83",
+    "fullName": "DF DF83"
+  },
+  {
+    "id": "34b53329",
+    "type": "Grinder",
+    "brand": "DF",
+    "model": "DF83 V3",
+    "fullName": "DF DF83 V3"
+  },
+  {
+    "id": "57c97904",
+    "type": "Grinder",
+    "brand": "DF",
+    "model": "DF83V",
+    "fullName": "DF DF83V"
+  },
+  {
+    "id": "5329c247",
+    "type": "Grinder",
+    "brand": "EK43",
+    "model": "EK43",
+    "fullName": "EK43 EK43"
+  },
+  {
+    "id": "1353932e",
+    "type": "Grinder",
+    "brand": "EK65",
+    "model": "EK65",
+    "fullName": "EK65 EK65"
+  },
+  {
+    "id": "d3d02b5b",
+    "type": "Grinder",
+    "brand": "Eureka",
+    "model": "Atom 60",
+    "fullName": "Eureka Atom 60"
+  },
+  {
+    "id": "8b51bd55",
+    "type": "Grinder",
+    "brand": "Eureka",
+    "model": "Atom 65",
+    "fullName": "Eureka Atom 65"
+  },
+  {
+    "id": "f3daef83",
+    "type": "Grinder",
+    "brand": "Eureka",
+    "model": "Atom 75",
+    "fullName": "Eureka Atom 75"
+  },
+  {
+    "id": "b2563c8d",
+    "type": "Grinder",
+    "brand": "Eureka",
+    "model": "Drogheria MCD4",
+    "fullName": "Eureka Drogheria MCD4"
+  },
+  {
+    "id": "16fd0236",
+    "type": "Grinder",
+    "brand": "Eureka",
+    "model": "Helios 65",
+    "fullName": "Eureka Helios 65"
+  },
+  {
+    "id": "d661786a",
+    "type": "Grinder",
+    "brand": "Eureka",
+    "model": "Helios 80",
+    "fullName": "Eureka Helios 80"
+  },
+  {
+    "id": "aed97f64",
+    "type": "Grinder",
+    "brand": "Eureka",
+    "model": "Mignon Brew Pro",
+    "fullName": "Eureka Mignon Brew Pro"
+  },
+  {
+    "id": "1ab775d6",
+    "type": "Grinder",
+    "brand": "Eureka",
+    "model": "Mignon Crono",
+    "fullName": "Eureka Mignon Crono"
+  },
+  {
+    "id": "4fb5103e",
+    "type": "Grinder",
+    "brand": "Eureka",
+    "model": "Mignon Manuale",
+    "fullName": "Eureka Mignon Manuale"
+  },
+  {
+    "id": "5b234a72",
+    "type": "Grinder",
+    "brand": "Eureka",
+    "model": "Mignon Notte",
+    "fullName": "Eureka Mignon Notte"
+  },
+  {
+    "id": "a24575c9",
+    "type": "Grinder",
+    "brand": "Eureka",
+    "model": "Mignon Oro Single Dose",
+    "fullName": "Eureka Mignon Oro Single Dose"
+  },
+  {
+    "id": "d458a55d",
+    "type": "Grinder",
+    "brand": "Eureka",
+    "model": "Mignon Oro XL",
+    "fullName": "Eureka Mignon Oro XL"
+  },
+  {
+    "id": "2f9352c0",
+    "type": "Grinder",
+    "brand": "Eureka",
+    "model": "Mignon Perfetto",
+    "fullName": "Eureka Mignon Perfetto"
+  },
+  {
+    "id": "ab1880ef",
+    "type": "Grinder",
+    "brand": "Eureka",
+    "model": "Mignon Silenzio",
+    "fullName": "Eureka Mignon Silenzio"
+  },
+  {
+    "id": "5db1cb28",
+    "type": "Grinder",
+    "brand": "Eureka",
+    "model": "Mignon Specialità",
+    "fullName": "Eureka Mignon Specialità"
+  },
+  {
+    "id": "205f93bb",
+    "type": "Grinder",
+    "brand": "Eureka",
+    "model": "Mignon Zero",
+    "fullName": "Eureka Mignon Zero"
+  },
+  {
+    "id": "eb5fe623",
+    "type": "Grinder",
+    "brand": "Eureka",
+    "model": "Olympus 75",
+    "fullName": "Eureka Olympus 75"
+  },
+  {
+    "id": "d59ba075",
+    "type": "Grinder",
+    "brand": "Eureka",
+    "model": "Zenith 65E",
+    "fullName": "Eureka Zenith 65E"
+  },
+  {
+    "id": "9165a82c",
+    "type": "Grinder",
+    "brand": "Eureka",
+    "model": "Zenith 65E HS",
+    "fullName": "Eureka Zenith 65E HS"
+  },
+  {
+    "id": "d72e02a4",
+    "type": "Grinder",
+    "brand": "Fellow",
+    "model": "Ode Brew Grinder",
+    "fullName": "Fellow Ode Brew Grinder"
+  },
+  {
+    "id": "d965f184",
+    "type": "Grinder",
+    "brand": "Fellow",
+    "model": "Ode Brew Grinder Gen 2",
+    "fullName": "Fellow Ode Brew Grinder Gen 2"
+  },
+  {
+    "id": "3149d4bd",
+    "type": "Grinder",
+    "brand": "Fellow",
+    "model": "Opus Conical Burr Grinder",
+    "fullName": "Fellow Opus Conical Burr Grinder"
+  },
+  {
+    "id": "f75f90da",
+    "type": "Grinder",
+    "brand": "Fiorenzatta",
+    "model": "AllGround",
+    "fullName": "Fiorenzatta AllGround"
+  },
+  {
+    "id": "f1adcf3f",
+    "type": "Grinder",
+    "brand": "Fiorenzatta",
+    "model": "F4 Nano",
+    "fullName": "Fiorenzatta F4 Nano"
+  },
+  {
+    "id": "3261e3bc",
+    "type": "Grinder",
+    "brand": "Fiorenzatta",
+    "model": "F4 Nano V2",
+    "fullName": "Fiorenzatta F4 Nano V2"
+  },
+  {
+    "id": "d0a6e5fe",
+    "type": "Grinder",
+    "brand": "Fiorenzatta",
+    "model": "F4E Nano",
+    "fullName": "Fiorenzatta F4E Nano"
+  },
+  {
+    "id": "41f1581d",
+    "type": "Grinder",
+    "brand": "Fiorenzatta",
+    "model": "F64 EVO",
+    "fullName": "Fiorenzatta F64 EVO"
+  },
+  {
+    "id": "8746307e",
+    "type": "Grinder",
+    "brand": "Fiorenzatta",
+    "model": "F64E",
+    "fullName": "Fiorenzatta F64E"
+  },
+  {
+    "id": "e1f2fbb5",
+    "type": "Grinder",
+    "brand": "Fiorenzatta",
+    "model": "F83",
+    "fullName": "Fiorenzatta F83"
+  },
+  {
+    "id": "30835f0e",
+    "type": "Grinder",
+    "brand": "Fiorenzatta",
+    "model": "F83 EVO",
+    "fullName": "Fiorenzatta F83 EVO"
+  },
+  {
+    "id": "94127f1a",
+    "type": "Grinder",
+    "brand": "Fiorenzatta",
+    "model": "F83E",
+    "fullName": "Fiorenzatta F83E"
+  },
+  {
+    "id": "3d71668f",
+    "type": "Grinder",
+    "brand": "Fiorenzatta",
+    "model": "Pietro Hand Grinder",
+    "fullName": "Fiorenzatta Pietro Hand Grinder"
+  },
+  {
+    "id": "4cd39cff",
+    "type": "Grinder",
+    "brand": "Forte",
+    "model": "Forte AP",
+    "fullName": "Forte Forte AP"
+  },
+  {
+    "id": "60b0a2f6",
+    "type": "Grinder",
+    "brand": "Forte",
+    "model": "Forte BG",
+    "fullName": "Forte Forte BG"
+  },
+  {
+    "id": "036aeb46",
+    "type": "Grinder",
+    "brand": "Graef",
+    "model": "CM1100",
+    "fullName": "Graef CM1100"
+  },
+  {
+    "id": "1f28f103",
+    "type": "Grinder",
+    "brand": "Graef",
+    "model": "CM800",
+    "fullName": "Graef CM800"
+  },
+  {
+    "id": "a08b670a",
+    "type": "Grinder",
+    "brand": "Graef",
+    "model": "CM802",
+    "fullName": "Graef CM802"
+  },
+  {
+    "id": "457b3b4f",
+    "type": "Grinder",
+    "brand": "Graef",
+    "model": "CM850",
+    "fullName": "Graef CM850"
+  },
+  {
+    "id": "aafa243a",
+    "type": "Grinder",
+    "brand": "Graef",
+    "model": "CM900",
+    "fullName": "Graef CM900"
+  },
+  {
+    "id": "cd38fe9a",
+    "type": "Grinder",
+    "brand": "Graef",
+    "model": "CM905",
+    "fullName": "Graef CM905"
+  },
+  {
+    "id": "9faf995c",
+    "type": "Grinder",
+    "brand": "Graef",
+    "model": "CM950",
+    "fullName": "Graef CM950"
+  },
+  {
+    "id": "c68029a0",
+    "type": "Grinder",
+    "brand": "Graef",
+    "model": "CM970",
+    "fullName": "Graef CM970"
+  },
+  {
+    "id": "df8bcbac",
+    "type": "Grinder",
+    "brand": "Graef",
+    "model": "CM980",
+    "fullName": "Graef CM980"
+  },
+  {
+    "id": "4786c73c",
+    "type": "Grinder",
+    "brand": "Hario",
+    "model": "Ceramic Coffee Mill (various)",
+    "fullName": "Hario Ceramic Coffee Mill (various)"
+  },
+  {
+    "id": "f3a4ee97",
+    "type": "Grinder",
+    "brand": "Hario",
+    "model": "Mini Mill",
+    "fullName": "Hario Mini Mill"
+  },
+  {
+    "id": "9643836b",
+    "type": "Grinder",
+    "brand": "Hario",
+    "model": "Mini Mill Plus",
+    "fullName": "Hario Mini Mill Plus"
+  },
+  {
+    "id": "5ad2f687",
+    "type": "Grinder",
+    "brand": "Hario",
+    "model": "Skerton",
+    "fullName": "Hario Skerton"
+  },
+  {
+    "id": "b58f0fe6",
+    "type": "Grinder",
+    "brand": "Hario",
+    "model": "Skerton Pro",
+    "fullName": "Hario Skerton Pro"
+  },
+  {
+    "id": "0104a591",
+    "type": "Grinder",
+    "brand": "Hario",
+    "model": "Smart G",
+    "fullName": "Hario Smart G"
+  },
+  {
+    "id": "4364c633",
+    "type": "Grinder",
+    "brand": "Hario",
+    "model": "Smart G Pro",
+    "fullName": "Hario Smart G Pro"
+  },
+  {
+    "id": "1c8a6c3b",
+    "type": "Grinder",
+    "brand": "Hario",
+    "model": "V60 Electric Coffee Grinder (EVCG-8B)",
+    "fullName": "Hario V60 Electric Coffee Grinder (EVCG-8B)"
+  },
+  {
+    "id": "82b99f75",
+    "type": "Grinder",
+    "brand": "Kingrinder",
+    "model": "K0",
+    "fullName": "Kingrinder K0"
+  },
+  {
+    "id": "f12cfa69",
+    "type": "Grinder",
+    "brand": "Kingrinder",
+    "model": "K1",
+    "fullName": "Kingrinder K1"
+  },
+  {
+    "id": "fcc7c0e3",
+    "type": "Grinder",
+    "brand": "Kingrinder",
+    "model": "K2",
+    "fullName": "Kingrinder K2"
+  },
+  {
+    "id": "885cb2c3",
+    "type": "Grinder",
+    "brand": "Kingrinder",
+    "model": "K3",
+    "fullName": "Kingrinder K3"
+  },
+  {
+    "id": "83fa1fff",
+    "type": "Grinder",
+    "brand": "Kingrinder",
+    "model": "K4",
+    "fullName": "Kingrinder K4"
+  },
+  {
+    "id": "9b9f2878",
+    "type": "Grinder",
+    "brand": "Kingrinder",
+    "model": "K5",
+    "fullName": "Kingrinder K5"
+  },
+  {
+    "id": "16d591a8",
+    "type": "Grinder",
+    "brand": "Kingrinder",
+    "model": "K6",
+    "fullName": "Kingrinder K6"
+  },
+  {
+    "id": "8192aab9",
+    "type": "Grinder",
+    "brand": "Kingrinder",
+    "model": "K7",
+    "fullName": "Kingrinder K7"
+  },
+  {
+    "id": "dadae9d2",
+    "type": "Grinder",
+    "brand": "Kinu",
+    "model": "M47 Classic",
+    "fullName": "Kinu M47 Classic"
+  },
+  {
+    "id": "0753debb",
+    "type": "Grinder",
+    "brand": "Kinu",
+    "model": "M47 Phoenix",
+    "fullName": "Kinu M47 Phoenix"
+  },
+  {
+    "id": "ceb02527",
+    "type": "Grinder",
+    "brand": "Kinu",
+    "model": "M47 Rebel",
+    "fullName": "Kinu M47 Rebel"
+  },
+  {
+    "id": "fa931ab1",
+    "type": "Grinder",
+    "brand": "Kinu",
+    "model": "M47 Simplicity",
+    "fullName": "Kinu M47 Simplicity"
+  },
+  {
+    "id": "49ec5877",
+    "type": "Grinder",
+    "brand": "Kinu",
+    "model": "M47 Traveler",
+    "fullName": "Kinu M47 Traveler"
+  },
+  {
+    "id": "9f0c5535",
+    "type": "Grinder",
+    "brand": "Kinu",
+    "model": "M86",
+    "fullName": "Kinu M86"
+  },
+  {
+    "id": "b1e654fe",
+    "type": "Grinder",
+    "brand": "Lelit",
+    "model": "Anita (PL042 w/ grinder)",
+    "fullName": "Lelit Anita (PL042 w/ grinder)"
+  },
+  {
+    "id": "da27566d",
+    "type": "Grinder",
+    "brand": "Lelit",
+    "model": "Fred (PL043)",
+    "fullName": "Lelit Fred (PL043)"
+  },
+  {
+    "id": "66257bc7",
+    "type": "Grinder",
+    "brand": "Lelit",
+    "model": "Kate (PL82T w/ grinder)",
+    "fullName": "Lelit Kate (PL82T w/ grinder)"
+  },
+  {
+    "id": "c1edbe02",
+    "type": "Grinder",
+    "brand": "Lelit",
+    "model": "William (PL71)",
+    "fullName": "Lelit William (PL71)"
+  },
+  {
+    "id": "b189418a",
+    "type": "Grinder",
+    "brand": "Lelit",
+    "model": "William PL72",
+    "fullName": "Lelit William PL72"
+  },
+  {
+    "id": "cbdf6fd0",
+    "type": "Grinder",
+    "brand": "Mahlkönig",
+    "model": "E65S",
+    "fullName": "Mahlkönig E65S"
+  },
+  {
+    "id": "354d45c6",
+    "type": "Grinder",
+    "brand": "Mahlkönig",
+    "model": "E65S GbW",
+    "fullName": "Mahlkönig E65S GbW"
+  },
+  {
+    "id": "f7027ba2",
+    "type": "Grinder",
+    "brand": "Mahlkönig",
+    "model": "E80S",
+    "fullName": "Mahlkönig E80S"
+  },
+  {
+    "id": "4f8d4d66",
+    "type": "Grinder",
+    "brand": "Mahlkönig",
+    "model": "E80S GbW",
+    "fullName": "Mahlkönig E80S GbW"
+  },
+  {
+    "id": "8a7f85b4",
+    "type": "Grinder",
+    "brand": "Mahlkönig",
+    "model": "E80T GbW",
+    "fullName": "Mahlkönig E80T GbW"
+  },
+  {
+    "id": "84b66d6a",
+    "type": "Grinder",
+    "brand": "Mahlkönig",
+    "model": "EK Omnia",
+    "fullName": "Mahlkönig EK Omnia"
+  },
+  {
+    "id": "04571138",
+    "type": "Grinder",
+    "brand": "Mahlkönig",
+    "model": "EK43",
+    "fullName": "Mahlkönig EK43"
+  },
+  {
+    "id": "a62faa08",
+    "type": "Grinder",
+    "brand": "Mahlkönig",
+    "model": "EK43 S",
+    "fullName": "Mahlkönig EK43 S"
+  },
+  {
+    "id": "2ad0c03e",
+    "type": "Grinder",
+    "brand": "Mahlkönig",
+    "model": "EK65",
+    "fullName": "Mahlkönig EK65"
+  },
+  {
+    "id": "a529cbc2",
+    "type": "Grinder",
+    "brand": "Mahlkönig",
+    "model": "Guatemala",
+    "fullName": "Mahlkönig Guatemala"
+  },
+  {
+    "id": "51567fd5",
+    "type": "Grinder",
+    "brand": "Mahlkönig",
+    "model": "K30",
+    "fullName": "Mahlkönig K30"
+  },
+  {
+    "id": "cc2a4848",
+    "type": "Grinder",
+    "brand": "Mahlkönig",
+    "model": "X54",
+    "fullName": "Mahlkönig X54"
+  },
+  {
+    "id": "21ea5836",
+    "type": "Grinder",
+    "brand": "Mazzer",
+    "model": "Kony",
+    "fullName": "Mazzer Kony"
+  },
+  {
+    "id": "1d228853",
+    "type": "Grinder",
+    "brand": "Mazzer",
+    "model": "Lux",
+    "fullName": "Mazzer Lux"
+  },
+  {
+    "id": "d722d1e9",
+    "type": "Grinder",
+    "brand": "Mazzer",
+    "model": "Major",
+    "fullName": "Mazzer Major"
+  },
+  {
+    "id": "a7540a5b",
+    "type": "Grinder",
+    "brand": "Mazzer",
+    "model": "Mini",
+    "fullName": "Mazzer Mini"
+  },
+  {
+    "id": "27d9184a",
+    "type": "Grinder",
+    "brand": "Mazzer",
+    "model": "Mini Electronic",
+    "fullName": "Mazzer Mini Electronic"
+  },
+  {
+    "id": "746fae9f",
+    "type": "Grinder",
+    "brand": "Mazzer",
+    "model": "Philos",
+    "fullName": "Mazzer Philos"
+  },
+  {
+    "id": "cc5f1f17",
+    "type": "Grinder",
+    "brand": "Mazzer",
+    "model": "Robur",
+    "fullName": "Mazzer Robur"
+  },
+  {
+    "id": "0fedc567",
+    "type": "Grinder",
+    "brand": "Mazzer",
+    "model": "Super Jolly",
+    "fullName": "Mazzer Super Jolly"
+  },
+  {
+    "id": "93c3995c",
+    "type": "Grinder",
+    "brand": "Mazzer",
+    "model": "Super Jolly V Pro",
+    "fullName": "Mazzer Super Jolly V Pro"
+  },
+  {
+    "id": "c2032973",
+    "type": "Grinder",
+    "brand": "Mazzer",
+    "model": "Zerher (Zerher Mini)",
+    "fullName": "Mazzer Zerher (Zerher Mini)"
+  },
+  {
+    "id": "cba72642",
+    "type": "Grinder",
+    "brand": "Monolith",
+    "model": "Monolith Conical",
+    "fullName": "Monolith Monolith Conical"
+  },
+  {
+    "id": "2294cb3d",
+    "type": "Grinder",
+    "brand": "Monolith",
+    "model": "Monolith Flat",
+    "fullName": "Monolith Monolith Flat"
+  },
+  {
+    "id": "1943875a",
+    "type": "Grinder",
+    "brand": "Monolith",
+    "model": "Monolith Max",
+    "fullName": "Monolith Monolith Max"
+  },
+  {
+    "id": "875e4f68",
+    "type": "Grinder",
+    "brand": "Niche",
+    "model": "Niche Duo",
+    "fullName": "Niche Niche Duo"
+  },
+  {
+    "id": "38740142",
+    "type": "Grinder",
+    "brand": "Niche",
+    "model": "Niche Zero",
+    "fullName": "Niche Niche Zero"
+  },
+  {
+    "id": "c9e68968",
+    "type": "Grinder",
+    "brand": "Ninja",
+    "model": "Ninja Espresso & Coffee Barista System (with built-in grinder?)",
+    "fullName": "Ninja Ninja Espresso & Coffee Barista System (with built-in grinder?)"
+  },
+  {
+    "id": "530488bf",
+    "type": "Grinder",
+    "brand": "Ninja",
+    "model": "Specialty Coffee Maker (with built-in frother)",
+    "fullName": "Ninja Specialty Coffee Maker (with built-in frother)"
+  },
+  {
+    "id": "604b1be0",
+    "type": "Grinder",
+    "brand": "Option-O",
+    "model": "Lagom Casa",
+    "fullName": "Option-O Lagom Casa"
+  },
+  {
+    "id": "69514221",
+    "type": "Grinder",
+    "brand": "Option-O",
+    "model": "Lagom Mini",
+    "fullName": "Option-O Lagom Mini"
+  },
+  {
+    "id": "7e221a49",
+    "type": "Grinder",
+    "brand": "Option-O",
+    "model": "Lagom Mini 2",
+    "fullName": "Option-O Lagom Mini 2"
+  },
+  {
+    "id": "6f59d243",
+    "type": "Grinder",
+    "brand": "Option-O",
+    "model": "Lagom P100",
+    "fullName": "Option-O Lagom P100"
+  },
+  {
+    "id": "6ec02176",
+    "type": "Grinder",
+    "brand": "Option-O",
+    "model": "Lagom P64",
+    "fullName": "Option-O Lagom P64"
+  },
+  {
+    "id": "9a9f1a65",
+    "type": "Grinder",
+    "brand": "Option-O",
+    "model": "Lagom P80",
+    "fullName": "Option-O Lagom P80"
+  },
+  {
+    "id": "3272105b",
+    "type": "Grinder",
+    "brand": "Option-O",
+    "model": "Remi Hand Grinder",
+    "fullName": "Option-O Remi Hand Grinder"
+  },
+  {
+    "id": "2f1705e8",
+    "type": "Grinder",
+    "brand": "OXO",
+    "model": "Brew Adjustable Conical Burr Grinder",
+    "fullName": "OXO Brew Adjustable Conical Burr Grinder"
+  },
+  {
+    "id": "bf34fc4d",
+    "type": "Grinder",
+    "brand": "OXO",
+    "model": "Brew Conical Burr Coffee Grinder",
+    "fullName": "OXO Brew Conical Burr Coffee Grinder"
+  },
+  {
+    "id": "5304d8a4",
+    "type": "Grinder",
+    "brand": "OXO",
+    "model": "Conical Burr Coffee Grinder",
+    "fullName": "OXO Conical Burr Coffee Grinder"
+  },
+  {
+    "id": "b634e2bf",
+    "type": "Grinder",
+    "brand": "Philos",
+    "model": "Philos",
+    "fullName": "Philos Philos"
+  },
+  {
+    "id": "2f7d7692",
+    "type": "Grinder",
+    "brand": "Rancilio",
+    "model": "Rocky",
+    "fullName": "Rancilio Rocky"
+  },
+  {
+    "id": "f321ae15",
+    "type": "Grinder",
+    "brand": "Rancilio",
+    "model": "Rocky SD",
+    "fullName": "Rancilio Rocky SD"
+  },
+  {
+    "id": "41b78f37",
+    "type": "Grinder",
+    "brand": "Sage",
+    "model": "Barista Express (built-in grinder)",
+    "fullName": "Sage Barista Express (built-in grinder)"
+  },
+  {
+    "id": "c59086a7",
+    "type": "Grinder",
+    "brand": "Sage",
+    "model": "Barista Pro (built-in grinder)",
+    "fullName": "Sage Barista Pro (built-in grinder)"
+  },
+  {
+    "id": "e1a575ea",
+    "type": "Grinder",
+    "brand": "Sage",
+    "model": "Barista Touch (built-in grinder)",
+    "fullName": "Sage Barista Touch (built-in grinder)"
+  },
+  {
+    "id": "3b91f6b8",
+    "type": "Grinder",
+    "brand": "Sage",
+    "model": "Dose Control Pro",
+    "fullName": "Sage Dose Control Pro"
+  },
+  {
+    "id": "9c715369",
+    "type": "Grinder",
+    "brand": "Sage",
+    "model": "Oracle (built-in grinder)",
+    "fullName": "Sage Oracle (built-in grinder)"
+  },
+  {
+    "id": "08e442f9",
+    "type": "Grinder",
+    "brand": "Sage",
+    "model": "Oracle Touch (built-in grinder)",
+    "fullName": "Sage Oracle Touch (built-in grinder)"
+  },
+  {
+    "id": "ddc7a13e",
+    "type": "Grinder",
+    "brand": "Sage",
+    "model": "Smart Grinder Pro",
+    "fullName": "Sage Smart Grinder Pro"
+  },
+  {
+    "id": "a04ec031",
+    "type": "Grinder",
+    "brand": "Sette",
+    "model": "Sette 270",
+    "fullName": "Sette Sette 270"
+  },
+  {
+    "id": "7e7271bf",
+    "type": "Grinder",
+    "brand": "Sette",
+    "model": "Sette 270Wi",
+    "fullName": "Sette Sette 270Wi"
+  },
+  {
+    "id": "4406eac9",
+    "type": "Grinder",
+    "brand": "Sette",
+    "model": "Sette 30",
+    "fullName": "Sette Sette 30"
+  },
+  {
+    "id": "8461b7fd",
+    "type": "Grinder",
+    "brand": "Shardor",
+    "model": "Conical Burr Espresso Grinder (40 settings)",
+    "fullName": "Shardor Conical Burr Espresso Grinder (40 settings)"
+  },
+  {
+    "id": "515a93a7",
+    "type": "Grinder",
+    "brand": "Shardor",
+    "model": "Electric Burr Coffee Grinder 2.0 (CG835B)",
+    "fullName": "Shardor Electric Burr Coffee Grinder 2.0 (CG835B)"
+  },
+  {
+    "id": "e384287a",
+    "type": "Grinder",
+    "brand": "Shardor",
+    "model": "One Touch Coffee Grinder (OK2075)",
+    "fullName": "Shardor One Touch Coffee Grinder (OK2075)"
+  },
+  {
+    "id": "5be73b65",
+    "type": "Grinder",
+    "brand": "Shardor",
+    "model": "Professional 64mm Flat Burr Grinder (100 settings)",
+    "fullName": "Shardor Professional 64mm Flat Burr Grinder (100 settings)"
+  },
+  {
+    "id": "88893e21",
+    "type": "Grinder",
+    "brand": "Solo Compact",
+    "model": "Solo Compact",
+    "fullName": "Solo Compact Solo Compact"
+  },
+  {
+    "id": "7c133b0f",
+    "type": "Grinder",
+    "brand": "Timemore",
+    "model": "Chestnut C2",
+    "fullName": "Timemore Chestnut C2"
+  },
+  {
+    "id": "19b926b1",
+    "type": "Grinder",
+    "brand": "Timemore",
+    "model": "Chestnut C3",
+    "fullName": "Timemore Chestnut C3"
+  },
+  {
+    "id": "e39961d3",
+    "type": "Grinder",
+    "brand": "Timemore",
+    "model": "Chestnut C3 ESP",
+    "fullName": "Timemore Chestnut C3 ESP"
+  },
+  {
+    "id": "8c9f6663",
+    "type": "Grinder",
+    "brand": "Timemore",
+    "model": "Chestnut C3 Pro",
+    "fullName": "Timemore Chestnut C3 Pro"
+  },
+  {
+    "id": "8fc4c76d",
+    "type": "Grinder",
+    "brand": "Timemore",
+    "model": "Chestnut S3",
+    "fullName": "Timemore Chestnut S3"
+  },
+  {
+    "id": "93354ea3",
+    "type": "Grinder",
+    "brand": "Timemore",
+    "model": "Chestnut X",
+    "fullName": "Timemore Chestnut X"
+  },
+  {
+    "id": "712848cd",
+    "type": "Grinder",
+    "brand": "Timemore",
+    "model": "Nano",
+    "fullName": "Timemore Nano"
+  },
+  {
+    "id": "e3fa93cb",
+    "type": "Grinder",
+    "brand": "Timemore",
+    "model": "Sculptor 064",
+    "fullName": "Timemore Sculptor 064"
+  },
+  {
+    "id": "a14b202c",
+    "type": "Grinder",
+    "brand": "Timemore",
+    "model": "Sculptor 064S",
+    "fullName": "Timemore Sculptor 064S"
+  },
+  {
+    "id": "3cecb9d5",
+    "type": "Grinder",
+    "brand": "Timemore",
+    "model": "Sculptor 078",
+    "fullName": "Timemore Sculptor 078"
+  },
+  {
+    "id": "5c03846d",
+    "type": "Grinder",
+    "brand": "Timemore",
+    "model": "Sculptor 078S",
+    "fullName": "Timemore Sculptor 078S"
+  },
+  {
+    "id": "222ebcff",
+    "type": "Grinder",
+    "brand": "Timemore",
+    "model": "Slim",
+    "fullName": "Timemore Slim"
+  },
+  {
+    "id": "4fd1abd4",
+    "type": "Grinder",
+    "brand": "Tuni",
+    "model": "G1 Conical Burr Coffee Grinder",
+    "fullName": "Tuni G1 Conical Burr Coffee Grinder"
+  },
+  {
+    "id": "6dd3c1d4",
+    "type": "Grinder",
+    "brand": "Tuni",
+    "model": "G2 Conical Burr Espresso Grinder",
+    "fullName": "Tuni G2 Conical Burr Espresso Grinder"
+  },
+  {
+    "id": "c21c23d1",
+    "type": "Grinder",
+    "brand": "Turin",
+    "model": "CF64V",
+    "fullName": "Turin CF64V"
+  },
+  {
+    "id": "394312d3",
+    "type": "Grinder",
+    "brand": "Turin",
+    "model": "DF54",
+    "fullName": "Turin DF54"
+  },
+  {
+    "id": "44da5cfa",
+    "type": "Grinder",
+    "brand": "Turin",
+    "model": "DF64 Gen 2",
+    "fullName": "Turin DF64 Gen 2"
+  },
+  {
+    "id": "5c9cc597",
+    "type": "Grinder",
+    "brand": "Turin",
+    "model": "DF64V",
+    "fullName": "Turin DF64V"
+  },
+  {
+    "id": "e6d6650d",
+    "type": "Grinder",
+    "brand": "Turin",
+    "model": "DF83",
+    "fullName": "Turin DF83"
+  },
+  {
+    "id": "36749fa2",
+    "type": "Grinder",
+    "brand": "Turin",
+    "model": "DF83V",
+    "fullName": "Turin DF83V"
+  },
+  {
+    "id": "478e5d75",
+    "type": "Grinder",
+    "brand": "Turin",
+    "model": "DM47",
+    "fullName": "Turin DM47"
+  },
+  {
+    "id": "7e3e8f96",
+    "type": "Grinder",
+    "brand": "Turin",
+    "model": "SD40",
+    "fullName": "Turin SD40"
+  },
+  {
+    "id": "59a36480",
+    "type": "Grinder",
+    "brand": "Turin",
+    "model": "SD40S",
+    "fullName": "Turin SD40S"
+  },
+  {
+    "id": "3f466efa",
+    "type": "Grinder",
+    "brand": "Turin",
+    "model": "SK40",
+    "fullName": "Turin SK40"
+  },
+  {
+    "id": "1ab2cc18",
+    "type": "Grinder",
+    "brand": "Varia",
+    "model": "VS3",
+    "fullName": "Varia VS3"
+  },
+  {
+    "id": "b1efeba0",
+    "type": "Grinder",
+    "brand": "Varia",
+    "model": "VS3 Gen 2",
+    "fullName": "Varia VS3 Gen 2"
+  },
+  {
+    "id": "77c9ea90",
+    "type": "Grinder",
+    "brand": "Zerno",
+    "model": "Z1",
+    "fullName": "Zerno Z1"
+  },
+  {
+    "id": "5ca1e8d7",
+    "type": "Grinder",
+    "brand": "Zerno",
+    "model": "Z2",
+    "fullName": "Zerno Z2"
+  }
+]

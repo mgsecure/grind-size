@@ -73,7 +73,8 @@
     "id": "b78c2ccf",
     "type": "Grinder",
     "brand": "Amzchef",
-    "fullName": "Amzchef"
+    "model": "Single Dose Grinder",
+    "fullName": "Amzchef Single Dose Grinder"
   },
   {
     "id": "9a66c0d6",
@@ -679,7 +680,8 @@
     "id": "5d74bbd4",
     "type": "Grinder",
     "brand": "Comandante",
-    "fullName": "Comandante"
+    "model": "C40",
+    "fullName": "Comandante C40"
   },
   {
     "id": "e1cc929f",
@@ -1335,8 +1337,8 @@
     "id": "79b204bd",
     "type": "Grinder",
     "brand": "Kingrinder",
-    "model": "K6",
-    "fullName": "Kingrinder K6"
+    "model": "K7",
+    "fullName": "Kingrinder K7"
   },
   {
     "id": "6b28cf38",
@@ -1344,6 +1346,13 @@
     "brand": "Kinu",
     "model": "Classic",
     "fullName": "Kinu Classic"
+  },
+  {
+    "id": "ff3f7ee8",
+    "type": "Grinder",
+    "brand": "Kinu",
+    "model": "M47 other",
+    "fullName": "Kinu M47 other"
   },
   {
     "id": "a26fccd8",
@@ -1372,13 +1381,6 @@
     "brand": "Kinu",
     "model": "Taveler",
     "fullName": "Kinu Taveler"
-  },
-  {
-    "id": "ff3f7ee8",
-    "type": "Grinder",
-    "brand": "Kinu",
-    "model": "Titan",
-    "fullName": "Kinu Titan"
   },
   {
     "id": "c79175aa",
@@ -2238,6 +2240,13 @@
     "fullName": "Sette 270"
   },
   {
+    "id": "65adfc94",
+    "type": "Grinder",
+    "brand": "Shardor",
+    "model": "64mm Burr",
+    "fullName": "Shardor 64mm Burr"
+  },
+  {
     "id": "d561d9a2",
     "type": "Espresso",
     "brand": "Simonelli",
@@ -2268,8 +2277,9 @@
   {
     "id": "2413c9af",
     "type": "Grinder",
-    "brand": "SPTK38",
-    "fullName": "SPTK38"
+    "brand": "Solo Compact",
+    "model": "SPTK38",
+    "fullName": "Solo Compact SPTK38"
   },
   {
     "id": "55418307",
@@ -2450,8 +2460,8 @@
     "id": "b32a94ea",
     "type": "Grinder",
     "brand": "Zerno",
-    "model": "Z1",
-    "fullName": "Zerno Z1"
+    "model": "Z2",
+    "fullName": "Zerno Z2"
   },
   {
     "id": "0eaf85af",

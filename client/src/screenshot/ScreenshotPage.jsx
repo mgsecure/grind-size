@@ -9,7 +9,7 @@ export default function ScreenshotPage() {
     return (
         <React.Fragment>
 
-            <Image src='/i/screenshotFull.png' alt='coffee-grind.com screenshot' />
+            <Image src='/i/screenshotFull.png' alt='coffee-grind.com screenshot' sx={{maxWidth: 1061}}/>
 
             <Tracker feature='Screenshot'/>
 

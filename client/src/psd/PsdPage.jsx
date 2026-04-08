@@ -1,6 +1,6 @@
 import React, {useCallback, useContext, useRef} from 'react'
 import {Stack, Paper, Typography, Grid} from '@mui/material'
-import UploadQueuePanel from './pagePanels/UploadQueuePanel.jsx'
+import SampleQueuePanel from './pagePanels/SampleQueuePanel.jsx'
 import ImagePanel from './pagePanels/ImagePanel.jsx'
 import SettingsPanel from './pagePanels/SettingsPanel.jsx'
 import HistogramPanel from './pagePanels/HistogramPanel.jsx'
@@ -34,10 +34,10 @@ export default function PsdPage() {
         <Stack direction='column' justifyContent='center' spacing={2}
                maxWidth={{xs: '100%', lg: '1200px', xl: '1600px'}}>
             <Grid container spacing={1} padding={isDesktop ? 1 : 0} sx={{width: '100%'}} justifyContent='center'>
-                <Grid container spacing={1} size={{xs: 12, sm: 12, md: 11, lg: 10, xl: 12}} width='100%'>
+                <Grid container spacing={1} size={{xs: 12, sm: 12, md: 11, lg: 10, xl: 12}} width='100%' height='100%'>
                     <Grid container spacing={1} alignItems='stretch' height='100%'>
-                        <Grid size={{xs: 12, xl: 8}}>
-                            <Paper sx={{p: isDesktop ? 2 : 1}}>
+                        <Grid size={{xs: 12, xl: 8}} height='100%'>
+                            <Paper sx={{p: isDesktop ? 2 : 1, width: '100%', height: '100%'}}>
                                 <Stack direction='row' spacing={1} alignItems='center' justifyContent='space-between'>
                                     <Typography
                                         style={{
@@ -46,7 +46,7 @@ export default function PsdPage() {
                                             lineHeight: '1.2em',
                                             marginTop: 8
                                         }}>
-                                        COFFEE GRINDS
+                                        COFFEE GRIND
                                         {!isDesktop && <br/>}
                                         <span style={{fontWeight: 300}}> PARTICLE SIZE DISTRIBUTION</span>
                                     </Typography>
@@ -65,7 +65,7 @@ export default function PsdPage() {
                 <Grid container spacing={1} size={{xs: 12, sm: 12, md: 11, lg: 10, xl: 5}}>
                     <Grid container spacing={1} alignItems='stretch' height='100%'>
                         <Grid size={12}>
-                            <UploadQueuePanel resetContexts={resetContexts}/>
+                            <SampleQueuePanel resetContexts={resetContexts}/>
                         </Grid>
                         <Grid size={12}>
                             <SettingsPanel/>
@@ -87,7 +87,7 @@ export default function PsdPage() {
                               sx={{width: '100%', backgroundColor: theme.palette.background.default}}>
                             <Paper sx={{p: 2, width: '100%'}}>
                                 <Typography style={{fontSize: '1.5rem', fontWeight: 700}}>
-                                    COFFEE GRINDS <span style={{fontWeight: 300}}> PARTICLE SIZE DISTRIBUTION</span>
+                                    COFFEE GRIND <span style={{fontWeight: 300}}> PARTICLE SIZE DISTRIBUTION</span>
                                 </Typography>
                             </Paper>
                         </Grid>
@@ -100,7 +100,7 @@ export default function PsdPage() {
                     )}
                 </Grid>
 
-                {breakpoint === 'xxl' && (
+                {breakpoint === 'xl' && (
                     <Grid size={{xs: 12, sm: 12, md: 11, lg: 10, xl: 5}} alignItems='stretch'>
                         <ImagePanel/>
                     </Grid>
@@ -110,7 +110,7 @@ export default function PsdPage() {
                     <StatsPanel/>
                 </Grid>
 
-                {breakpoint !== 'xxl' && (
+                {breakpoint !== 'xl' && (
                     <Grid size={{xs: 12, sm: 12, md: 11, lg: 10, xl: 5}} alignItems='stretch'>
                         <ImagePanel/>
                     </Grid>

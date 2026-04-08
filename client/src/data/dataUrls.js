@@ -1,6 +1,6 @@
 const url = import.meta.env && import.meta.env.VITE_LOCAL_DATA === 'true'
-    ? 'http://localhost:3000/data'
-    : 'https://explore.lpubelts.com/data'
+    ? 'http://localhost:3000/api'
+    : 'https://coffee-grind.com/data'
 
 if (import.meta.env && import.meta.env.VITE_LOCAL_DATA === 'true') {
     console.info('Attention: App is using LOCAL DATA.')
@@ -33,4 +33,5 @@ export const raflResponseDetails = `${url}/raflResponseDetails.json`
 export const raflCollectionDetails = `${url}/raflCollectionDetails.json`
 
 const {VITE_DEV_FIRESTORE: devFirestore} = import.meta.env
-export const nodeServerUrl = devFirestore==='true' ? 'https://explore.lpubelts.com/servicesDev' : 'https://explore.lpubelts.com/services'
+//export const nodeServerUrl = devFirestore==='true' ? 'http://localhost:3000/api' : 'https://coffee-grind.com/api'
+export const nodeServerUrl = 'https://coffee-grind.com/api'

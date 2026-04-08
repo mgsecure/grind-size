@@ -5,109 +5,107 @@ import CssBaseline from '@mui/material/CssBaseline'
 
 const ColorModeContext = createContext({})
 
+const baseConfig = {
+    typography: {fontFamily: 'Roboto, sans-serif'},
+    breakpoints: {
+        values: {
+            xs: 0,
+            sm: 600,
+            md: 800,
+            lg: 1200,
+            xl: 1440,
+        }
+    },
+    components: {
+        MuiLink: {
+            defaultProps: {
+                underline: 'none'
+            },
+            styleOverrides: {
+                root: {
+                    cursor: 'pointer'
+                }
+            }
+        },
+        MuiDrawer: {
+            styleOverrides: {
+                paper: {
+                    backgroundImage: 'none'
+                }
+            }
+        }
+    }
+}
+
+const darkTheme = createTheme({
+    ...baseConfig,
+    palette: {
+        mode: 'dark',
+        secondary: {
+            main: '#2d49bc'
+        },
+        card: {
+            main: '#563028',
+            add: '#805046'
+        },
+        'background': {
+            'default': '#111111',
+            'paper': '#131313'
+        }
+    }
+})
+
+const lightTheme = createTheme({
+    ...baseConfig,
+    palette: {
+        mode: 'light',
+        card: {
+            main: '#efc5c0',
+            add: '#e3afa4'
+        },
+        'backgroundGrays': {
+            'default': '#f6f6f6',
+            'paper': '#e3e3e3'
+        },
+        'background': {
+            'default': '#fff',
+            'paper': '#f6f6f6'
+        },
+    },
+    components: {
+        ...baseConfig.components,
+        MuiPaper: {
+            defaultProps: {
+                elevation: 0,
+            },
+        },
+        MuiButton: {
+            defaultProps: {
+                //disableElevation: true,
+            },
+        },
+    },
+})
+
+const _darkBrownTheme = createTheme({
+    ...baseConfig,
+    palette: {
+        mode: 'dark',
+        secondary: {
+            main: '#2d49bc'
+        },
+        card: {
+            main: '#563028',
+            add: '#805046'
+        },
+        'background': {
+            'default': '#291915',
+            'paper': '#3a2018'
+        }
+    }
+})
+
 export function ColorModeProvider({children}) {
-    const baseTheme = createTheme({
-        typography: {fontFamily: 'Roboto, sans-serif'},
-        breakpoints: {
-            values: {
-                xs: 0,
-                sm: 600,
-                md: 800,
-                lg: 1200,
-                xl: 1536,
-                xxl: 1800,
-            }
-        },
-        components: {
-            MuiLink: {
-                defaultProps: {
-                    underline: 'none'
-                },
-                styleOverrides: {
-                    root: {
-                        cursor: 'pointer'
-                    }
-                }
-            },
-            MuiDrawer: {
-                styleOverrides: {
-                    paper: {
-                        backgroundImage: 'none'
-                    }
-                }
-            }
-        }
-    })
-
-    const darkTheme = createTheme({
-        ...baseTheme,
-        palette: {
-            mode: 'dark',
-            secondary: {
-                main: '#2d49bc'
-            },
-            card: {
-                main: '#563028',
-                add: '#805046'
-            },
-            'background': {
-                'default': '#111111',
-                'paper': '#131313'
-            }
-        }
-    })
-
-    const lightTheme = createTheme({
-        ...baseTheme,
-        //shadows: Array(25).fill('none'),
-        palette: {
-            mode: 'light',
-            card: {
-                main: '#efc5c0',
-                add: '#e3afa4'
-            },
-            'backgroundGrays': {
-                'default': '#f6f6f6',
-                'paper': '#e3e3e3'
-            },
-            'background': {
-                'default': '#fff',
-                'paper': '#f6f6f6'
-            },
-        },
-        components: {
-            MuiPaper: {
-                defaultProps: {
-                    elevation: 0,
-                },
-            },
-            MuiButton: {
-                defaultProps: {
-                    //disableElevation: true,
-                },
-            },
-        },
-    })
-
-
-    const _darkBrownTheme = createTheme({
-        ...baseTheme,
-        palette: {
-            mode: 'dark',
-            secondary: {
-                main: '#2d49bc'
-            },
-            card: {
-                main: '#563028',
-                add: '#805046'
-            },
-            'background': {
-                'default': '#291915',
-                'paper': '#3a2018'
-            }
-        }
-    })
-
     const [mode, setMode] = useState('dark')
     const colorMode = useMemo(() => ({
             toggleColorMode: () => {
@@ -126,7 +124,7 @@ export function ColorModeProvider({children}) {
             mode === 'light'
                 ? lightTheme
                 : darkTheme,
-        [darkTheme, lightTheme, mode]
+        [mode]
     )
 
     const style = getRootStyle(theme)
@@ -137,7 +135,7 @@ export function ColorModeProvider({children}) {
         lightTheme,
         darkTheme,
         theme
-    }), [colorMode, darkTheme, lightTheme, theme, toggleColorMode])
+    }), [colorMode, theme, toggleColorMode])
 
     return (
         <ColorModeContext.Provider value={value}>
@@ -184,7 +182,7 @@ export const getRootStyle = styleTheme => {
             }
             
             :root {
-              color-scheme: dark;
+              color-scheme: ${styleTheme.palette.mode === 'light' ? 'light' : 'dark'};
               overflow-y: scroll;
             }
         `

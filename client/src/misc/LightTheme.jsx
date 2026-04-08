@@ -30,7 +30,7 @@ const getRootStyle = styleTheme => {
             }
             
             :root {
-              color-scheme: dark;
+              color-scheme: light;
               overflow-y: scroll;
             }
         `
