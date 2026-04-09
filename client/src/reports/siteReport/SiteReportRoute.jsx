@@ -15,11 +15,7 @@ export default function SiteReportRoute() {
             {!isMobile && <div style={{flexGrow: 1, minWidth: '10px'}}/>}
         </React.Fragment>
     )
-
-    const footerBefore = (
-        <></>
-    )
-
+    
     return (
         <>
             <Nav title='Reports' titleMobile='Reports' extras={extras}/>
@@ -27,7 +23,7 @@ export default function SiteReportRoute() {
             <SiteReportPage/>
 
             <Tracker feature='reports'/>
-            <Footer before={footerBefore}/>
+            <Footer />
         </>
     )
 }

@@ -4,7 +4,6 @@ import FeedIcon from '@mui/icons-material/Feed'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight'
 import InfoOutlineIcon from '@mui/icons-material/InfoOutline'
-import LogoutIcon from '@mui/icons-material/Logout'
 import AssessmentIcon from '@mui/icons-material/Assessment'
 
 export default [
@@ -15,6 +14,18 @@ export default [
     },
     {
         title: 'Help',
+        icon: <KeyboardArrowRightIcon fontSize='small'/>,
+        path: '/info',
+        disabled: true,
+    },
+    {
+        title: 'Analysis Examples',
+        icon: <KeyboardArrowRightIcon fontSize='small'/>,
+        path: '/info',
+        disabled: true,
+    },
+    {
+        title: 'Sample Grind Images',
         icon: <KeyboardArrowRightIcon fontSize='small'/>,
         path: '/info',
         disabled: true,
@@ -47,12 +58,6 @@ export default [
             id: undefined,
             name: undefined
         },
-    },
-    {
-        title: 'Sign Out',
-        icon: <LogoutIcon fontSize='small'/>,
-        path: '/info',
-        disabled: true,
     },
     {
         title: 'Reports',

@@ -38,7 +38,7 @@ export default function SampleSetsButton({iconOnly = false, linkOnly = false}) {
     const domRef = useRef(null)
 
     const handleClick = useCallback((sampleSetId) => {
-        domRef.current?.scrollIntoView({ behavior: 'smooth' })
+        //domRef.current?.scrollIntoView({ behavior: 'smooth' })
         handleClose()
         const sampleSet = sampleSets.find(s => s.id === sampleSetId)
         if (!sampleSet) return

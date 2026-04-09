@@ -67,6 +67,7 @@ export const PSD_PRESETS = {
     },
     standard: {
         name: 'Standard',
+        debugOnly: true,
         params: {
             name: 'standard',
             bgSigma: 35,
@@ -89,6 +90,7 @@ export const PSD_PRESETS = {
     },
     fines: {
         name: 'Fines',
+        debugOnly: true,
         params: {
             name: 'fines',
             bgSigma: 25,
@@ -149,8 +151,8 @@ export const PSD_DEFAULTS = {
 }
 
 export const BIN_DEFAULTS = {
-    min: 110,
-    max: 3000,
+    min: 115,
+    max: 2500,
     nBins: 15
 }
 

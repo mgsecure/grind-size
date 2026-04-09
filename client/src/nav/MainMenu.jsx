@@ -93,17 +93,19 @@ function MainMenu() {
                         )}
 
                     {isLoggedIn &&
-                        <MenuItem onClick={handleLogout}>
-                            <ListItemIcon>
+                        <MenuItem onClick={handleLogout} style={{padding: '14px 18px 14px 18px'}}>
+                            <ListItemIcon style={{height:20}}>
                                 <LogoutIcon fontSize='small'/>
                             </ListItemIcon>
                             <ListItemText>Sign Out</ListItemText>
                         </MenuItem>
                     }
-
-                    <MenuItem onClick={closeDrawer}>
+                    {!isLoggedIn &&
+                        <MenuItem onClick={closeDrawer}>
                         <SignInButton onClick={closeDrawer}/>
                     </MenuItem>
+                    }
+                    <Divider style={{margin: 0}}/>
 
                 </Stack>
             </SwipeableDrawer>

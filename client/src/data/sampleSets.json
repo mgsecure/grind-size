@@ -8,7 +8,7 @@
     "sourceName": "demo",
     "dataUrl": "/data/KinuM47POB-v-BaratzaESPPro.json",
     "sampleCount": "5",
-    "binCount": "12",
+    "binCount": "10",
     "dataQuality": "5",
     "notes": "This is just a demo dataset to show how the app works."
   },
@@ -28,13 +28,13 @@
   {
     "id": "ca0cd5cf",
     "name": "Kinu M47 Pour Over Burr vs. MHW-3BOMBER R3",
-    "description": "Kinu M47 Pour Over Burr (3.0.0)  vs. MHW-3BOMBER R3 (2+06)",
+    "description": "Kinu M47 Pour Over Burr compared to the MHW-3BOMBER R3, whose grinds are highly uniform (most particles are roughly the same size) without the wider distribution of the Kinu POB.\n",
     "chartTitle": "Kinu M47 Pour Over Burr (3.0.0)   vs.  MHW-3BOMBER R3 (2+06)",
     "adminOnly": false,
     "sourceName": "demo",
     "dataUrl": "/data/KinuM47POB-v-MHW-3Bomber-R3.json",
     "sampleCount": "6",
-    "binCount": "11",
+    "binCount": "13",
     "dataQuality": "4"
   },
   {
@@ -46,13 +46,14 @@
     "sourceName": "demo",
     "dataUrl": "/data/Kinu_M47_POB_0-4.json",
     "sampleCount": "5",
-    "binCount": "13",
+    "binCount": "17",
     "dataQuality": "5",
     "notes": "This is just a demo dataset to show how the app works."
   },
   {
     "id": "5230bf25",
     "name": "Clump Remediation",
+    "description": "Comparing results from an initial scatter, the same scatter with large clumps manually broken up, and with clump overlap separation enabled.",
     "chartTitle": "Clump Remediation - Kinu M47 POB (3.0.0)",
     "adminOnly": false,
     "sourceName": "demo",
@@ -76,7 +77,7 @@
   {
     "id": "95ae12ff",
     "name": "Sample Distribution Consistency",
-    "description": "Four different samples",
+    "description": "Four different samples, showing analysis consistency across mulitple images.",
     "chartTitle": "Sample Distribution Consistency - Baratza ESP Pro (40.0)",
     "adminOnly": false,
     "sourceName": "demo",

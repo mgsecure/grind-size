@@ -1,3 +1,6 @@
+//export const nodeServerUrl = devFirestore==='true' ? 'http://localhost:3000/api' : 'https://coffee-grind.com/api'
+export const nodeServerUrl = 'https://coffee-grind.com/api'
+
 const url = import.meta.env && import.meta.env.VITE_LOCAL_DATA === 'true'
     ? 'http://localhost:3000/api'
     : 'https://coffee-grind.com/data'
@@ -31,7 +34,3 @@ export const raflPreviewPots = `${url}/raflPreviewPots.json`
 export const raflPreviewVersion = `${url}/raflPreviewVersion.json`
 export const raflResponseDetails = `${url}/raflResponseDetails.json`
 export const raflCollectionDetails = `${url}/raflCollectionDetails.json`
-
-const {VITE_DEV_FIRESTORE: devFirestore} = import.meta.env
-//export const nodeServerUrl = devFirestore==='true' ? 'http://localhost:3000/api' : 'https://coffee-grind.com/api'
-export const nodeServerUrl = 'https://coffee-grind.com/api'

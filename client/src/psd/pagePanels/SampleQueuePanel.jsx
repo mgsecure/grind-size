@@ -293,6 +293,29 @@ export default function SampleQueuePanel({resetContexts}) {
                 </Stack>
             </Stack>
 
+            {fullQueue.length === 0 &&
+                <Stack direction={{xs: 'column', sm: 'row'}} alignItems='center'
+                       justifyContent='space-between' spacing={0}
+                       sx={{width: '100%'}} style={{marginTop: 0}}>
+                    <Stack direction='row' alignItems='center' justifyContent='left' spacing={2}
+                           sx={{width: '100%', pl: 0}} style={{marginTop: 0}}>
+                        <ExportButton text={true}/>
+                        <ImportButton iconOnly={false}/>
+                    </Stack>
+                    <Button onClick={toggleShowDetails}
+                            style={{
+                                width: 150,
+                                whiteSpace: 'nowrap',
+                                color: uploadDisabled
+                                    ? theme.palette.action.disabled
+                                    : !showDetails ? altButtonColor : theme.palette.success.main
+                            }}
+                            size='small'
+                            disabled={uploadDisabled}>
+                        Submit Images
+                    </Button>
+                </Stack>
+            }
             <Collapse in={showDetails} sx={{width: '100%'}} ref={domRef}>
                 {showDetails &&
                     <UploadPanel showDetails={showDetails} setShowDetails={setShowDetails} queueRef={queueRef}/>

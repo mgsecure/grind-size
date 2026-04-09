@@ -11,7 +11,7 @@ import FilterContext from '../context/FilterContext.jsx'
 import menuConfig from './menuConfig.jsx'
 import {useLocation, useNavigate} from 'react-router-dom'
 import {useTheme} from '@mui/material/styles'
-import {Stack, useScrollTrigger} from '@mui/material'
+import {Box, Stack, useScrollTrigger} from '@mui/material'
 import Slide from '@mui/material/Slide'
 
 function Nav({extras, extrasTwo, title, titleMobile}) {
@@ -37,9 +37,7 @@ function Nav({extras, extrasTwo, title, titleMobile}) {
 
     const flexStyle = !isMobile ? 'flex' : 'block'
     const linkSx = {
-        color: theme.palette.text.primary, textDecoration: 'none', cursor: 'pointer', '&:hover': {
-            textDecoration: 'underline'
-        }
+        color: theme.palette.text.primary, textDecoration: 'none', cursor: 'pointer'
     }
 
     function HideOnScroll({children}) {
@@ -52,33 +50,36 @@ function Nav({extras, extrasTwo, title, titleMobile}) {
     }
 
     return (
-        <React.Fragment>
+        <div style={{marginBottom: isDesktop ? 0 : 16}}>
             <HideOnScroll>
                 <AppBar position='fixed' sx={{boxShadow: 'none'}}>
                     <Toolbar style={{margin: '6px 0px', minHeight: 40, padding: '0px 12px'}}>
                         <Stack direction='row' alignItems='center' justifyContent='space-between' sx={{width: '100%'}}>
-                            <div style={{
-                                fontSize: isDesktop ? '1.5rem' : '1.4rem',
-                                fontWeight: 700,
-                                lineHeight: '1.2em',
-                                marginRight: 8
-                            }}>
+                            <Box onClick={() => navigate('/')} sx={linkSx}
+                                 style={{
+                                     fontSize: isDesktop ? '1.5rem' : '1.4rem',
+                                     fontWeight: 700,
+                                     lineHeight: '1.2em',
+                                     marginRight: 8
+                                 }}>
                                 COFFEE GRINDS
                                 {!isDesktop && <br/>}
                                 <span style={{fontWeight: 300}}> PARTICLE SIZE DISTRIBUTION</span>
+                            </Box>
+                            <div style={{display: 'flex', marginLeft: 'auto'}}>
+                                <VersionChecker/>
+                                <MainMenu/>
                             </div>
-                            <VersionChecker/>
-                            <MainMenu/>
-
                         </Stack>
                     </Toolbar>
                 </AppBar>
             </HideOnScroll>
+
             {/* Dummy toolbar to help content place correctly below this */}
-            <Toolbar style={{backgroundColor: 'transparent', marginTop: spacer}}/>
+            <Toolbar style={{backgroundColor: 'transparent', marginTop: spacer, minHeight: 52}}/>
 
             <ScrollToTopButton/>
-        </React.Fragment>
+        </div>
     )
 }
 
