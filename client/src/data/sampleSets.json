@@ -85,5 +85,17 @@
     "sampleCount": "2",
     "binCount": "10",
     "dataQuality": "4"
+  },
+  {
+    "id": "2148fbd9",
+    "name": "ADMIN sample set",
+    "description": "Four different samples, showing analysis consistency across mulitple images.",
+    "chartTitle": "ADMIN sample set",
+    "adminOnly": true,
+    "sourceName": "demo",
+    "dataUrl": "/data/SampleDistributionConsistency.json",
+    "sampleCount": "2",
+    "binCount": "10",
+    "dataQuality": "4"
   }
 ]

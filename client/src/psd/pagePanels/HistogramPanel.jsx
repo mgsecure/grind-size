@@ -514,7 +514,7 @@ export default function HistogramPanel({domEl}) {
                 </Stack>
             }
             {!!chartData.length && chartMode === 'bar' && (
-                <Box sx={{height: chartData.length ? chartHeight : 175}}>
+                <Box sx={{height: chartData.length ? chartHeight : 175, backgroundColor: '#000'}}>
                     <ResponsiveBar
                         data={chartData}
                         curve='basis'
@@ -539,7 +539,7 @@ export default function HistogramPanel({domEl}) {
             )}
 
             {!!chartData.length && chartMode === 'line' && (
-                <Box sx={{height: chartData.length ? chartHeight : 175}}>
+                <Box sx={{height: chartData.length ? chartHeight : 175, backgroundColor: '#000'}}>
                     <ResponsiveLine
                         data={lineData}
                         colors={d => d.color}

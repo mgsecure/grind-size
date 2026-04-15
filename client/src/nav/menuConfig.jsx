@@ -1,10 +1,8 @@
 import React from 'react'
 import HomeIcon from '@mui/icons-material/Home'
-import FeedIcon from '@mui/icons-material/Feed'
-import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight'
-import InfoOutlineIcon from '@mui/icons-material/InfoOutline'
 import AssessmentIcon from '@mui/icons-material/Assessment'
+import QueryStatsIcon from '@mui/icons-material/QueryStats'
 
 export default [
     {
@@ -13,16 +11,9 @@ export default [
         path: '/',
     },
     {
-        title: 'Help',
-        icon: <KeyboardArrowRightIcon fontSize='small'/>,
-        path: '/info',
-        disabled: true,
-    },
-    {
         title: 'Analysis Examples',
-        icon: <KeyboardArrowRightIcon fontSize='small'/>,
-        path: '/info',
-        disabled: true,
+        icon: <QueryStatsIcon fontSize='small'/>,
+        path: '/psd/examples',
     },
     {
         title: 'Sample Grind Images',
@@ -37,27 +28,16 @@ export default [
         disabled: true,
     },
     {
-        title: 'Other Resources',
+        title: 'Help',
         icon: <KeyboardArrowRightIcon fontSize='small'/>,
         path: '/info',
         disabled: true,
     },
     {
-        title: 'My Account',
-        icon: <AccountCircleIcon fontSize='small'/>,
+        title: 'Other Resources',
+        icon: <KeyboardArrowRightIcon fontSize='small'/>,
         path: '/info',
         disabled: true,
-    },
-    {
-        title: 'My Samples',
-        icon: <FeedIcon fontSize='small'/>,
-        path: '/info',
-        disabled: true,
-        params: {
-            search: undefined,
-            id: undefined,
-            name: undefined
-        },
     },
     {
         title: 'Reports',
@@ -73,10 +53,5 @@ export default [
                 path: '/reports'
             },
         ]
-    },
-    {
-        title: 'Privacy Policy',
-        icon: <InfoOutlineIcon fontSize='small'/>,
-        path: '/privacy',
     },
 ]

@@ -16,6 +16,8 @@ import SignInButton from '../auth/SignInButton.jsx'
 import ListItemIcon from '@mui/material/ListItemIcon'
 import LogoutIcon from '@mui/icons-material/Logout'
 import ListItemText from '@mui/material/ListItemText'
+import AccountCircleIcon from '@mui/icons-material/AccountCircle'
+import FeedIcon from '@mui/icons-material/Feed'
 
 function MainMenu() {
     const {beta} = useContext(AppContext)
@@ -94,17 +96,31 @@ function MainMenu() {
 
                     {isLoggedIn &&
                         <MenuItem onClick={handleLogout} style={{padding: '14px 18px 14px 18px'}}>
-                            <ListItemIcon style={{height:20}}>
+                            <ListItemIcon style={{height: 20}}>
                                 <LogoutIcon fontSize='small'/>
                             </ListItemIcon>
                             <ListItemText>Sign Out</ListItemText>
                         </MenuItem>
                     }
                     {!isLoggedIn &&
-                        <MenuItem onClick={closeDrawer}>
-                        <SignInButton onClick={closeDrawer}/>
-                    </MenuItem>
+                        <SignInButton onClick={closeDrawer} style={{padding: '14px 18px 14px 18px'}}/>
                     }
+                    <Divider style={{margin: 0}}/>
+
+                    <MenuItem onClick={handleLogout} style={{padding: '14px 18px 14px 18px'}} disabled>
+                        <ListItemIcon style={{height: 20}}>
+                            <AccountCircleIcon fontSize='small'/>
+                        </ListItemIcon>
+                        <ListItemText>Profile</ListItemText>
+                    </MenuItem>
+                    <Divider style={{margin: 0}}/>
+
+                    <MenuItem onClick={handleLogout} style={{padding: '14px 18px 14px 18px'}} disabled>
+                        <ListItemIcon style={{height: 20}}>
+                            <FeedIcon fontSize='small'/>
+                        </ListItemIcon>
+                        <ListItemText>My Samples</ListItemText>
+                    </MenuItem>
                     <Divider style={{margin: 0}}/>
 
                 </Stack>

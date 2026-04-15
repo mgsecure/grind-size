@@ -9,7 +9,7 @@ import DBContext from '../app/DBContext.jsx'
 import {enqueueSnackbar} from 'notistack'
 import Button from '@mui/material/Button'
 
-function SignInButton({onClick, linkText}) {
+function SignInButton({onClick, linkText, style={}}) {
     const {authLoaded, isLoggedIn, login} = useContext(AuthContext)
     const {setDemo} = useContext(DBContext)
 
@@ -43,7 +43,7 @@ function SignInButton({onClick, linkText}) {
                 }}>
                     {linkText}
                 </Link>
-                : <MenuItem onClick={handleClick}>
+                : <MenuItem onClick={handleClick} style={style}>
                     <div style={{display: 'flex', flexDirection: 'row', alignItems: 'center', width: 176}}>
                         <ListItemIcon>
                             <LoginIcon fontSize='small'/>

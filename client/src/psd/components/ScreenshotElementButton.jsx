@@ -10,8 +10,8 @@ export default function ScreenshotElementButton({domEl, filename, disabled}) {
     const {setIsScreenshot} = useContext(UIContext)
 
     const downloadImage = useCallback(async () => {
-        if (!domEl.current) return
-        const canvas = await html2canvas(domEl.current)
+        if (!domEl?.current) return null
+        const canvas = await html2canvas(domEl?.current)
         const dataUrl = canvas.toDataURL('image/png')
         const link = document.createElement('a')
         link.download = `${filename.replace(/[^a-zA-Z0-9]/g, '_')}.png`
@@ -22,7 +22,7 @@ export default function ScreenshotElementButton({domEl, filename, disabled}) {
     }, [domEl, filename])
 
     const takeScreenshot = useCallback(async () => {
-        if (!domEl.current) return
+        if (!domEl?.current) return
         setIsScreenshot(true)
 
         setTimeout(() => {
@@ -33,6 +33,7 @@ export default function ScreenshotElementButton({domEl, filename, disabled}) {
     }, [domEl, downloadImage, setIsScreenshot])
 
     useHotkeys('s', () => takeScreenshot())
+
 
     return (
         <IconButton size='small' onClick={takeScreenshot} disabled={disabled}>

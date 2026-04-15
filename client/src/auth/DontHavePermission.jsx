@@ -1,12 +1,11 @@
 import React, {useContext} from 'react'
-import SignInButton from '../auth/SignInButton.jsx'
 import AuthContext from '../app/AuthContext.jsx'
 import Paper from '@mui/material/Paper'
 
-export default function MustBeLoggedIn({actionText = 'use this page', style}) {
-    const {authLoaded, isLoggedIn} = useContext(AuthContext)
+export default function DontHavePermission({actionText = 'view this page', style}) {
+    const {authLoaded} = useContext(AuthContext)
 
-    if (!authLoaded || isLoggedIn) return null
+    if (!authLoaded) return null
 
     return (
         <Paper
@@ -23,12 +22,9 @@ export default function MustBeLoggedIn({actionText = 'use this page', style}) {
                 ...style
             }}>
             <div>
-            You must be logged in to<br/>
-            {actionText}.
-            </div>
-
-            <div style={{marginTop:30, placeContent: 'center', display: 'flex'}}>
-                <SignInButton/>
+                We&#39;re sorry,<br/>
+                you don&#39;t have permission to<br/>
+                {actionText}.
             </div>
 
         </Paper>

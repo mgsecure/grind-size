@@ -1,7 +1,5 @@
 import React, {useContext} from 'react'
 import DataContext from '../../context/DataContext.jsx'
-import AuthContext from '../../app/AuthContext.jsx'
-import MustBeLoggedIn from '../../auth/MustBeLoggedIn.jsx'
 import LoadingDisplay from '../../misc/LoadingDisplay.jsx'
 import dayjs from 'dayjs'
 import FirstVisitsLastSevenTable from './FirstVisitsLastSevenTable.jsx'
@@ -10,7 +8,6 @@ import SiteTraffic28DaysLine from './SiteTraffic28DaysLine.jsx'
 
 export default function SiteReportPage() {
     const {siteStats = {}, loading, error} = useContext(DataContext)
-    const {authLoaded, isLoggedIn} = useContext(AuthContext)
     const firstVisitCount = Object.entries(siteStats?.firstVisit || {}).filter(([_key, value]) => dayjs(value).isAfter(dayjs().subtract(7, 'day')))?.length
 
     const updateTime = loading ? '--'
@@ -32,8 +29,7 @@ export default function SiteReportPage() {
         fontWeight: 700
     }
 
-    if (authLoaded && !isLoggedIn) return (<MustBeLoggedIn actionText={'view reports'} style={{marginTop: 20}}/>)
-    else if (loading) return <LoadingDisplay/>
+    if (loading) return <LoadingDisplay/>
     else if (error) return null
 
     return (

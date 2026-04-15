@@ -14,8 +14,19 @@ export function calculateStatistics(particles, {weighting = 'mass', mmPerPx = 1,
         return dPx * factor
     }
 
-    const ms = particles.map(getMetricValue).filter(v => Number.isFinite(v) && v > 0).sort((a, b) => a - b)
-    if (!ms.length) {
+    const ws = particles
+        .map(p => {
+            const val = getMetricValue(p)
+            let w = 1
+            if (weighting === 'surface') w = (p.surfaceAreaPx || 0) * (factor ** 2)
+            else if (weighting === 'volume' || weighting === 'mass') w = (p.volumePx || 0) * (factor ** 3)
+            
+            return {val, w, p}
+        })
+        .filter(x => Number.isFinite(x.val) && Number.isFinite(x.w) && x.val > 0)
+        .sort((a, b) => a.val - b.val)
+
+    if (!ws.length) {
         return {
             count: 0,
             D10: null,
@@ -33,18 +44,6 @@ export function calculateStatistics(particles, {weighting = 'mass', mmPerPx = 1,
             metric
         }
     }
-
-    const ws = particles
-        .map(p => {
-            const val = getMetricValue(p)
-            let w = 1
-            if (weighting === 'surface') w = (p.surfaceAreaPx || 0) * (factor ** 2)
-            else if (weighting === 'volume' || weighting === 'mass') w = (p.volumePx || 0) * (factor ** 3)
-            
-            return {val, w, p}
-        })
-        .filter(x => Number.isFinite(x.val) && Number.isFinite(x.w))
-        .sort((a, b) => a.val - b.val)
 
     const totalW = ws.reduce((a, b) => a + b.w, 0) || 1
     
@@ -76,7 +75,7 @@ export function calculateStatistics(particles, {weighting = 'mass', mmPerPx = 1,
     const min = ws[0].val
     const max = ws[ws.length - 1].val
 
-    const mode = estimateMode(ms)
+    const mode = estimateMode(ws)
 
     return {
         count: ws.length,
@@ -111,18 +110,21 @@ function weightedPercentile(ws, cdf, p) {
 }
 
 
-function estimateMode(sortedDs) {
-    // simple: return median of highest-density bin among 30 bins
+function estimateMode(weightedSamples) {
+    // Return median of highest-density bin among 30 bins
     const bins = 30
-    const min = sortedDs[0]
-    const max = sortedDs[sortedDs.length - 1]
+    const min = weightedSamples[0].val
+    const max = weightedSamples[weightedSamples.length - 1].val
     if (min === max) return min
+    
     const edges = new Array(bins + 1).fill(0).map((_, i) => min + (max - min) * (i / bins))
-    const counts = new Array(bins).fill(0)
-    for (const d of sortedDs) {
-        const b = Math.min(bins - 1, Math.max(0, Math.floor(((d - min) / (max - min)) * bins)))
-        counts[b] += 1
+    const weightedCounts = new Array(bins).fill(0)
+    
+    for (const x of weightedSamples) {
+        const b = Math.min(bins - 1, Math.max(0, Math.floor(((x.val - min) / (max - min)) * bins)))
+        weightedCounts[b] += x.w
     }
-    const best = counts.indexOf(Math.max(...counts))
+    
+    const best = weightedCounts.indexOf(Math.max(...weightedCounts))
     return (edges[best] + edges[best + 1]) / 2
 }

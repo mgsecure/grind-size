@@ -42,7 +42,7 @@ export default function PsdPage() {
                         <Grid container spacing={1} alignItems='stretch' height='100%'>
                             <Grid size={{xs: 12, xl: 8}} height='100%'>
                                 <Paper sx={{p: isDesktop ? 2 : 1, width: '100%', height: '100%'}}>
-                                    <Typography style={{fontSize: '1.1rem', fontWeight: 500}}>WELCOME!</Typography>
+                                    <Typography style={{fontSize: '1.2rem', fontWeight: 700}}>WELCOME!</Typography>
                                     <IntroCopy introCopy={{markdown: introCopyMarkdown}}
                                                style={{fontSize: '0.9rem'}}/>
                                 </Paper>
@@ -73,9 +73,9 @@ export default function PsdPage() {
 
                     <Grid container spacing={1} size={{xs: 12, sm: 12, md: 11, lg: 10, xl: 7}} alignItems='stretch'
                           sx={{width: '100%', backgroundColor: theme.palette.background.default}} ref={domEl}>
+
                         {isScreenshot && (
-                            <Grid direction='column' spacing={(isDesktop && !isScreenshot) ? 1 : 1}
-                                  sx={{width: '100%', backgroundColor: theme.palette.background.default}}>
+                            <Grid sx={{width: '100%', backgroundColor: theme.palette.background.default}}>
                                 <Paper sx={{p: 2, width: '100%'}}>
                                     <Typography style={{fontSize: '1.5rem', fontWeight: 700}}>
                                         COFFEE GRIND <span style={{fontWeight: 300}}> PARTICLE SIZE DISTRIBUTION</span>

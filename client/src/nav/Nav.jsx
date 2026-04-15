@@ -13,14 +13,16 @@ import {useLocation, useNavigate} from 'react-router-dom'
 import {useTheme} from '@mui/material/styles'
 import {Box, Stack, useScrollTrigger} from '@mui/material'
 import Slide from '@mui/material/Slide'
+import ScreenshotElementButton from '../psd/components/ScreenshotElementButton.jsx'
+import AuthContext from '../app/AuthContext.jsx'
 
-function Nav({extras, extrasTwo, title, titleMobile}) {
+function Nav({extras, extrasTwo, title, titleMobile, contentRef}) {
+    const {isAdmin} = useContext(AuthContext)
     const {isFiltered, clearAdvancedFilterGroups} = useContext(FilterContext)
     const theme = useTheme()
     const navigate = useNavigate()
     const location = useLocation()
     const menuItem = menuConfig.find(item => item.title === title)
-    const isRootPath = location.pathname === menuItem?.path && ['', '?tab=White'].includes(location.search)
 
     const handleClickTitle = useCallback(() => {
         clearAdvancedFilterGroups()
@@ -67,6 +69,7 @@ function Nav({extras, extrasTwo, title, titleMobile}) {
                                 <span style={{fontWeight: 300}}> PARTICLE SIZE DISTRIBUTION</span>
                             </Box>
                             <div style={{display: 'flex', marginLeft: 'auto'}}>
+                                {isAdmin && <ScreenshotElementButton domEl={contentRef} filename={`screenshot`}/> }
                                 <VersionChecker/>
                                 <MainMenu/>
                             </div>

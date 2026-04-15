@@ -4,6 +4,7 @@ import {Outlet, Navigate} from 'react-router-dom'
 import ErrorBoundary from './ErrorBoundary'
 import LoadingDisplay from '../misc/LoadingDisplay.jsx'
 import EnvAppBar from '../misc/EnvAppBar.jsx'
+import Footer from '../nav/Footer.jsx'
 
 const style = {
    // maxWidth: 800,
@@ -21,6 +22,7 @@ const AppShell = () => (
         <div style={style}>
             <Outlet/>
         </div>
+        <Footer/>
     </React.Fragment>
 
 )
@@ -56,6 +58,13 @@ export default [{
                     lazy: async () => {
                         const {default: PsdUploadRoute} = await import('../psd/PsdUploadRoute.jsx')
                         return {element: <Suspense fallback={<LoadingDisplay/>}><PsdUploadRoute/></Suspense>}
+                    },
+                },
+                {
+                    path: '/psd/examples',
+                    lazy: async () => {
+                        const {default: PsdExamplesRoute} = await import('../psd/examplesPage/PsdExamplesRoute.jsx')
+                        return {element: <Suspense fallback={<LoadingDisplay/>}><PsdExamplesRoute/></Suspense>}
                     },
                 },
             ]

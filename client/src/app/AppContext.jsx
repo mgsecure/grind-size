@@ -1,5 +1,7 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react'
 import {useInterval, useLocalStorage} from 'usehooks-ts'
+import dayjs from 'dayjs'
+
 const AppContext = React.createContext({})
 
 export function AppProvider({children}) {
@@ -47,11 +49,20 @@ export function AppProvider({children}) {
 
     useEffect(() => {
         checkVersion(true).then()
-    },[]) // eslint-disable-line react-hooks/exhaustive-deps
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     const multiplier = 60 // set to 1 for testing, 60 for production
     useInterval(checkVersion, 10 * multiplier * 1000) // 10 * 60 * 1000 = 10 minutes
 
+    if (!error
+        && (initial && version && initalMinVersion
+            && dayjs(initial) < dayjs(version)
+            && dayjs(initial) < dayjs(initalMinVersion))
+    ) {
+        setTimeout(() => {
+            setUpdateRequired(true)
+        }, multiplier * 1000) // 60 * 1000 = 1 min
+    }
 
     const verbose = false
 

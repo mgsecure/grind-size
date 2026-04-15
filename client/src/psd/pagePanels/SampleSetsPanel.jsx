@@ -37,6 +37,7 @@ export default function SampleSetsPanel() {
 
     //console.log('sampleSet', sampleSetId, sampleSetData)
     const loadedRef = useRef(null)
+    const panelRef = useRef(null)
 
     const markdown = `**${sampleSet?.name || 'Demo Sample Set'}** • ${sampleSet?.description || 'A collection of demo samples.'}`
 
@@ -51,28 +52,37 @@ export default function SampleSetsPanel() {
             fetchData(sampleSetData.dataUrl).then(r => {
                 if (r.data) {
                     setQueue([])
-                    loadImport(r.data, {queue, setQueue, setActiveIdList, setCustomSampleParams})
-                    //setViewOnly(true)
+                    loadImport(r.data, {queue: [], setQueue, setActiveIdList, setCustomSampleParams})
                     setSettings(prev => ({...prev, bins: sampleSetData.binCount}))
                     setSampleSet(sampleSetData)
                     setChartTitle(sampleSetData.chartTitle)
                 }
             }).catch(e => {
                 console.error('error fetching sample set', e)
-            }).finally(() => removeFilters(['sampleSet']))
-            loadedRef.current = true
+            }).finally(() => {
+                removeFilters(['sampleSet'])
+                panelRef.current?.scrollIntoView({behavior: 'smooth'})
+                loadedRef.current = true
+            })
         }
     }, [queue, removeFilters, sampleSetData, setActiveIdList, setChartTitle, setCustomSampleParams, setQueue, setSampleSet, setSettings, setViewOnly])
 
     return (
-        <Paper sx={{p: isDesktop ? 2 : 1, width: '100%', height: '100%'}}>
+        <Paper sx={{p: isDesktop ? 2 : 1, width: '100%', height: '100%'}} ref={panelRef}>
             <Stack direction='row' alignItems='center' justifyContent='space-between' width='100%'>
                 <Typography style={{fontSize: '1.1rem', fontWeight: 500}}>EXAMPLE DATASETS</Typography>
                 <SampleSetsButton iconOnly={false}/>
             </Stack>
 
             {sampleSet &&
-                <div style={{display: 'flex', width: '100%', fontSize: '1.0rem', marginTop: 0, alignItems: 'flex-end', justifyContent: 'space-between'}}>
+                <div style={{
+                    display: 'flex',
+                    width: '100%',
+                    fontSize: '1.0rem',
+                    marginTop: 0,
+                    alignItems: 'flex-end',
+                    justifyContent: 'space-between'
+                }}>
                     <ReactMarkdown remarkPlugins={[remarkGfm]}
                                    rehypePlugins={[[rehypeExternalLinks, {
                                        target: '_blank',
