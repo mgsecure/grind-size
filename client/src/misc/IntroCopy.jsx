@@ -5,7 +5,7 @@ import rehypeExternalLinks from 'rehype-external-links'
 import remarkGfm from 'remark-gfm'
 import ReactMarkdown from 'react-markdown'
 
-export default function IntroCopy({introCopy, link, maxWidth = '100%', style={}} = {}) {
+export default function IntroCopy({introCopy, link, maxWidth = '100%', style = {}} = {}) {
     const navigate = useNavigate()
 
     const {title, markdown} = introCopy || {}
@@ -25,8 +25,7 @@ export default function IntroCopy({introCopy, link, maxWidth = '100%', style={}}
                     <div style={{fontSize: '1.2rem', fontWeight: 600}}>{title}</div>
                 }
                 <ReactMarkdown rehypePlugins={[[rehypeExternalLinks, {
-                    target: '_blank',
-                    rel: ['nofollow', 'noopener', 'noreferrer']
+                    target: '_blank', rel: ['nofollow', 'noopener', 'noreferrer']
                 }]]} remarkPlugins={[remarkGfm]}>
                     {markdown}
                 </ReactMarkdown>

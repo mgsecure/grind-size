@@ -16,8 +16,7 @@ import IconButton from '@mui/material/IconButton'
 import LinkIcon from '@mui/icons-material/Link'
 import {enqueueSnackbar} from 'notistack'
 
-export default function SampleSetsPanel() {
-
+export default function ExamplesPanel() {
     const {
         sampleSets,
         sampleSet,

@@ -25,6 +25,7 @@ import UIContext from '../../context/UIContext.jsx'
 import LoadingDisplaySmall from '../../misc/LoadingDisplaySmall.jsx'
 import UploadPanel from './UploadPanel.jsx'
 import Collapse from '@mui/material/Collapse'
+import AuthContext from '../../app/AuthContext.jsx'
 
 export default function SampleQueuePanel({resetContexts}) {
     const theme = useTheme()
@@ -39,9 +40,9 @@ export default function SampleQueuePanel({resetContexts}) {
         processMultipleSettings,
         processingComplete,
         isAnalyzing,
-        debugLevel
     } = useContext(DataContext)
     const {currentColors, aggregateColor, altButtonColor, customSampleParams, isDesktop} = useContext(UIContext)
+    const {isAdmin} = useContext(AuthContext)
 
     // console.log('queue', queue)
     // console.log('customSampleParams', customSampleParams)
@@ -228,7 +229,7 @@ export default function SampleQueuePanel({resetContexts}) {
                                             {item.id !== aggregateQueueItem?.id &&
                                                 <Stack direction='row' alignItems='center'
                                                        sx={{marginLeft: 1, flexGrow: 0}}>
-                                                    {debugLevel >= 1 && !Object.keys(PSD_PRESETS).some(s => item.filename?.includes(`-${s}`)) &&
+                                                    {isAdmin && !Object.keys(PSD_PRESETS).some(s => item.filename?.includes(`-${s}`)) &&
                                                         item.status === 'done' &&
                                                         item.source !== 'import' &&
                                                         <IconButton

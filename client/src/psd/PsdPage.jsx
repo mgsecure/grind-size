@@ -12,7 +12,7 @@ import Footer from './components/Footer.jsx'
 import IntroCopy from '../misc/IntroCopy.jsx'
 import introCopyMarkdown from './resources/introCopyMarkdown.md?raw'
 import ManualCornerPanel from './pagePanels/ManualCornerPanel.jsx'
-import SampleSetsPanel from './pagePanels/SampleSetsPanel.jsx'
+import ExamplesPanel from './pagePanels/ExamplesPanel.jsx'
 import Tracker from '../app/Tracker.jsx'
 import Nav from '../nav/Nav'
 
@@ -48,7 +48,7 @@ export default function PsdPage() {
                                 </Paper>
                             </Grid>
                             <Grid size={{xs: 12, xl: 4}}>
-                                <SampleSetsPanel/>
+                                <ExamplesPanel/>
                             </Grid>
                         </Grid>
                     </Grid>

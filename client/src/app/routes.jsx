@@ -67,6 +67,13 @@ export default [{
                         return {element: <Suspense fallback={<LoadingDisplay/>}><PsdExamplesRoute/></Suspense>}
                     },
                 },
+                {
+                    path: '/psd/template',
+                    lazy: async () => {
+                        const {default: DownloadTemplateRoute} = await import('../psd/downloadTemplate/DownloadTemplateRoute.jsx')
+                        return {element: <Suspense fallback={<LoadingDisplay/>}><DownloadTemplateRoute/></Suspense>}
+                    },
+                },
             ]
         },
         {

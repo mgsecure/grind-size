@@ -8,23 +8,25 @@ import Nav from '../../nav/Nav.jsx'
 import {useNavigate} from 'react-router-dom'
 import {useTheme} from '@mui/material/styles'
 import {Image} from 'mui-image'
+import AppContext from '../../app/AppContext.jsx'
 
 export default function PsdExamplesPage() {
     const theme = useTheme()
     const navigate = useNavigate()
     const contentRef = useRef(null)
 
-    // TODO - need to be able to reset all data in both contexts
+    // TODO - need to be able to reset all data in both contexts?
 
+    const {adminEnabled} = useContext(AppContext)
     const {sampleSets} = useContext(DataContext)
     const {isDesktop} = useContext(UIContext)
 
-    const displaySets = sampleSets.map(s => {
-
+    const fullSets = sampleSets.map(s => {
         const fullDescription = `**[${s.name}](https://coffee-grind.com/psd?sampleSet=${s.id})** | ${s.description}`
-
         return {...s, fullDescription}
     })
+
+    const displaySets = adminEnabled ? fullSets : fullSets.filter(s => !s.adminOnly)
 
     const linkSx = {
         color: '#eee',

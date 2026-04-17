@@ -18,11 +18,12 @@ import LogoutIcon from '@mui/icons-material/Logout'
 import ListItemText from '@mui/material/ListItemText'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
 import FeedIcon from '@mui/icons-material/Feed'
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings'
 
 function MainMenu() {
-    const {beta} = useContext(AppContext)
+    const {beta, adminEnabled, setAdminEnabled} = useContext(AppContext)
     const {adminRole} = useContext(DBContext)
-    const {isLoggedIn, logout, userClaims} = useContext(AuthContext)
+    const {isLoggedIn, logout, userClaims, isAdmin} = useContext(AuthContext)
     const [open, setOpen] = useState(false)
 
     const openDrawer = useCallback(() => {
@@ -37,9 +38,14 @@ function MainMenu() {
     }, [])
 
     const handleLogout = useCallback(() => {
+        setAdminEnabled(false)
         closeDrawer()
         logout()
-    }, [closeDrawer, logout])
+    }, [closeDrawer, logout, setAdminEnabled])
+
+    const handleToggleAdmin = useCallback(() => {
+        setAdminEnabled(!adminEnabled)
+    }, [adminEnabled, setAdminEnabled])
 
     return (
         <React.Fragment>
@@ -93,6 +99,21 @@ function MainMenu() {
                                 <Divider style={{margin: 0}}/>
                             </React.Fragment>
                         )}
+
+                    {isAdmin &&
+                        <>
+                            <MenuItem onClick={handleToggleAdmin} style={{padding: '14px 18px 14px 18px'}}>
+                                <ListItemIcon>
+                                    <AdminPanelSettingsIcon color={adminEnabled ? 'success' : 'default'}/>
+                                </ListItemIcon>
+                                {adminEnabled
+                                    ? <ListItemText>Disable Admin</ListItemText>
+                                    : <ListItemText>Enable Admin</ListItemText>
+                                }
+                            </MenuItem>
+                            <Divider style={{margin: 0}}/>
+                        </>
+                    }
 
                     {isLoggedIn &&
                         <MenuItem onClick={handleLogout} style={{padding: '14px 18px 14px 18px'}}>

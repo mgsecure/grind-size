@@ -40,7 +40,7 @@ function MainMenuItem({menuItem, onClose, child, childCount, childIndex}) {
         }
     }, [navigate, onClose, params, path])
 
-    const color = isCurrentRoute ? '#18aa18' : null
+    const color = isCurrentRoute ? '#18aa18' : '#fff'
 
     const finalDiv = childIndex + 1 === childCount
         ? <div style={{height: 10}}/>
@@ -51,7 +51,7 @@ function MainMenuItem({menuItem, onClose, child, childCount, childIndex}) {
         : {padding: '14px 18px 14px 18px',color}
 
     const coloredIcon = icon
-        ? React.cloneElement(icon, {style: {color}})
+        ? React.cloneElement(icon, {style: {color, fill: color}})
         : null
 
     const numChildren = children ? children.length : 0
