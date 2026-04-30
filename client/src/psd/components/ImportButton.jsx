@@ -14,7 +14,7 @@ import {cleanCount} from '../../util/stringUtils.js'
 export default function ImportButton({iconOnly = false, linkOnly = false}) {
 
     const {queue, setQueue, setActiveIdList} = useContext(DataContext)
-    const {altButtonColor, setCustomSampleParams} = useContext(UIContext)
+    const {altButtonColor, setCustomSampleParams, breakpoint} = useContext(UIContext)
 
     const hiddenFileInput = useRef(null)
     const handleClick = useCallback(() => {
@@ -98,7 +98,7 @@ export default function ImportButton({iconOnly = false, linkOnly = false}) {
                         ? <span style={{marginRight: 0}}><LoadingDisplaySmall size='xsmall'/></span>
                         : <UploadIcon style={{color: altButtonColor}}/>}
                     style={{color: altButtonColor}}>
-                    Import JSON Data
+                    {breakpoint === 'xl' ? 'Import JSON' : 'Import JSON Data'}
                 </Button>
             }
 

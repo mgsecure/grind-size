@@ -136,23 +136,19 @@ export const PSD_DEFAULTS = {
     chartMode: 'bar', // 'bar' | 'line'
     splitOverlaps: false,
     overlapSplitPreset: defaultOverlapPreset,
-    //splitSensitivity: overlapSplitPresets[defaultOverlapPreset].splitSensitivity,
-    //extraSeedSensitivity: overlapSplitPresets[defaultOverlapPreset].extraSeedSensitivity,
-    //extraSeedMinDistFactor: overlapSplitPresets[defaultOverlapPreset].extraSeedMinDistFactor,
-    //splitRoundnessThreshold: 0.85,
-    //splitMaxAreaFactor: 0.5,
     ellipseFactor: 5.0,
     minSolidity: 0.3,
     analysisChannel: 'grayscale', // 'grayscale' | 'blue' | 'auto'
     value: 'mass',
     templateSize: 75,
+    renderImageTypes: ['Original', 'Mask'], // 'Mask', 'Overlay', 'Diagnostic', 'Original'
     ...PSD_PRESETS[defaultSettingsPreset].params,
     ...overlapSplitPresets[defaultOverlapPreset],
 }
 
 export const BIN_DEFAULTS = {
-    min: 115,
-    max: 2500,
+    min: 70,
+    max: 2600,
     nBins: 15
 }
 

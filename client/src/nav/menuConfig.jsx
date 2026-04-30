@@ -3,7 +3,8 @@ import HomeIcon from '@mui/icons-material/Home'
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight'
 import AssessmentIcon from '@mui/icons-material/Assessment'
 import QueryStatsIcon from '@mui/icons-material/QueryStats'
-import TargetIcon from '../resources/targetIcon.jsx'
+import LensBlurIcon from '@mui/icons-material/LensBlur'
+import CenterFocusWeakIcon from '@mui/icons-material/CenterFocusWeak'
 
 export default [
     {
@@ -13,7 +14,7 @@ export default [
     },
     {
         title: 'Download Templates',
-        icon: <TargetIcon fontSize='small'/>,
+        icon: <CenterFocusWeakIcon fontSize='small'/>,
         path: '/psd/template',
     },
     {
@@ -23,9 +24,8 @@ export default [
     },
     {
         title: 'Sample Grind Images',
-        icon: <KeyboardArrowRightIcon fontSize='small'/>,
-        path: '/info',
-        disabled: true,
+        icon: <LensBlurIcon fontSize='small'/>,
+        path: '/psd/samples',
     },
     {
         title: 'Help',

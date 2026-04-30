@@ -227,7 +227,7 @@ export async function renderOverlayPng(imageData, particles, meta = {}, options 
     if (meta.template && (meta.markers || meta.warpMarkers) && options.showMarkers) {
         const markers = meta.markers || meta.warpMarkers
         ctx.lineWidth = 5
-        ctx.strokeStyle = '#ff3399'
+        ctx.strokeStyle = '#000'
         for (const m of markers) {
             const corners = m.corners
             ctx.beginPath()

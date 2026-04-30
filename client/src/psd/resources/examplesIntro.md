@@ -1,6 +1,6 @@
 The primary template has a distance of **100mm** between the markers. This size should be optimal for general use. There are alternate templates can be used for close-ups of samples that are very coarse (75mm) or to get a closer analysis of finer grinds (50mm).
 
-Please download and print the appropriate template at full size/no borders. Note that only particles fully within the inside corners of the markers will be analyzed.
+Please download and print the appropriate template at full size/no borders. Note that only particles fully within the **inside** corners of the markers will be analyzed.
 
 Try to have direct, soft lighting that’s even, without big shadows,
 etc. Best results have been obtained by scattering small amounts of
@@ -18,5 +18,5 @@ recognized.
 
 Our current methodology is to evaluate the aggregate of four
 different images for each specific sample. The tool can
-automatically generate the aggregate histogram/statistics of multiple images.
+automatically generate the aggregate histogram/statistics from multiple images.
 

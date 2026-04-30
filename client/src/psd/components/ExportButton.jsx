@@ -25,7 +25,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 
 const defaultAggregateExportName = 'Multiple Samples - Aggregate'
 
-export default function ExportButton({text}) {
+export default function ExportButton({text = true}) {
     const theme = useTheme()
 
     const {

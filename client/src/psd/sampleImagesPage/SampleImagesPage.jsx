@@ -1,22 +1,55 @@
-import React, {useContext, useRef} from 'react'
+import React, {useContext, useEffect, useMemo, useRef} from 'react'
 import {Stack, Paper, Typography, Grid, Link} from '@mui/material'
 import UIContext from '../../context/UIContext.jsx'
 import Tracker from '../../app/Tracker.jsx'
 import Nav from '../../nav/Nav.jsx'
 import {useTheme} from '@mui/material/styles'
-import {Image} from 'mui-image'
 import ReactMarkdown from 'react-markdown'
 import rehypeExternalLinks from 'rehype-external-links'
 import remarkGfm from 'remark-gfm'
-import downloadTemplateMarkdown from '../resources/examplesIntro.md?raw'
+import sampleImagesIntro from '../resources/sampleImagesIntro.md?raw'
+import {SampleImageQueue} from './sampleImageQueue.js'
+import EntryImageGallery from '../components/EntryImageGallery.jsx'
 
-export default function DownloadTemplatePage() {
+export default function SampleImagesPage() {
     const theme = useTheme()
     const contentRef = useRef(null)
 
-    // TODO - need to be able to reset all data in both contexts?
+    const {isDesktop, imageViewMode, setImageViewMode} = useContext(UIContext)
 
-    const {isDesktop} = useContext(UIContext)
+    useEffect(() => {
+        if (SampleImageQueue.length) {
+            setImageViewMode('source')
+        }
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+    const srcVar = useMemo(() => {
+        if (imageViewMode === 'source') return 'sourceUrl'
+        if (imageViewMode === 'original') return 'originalPngDataUrl'
+        if (imageViewMode === 'mask') return 'maskPngDataUrl'
+        if (imageViewMode === 'diagnostic') return 'diagnosticPngDataUrl'
+        return 'overlayPngDataUrl'
+    }, [imageViewMode])
+
+    const entry = {
+        media: SampleImageQueue
+            .filter(item => item.result?.previews?.[srcVar] !== undefined)
+            .map((item, index) => {
+                if (item.result) {
+                    return {
+                        label: item.label || '',
+                        title: item.sampleName || `Sample ${index}`,
+                        subtitle: item.result?.settings?.name || '',
+                        thumbnailUrl: item.result?.previews?.[`${srcVar}Thumb`] || item.result?.previews?.[srcVar],
+                        sequenceId: index + 1,
+                        fullSizeUrl: item.result?.previews?.[srcVar],
+                        id: item.id
+                    }
+                } else return {}
+            })
+    }
+
+    const activeIdList = SampleImageQueue.map(item => item.id)
 
     return (
         <>
@@ -37,12 +70,12 @@ export default function DownloadTemplatePage() {
                         }}>
 
                             <Typography style={{fontSize: '1.2rem', fontWeight: 700, marginBottom: 16}}>
-                                DOWNLOAD TEMPLATE
+                                SAMPLE IMAGES
                             </Typography>
 
                             <Link
                                 href={'https://coffee-grind.com/templates/coffee-grind.com_PSD_templates_v02.pdf'}
-                                target={'_blank'} style={{fontWeight: 600}}>
+                                target={'_blank'} style={{fontWeight: 400}}>
                                 Click here to download the photo template for grind
                                 images.
                             </Link>
@@ -50,38 +83,21 @@ export default function DownloadTemplatePage() {
 
                             <Stack direction={{xs: 'column', sm: 'row'}} alignItems='flex-start'
                                    justifyContent='space-between' spacing={1} style={{marginTop: 5}}>
-
                                 <div>
                                     <ReactMarkdown rehypePlugins={[[rehypeExternalLinks, {
                                         target: '_blank', rel: ['nofollow', 'noopener', 'noreferrer']
                                     }]]} remarkPlugins={[remarkGfm]}>
-                                        {String(downloadTemplateMarkdown)}
+                                        {String(sampleImagesIntro)}
                                     </ReactMarkdown>
                                 </div>
-
-                                <div style={{
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    width: '100%'
-                                }}>
-                                    <Link
-                                        href={'https://coffee-grind.com/templates/coffee-grind.com_PSD_templates_v02.pdf'}
-                                        target={'_blank'}>
-                                        <Image src={'/templates/templateImage.png'}
-                                               alt={'alt'}
-                                               duration={250}
-                                               width={220}
-                                               style={{marginTop: 5, cursor: 'pointer'}}/>
-                                    </Link>
-                                </div>
-
                             </Stack>
+                            <EntryImageGallery entry={entry} queue={SampleImageQueue} activeIdList={activeIdList}/>
 
                         </Paper>
 
                     </Grid>
                 </Grid>
+
 
                 <Tracker feature='Template'/>
             </Stack>

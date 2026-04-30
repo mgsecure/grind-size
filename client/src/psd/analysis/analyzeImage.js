@@ -21,7 +21,6 @@ import getColorTemperature from './pipeline/getColorTemperature.js'
 import getTrackerImage from '../../util/getTrackerImage.js'
 
 const debug = false
-const renderDiagnosticImage = false
 
 export async function analyzeImageFiles(item, settings, manualCorners = null, overlayOptions = null) {
     const startedAt = new Date().toISOString()
@@ -334,7 +333,7 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
     })
 
     let maskPngDataUrl = null
-    try {
+    if (settings.renderImageTypes?.includes('Mask')) try {
         maskPngDataUrl = await renderMaskPng({
             labels: analysisLabels,
             width: analysisImageData.width,
@@ -357,7 +356,7 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
     // We generate the "Original" view.
     // If the image was warped, we use analysisImageData (the warped one) so it matches the mask geometry.
     let originalPngDataUrl = null
-    try {
+    if (settings.renderImageTypes?.includes('Original')) try {
         originalPngDataUrl = await renderOriginalPng({
             width: analysisImageData.width,
             height: analysisImageData.height,
@@ -368,7 +367,7 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
     }
 
     let overlayPngDataUrl = null
-    try {
+    if (settings.renderImageTypes?.includes('Overlay')) try {
         overlayPngDataUrl = await renderOverlayPng({
             width,
             height,
@@ -385,7 +384,7 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
     }
 
     let diagnosticPngDataUrl = null
-    try {
+    if (settings.renderImageTypes?.includes('Diagnostic')) try {
         // For the diagnostic view, we also want the threshold pixels in original coordinates.
         // If the main analysis was warped, detectResult.labels is in warped space.
         // We'd need to run a separate thresholding on the original image to show those pixels correctly.
@@ -468,7 +467,7 @@ export async function analyzeImageFiles(item, settings, manualCorners = null, ov
             diagnosticValidIds = diagnosticParticles.map(p => p.id)
         }
 
-        if (renderDiagnosticImage) diagnosticPngDataUrl = await renderDiagnosticPng({
+        if (settings.renderImageTypes?.includes('Diagnostic')) diagnosticPngDataUrl = await renderDiagnosticPng({
             width,
             height,
             data: imageData.data.slice()

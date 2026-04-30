@@ -1,18 +1,14 @@
 import React, {useContext} from 'react'
 import {Stack} from '@mui/material'
-import DataContext from '../../context/DataContext.jsx'
 import ToggleButtons from '../components/ToggleButtons.jsx'
 import UIContext from '../../context/UIContext.jsx'
 
-export default function ImageViewModeToggles() {
-    const {
-        queue,
-        activeIdList
-    } = useContext(DataContext)
+export default function ImageViewModeToggles({queue=[], activeIdList=[]}) {
 
     const {imageViewMode, setImageViewMode} = useContext(UIContext) // original | mask | overlay | diagnostic
 
     const availableImageModes = Array.from(queue.reduce((acc, item) => {
+        item.result?.previews?.sourceUrl && acc.add('source')
         item.result?.previews?.originalPngDataUrl && acc.add('original')
         item.result?.previews?.overlayPngDataUrl && acc.add('overlay')
         item.result?.previews?.maskPngDataUrl && acc.add('mask')
@@ -21,8 +17,9 @@ export default function ImageViewModeToggles() {
     }, new Set()))
 
     const modeMap = [
-        {key: 'mode', value: 'original', label: 'Original'},
-        {key: 'mode', value: 'mask', label: 'Mask'},
+        {key: 'mode', value: 'source', label: 'Source'},
+        {key: 'mode', value: 'original', label: 'Template'},
+        {key: 'mode', value: 'mask', label: 'Particles'},
         {key: 'mode', value: 'overlay', label: 'Overlay'},
         {key: 'mode', value: 'diagnostic', label: 'Diagnostic'}
     ].filter(item => availableImageModes.includes(item.value))

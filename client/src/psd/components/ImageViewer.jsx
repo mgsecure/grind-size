@@ -1,7 +1,4 @@
 import React, {useCallback, useContext, useState} from 'react'
-import LinkIcon from '@mui/icons-material/Link'
-import {enqueueSnackbar} from 'notistack'
-import queryString from 'query-string'
 import LaunchIcon from '@mui/icons-material/Launch'
 import Stack from '@mui/material/Stack'
 import DialogActions from '@mui/material/DialogActions'
@@ -26,7 +23,6 @@ import YoutubeSearchedForIcon from '@mui/icons-material/YoutubeSearchedFor'
 import useWindowSize from '../../util/useWindowSize.jsx'
 import Tooltip from '@mui/material/Tooltip'
 import useClickOrDrag from '../../util/useClickOrDrag.jsx'
-import DataContext from '../../context/DataContext.jsx'
 import ItemInformationButton from './ItemInformationButton.jsx'
 import ImageViewModeToggles from './ImageViewModeToggles.jsx'
 import UIContext from '../../context/UIContext.jsx'
@@ -35,8 +31,7 @@ import Tracker from '../../app/Tracker.jsx'
 
 const zoomIncrement = 0.6
 
-function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}}) {
-    const {queue} = useContext(DataContext)
+function ImageViewer({media, openIndex, onOpenImage, onClose, queue=[], activeIdList=[]}) {
     const {isDesktop} = useContext(UIContext)
     const {removeFilters} = useContext(MiniFilterContext)
 
@@ -153,14 +148,6 @@ function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}})
         swipeDuration: 250
     })
 
-    const handleCopyLink = useCallback(async () => {
-        const query = queryString.stringify({...shareParams, image: openIndex})
-        const href = `https://share.lpubelts.com/?${query}`
-
-        await navigator.clipboard.writeText(href)
-        enqueueSnackbar('Link to entry copied to clipboard.')
-    }, [openIndex, shareParams])
-
     return (
         <Dialog
             open={open}
@@ -201,7 +188,7 @@ function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}})
                             </Typography>
                         </Stack>
                         <Stack direction='row' alignItems='center'>
-                            <ImageViewModeToggles/>
+                            <ImageViewModeToggles queue={queue} activeIdList={activeIdList}/>
                             <ItemInformationButton item={mediaItem} imageViewer={true}/>
                         </Stack>
                     </Stack>
@@ -328,17 +315,6 @@ function ImageViewer({media, openIndex, onOpenImage, onClose, shareParams = {}})
                             disabled={zoom === 1}
                         >
                             <ZoomOutIcon/>
-                        </IconButton>
-                    </span>
-                </Tooltip>
-                <Tooltip title='Copy Link to Image' arrow disableFocusListener>
-                    <span>
-                        <IconButton
-                            color='inherit'
-                            onClick={handleCopyLink}
-                            aria-label='copyLink'
-                        >
-                            <LinkIcon/>
                         </IconButton>
                     </span>
                 </Tooltip>

@@ -4,7 +4,7 @@ import {useLocation} from 'react-router-dom'
 import MiniFilterContext from '../../context/MiniFilterContext.jsx'
 import ImageGallery from './ImageGallery.jsx'
 
-function EntryImageGallery({entry}) {
+function EntryImageGallery({entry, queue=[], activeIdList=[]}) {
     const location = useLocation()
     const {filters, addFilter, removeFilters} = useContext(MiniFilterContext)
 
@@ -56,7 +56,8 @@ function EntryImageGallery({entry}) {
                             <div style={{
                                 borderBottom: '1px solid #bbb',
                                 marginLeft: 0,
-                                fontWeight: 500
+                                fontSize: '1.2rem',
+                                fontWeight: 600
                             }}>{group.label}</div>
                         }
                         <ImageGallery
@@ -68,6 +69,8 @@ function EntryImageGallery({entry}) {
                             onCloseImage={handleCloseImage}
                             onBackButton={handleBackButton}
                             shareParams={{id: entry.id, name: filters.name}}
+                            queue={queue}
+                            activeIdList={activeIdList}
                         />
                     </div>
                 </React.Fragment>

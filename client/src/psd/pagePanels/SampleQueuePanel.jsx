@@ -300,8 +300,8 @@ export default function SampleQueuePanel({resetContexts}) {
                        sx={{width: '100%'}} style={{marginTop: 0}}>
                     <Stack direction='row' alignItems='center' justifyContent='left' spacing={2}
                            sx={{width: '100%', pl: 0}} style={{marginTop: 0}}>
-                        <ExportButton text={true}/>
-                        <ImportButton iconOnly={false}/>
+                        <ExportButton />
+                        <ImportButton />
                     </Stack>
                     <Button onClick={toggleShowDetails}
                             style={{

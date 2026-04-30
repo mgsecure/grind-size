@@ -8,7 +8,6 @@ import IconButton from '@mui/material/IconButton'
 import LaunchIcon from '@mui/icons-material/Launch'
 import ImageViewer from './ImageViewer.jsx'
 import UIContext from '../../context/UIContext.jsx'
-import DataContext from '../../context/DataContext.jsx'
 
 function ImageGallery(props) {
     const {
@@ -20,10 +19,11 @@ function ImageGallery(props) {
         onOpenImage,
         onCloseImage,
         onBackButton,
-        shareParams
+        shareParams,
+        queue,
+        activeIdList
     } = props
 
-    const {queue} = useContext(DataContext)
     const {currentColors, customSampleParams, breakpoint} = useContext(UIContext)
 
     const noErrorIdList = useMemo(() => {
@@ -60,7 +60,7 @@ function ImageGallery(props) {
         return () => removeEventListener('hashchange', handler)
     })
 
-    const breakpointValue = breakpoint === 'xs' ? 2 : breakpoint === 'sm' ? 3 : breakpoint === 'md' ? 4 : breakpoint === 'lg' ? 4 : 3
+    const breakpointValue = breakpoint === 'xs' ? 2 : breakpoint === 'sm' ? 3 : breakpoint === 'md' ? 4 : breakpoint === 'lg' ? 4 : 4
     const cols = columns ?? breakpointValue
 
     return (
@@ -72,6 +72,8 @@ function ImageGallery(props) {
                     onOpenImage={onOpenImage}
                     onClose={handleClose}
                     shareParams={shareParams}
+                    queue={queue}
+                    activeIdList={activeIdList}
                 />
             }
             <ImageList variant='masonry' cols={cols} sx={{marginTop: 2}}>

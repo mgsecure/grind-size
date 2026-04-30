@@ -10,7 +10,7 @@ export default function ImagePanel() {
     const theme = useTheme()
 
     const {queue, allItems, activeIdList} = useContext(DataContext)
-    const {isDesktop, imageViewMode} = useContext(UIContext) // original | mask | overlay | diagnostic
+    const {isDesktop, imageViewMode} = useContext(UIContext) // source | original | mask | overlay | diagnostic
     const isAllImports = queue.every(item => ['import', 'demo'].includes(item.source))
 
     const sampleNames = useMemo(() => allItems.reduce((acc, item, idx) => {
@@ -18,8 +18,8 @@ export default function ImagePanel() {
         return acc
     }, []), [allItems])
 
-
     const srcVar = useMemo(() => {
+        if (imageViewMode === 'source') return 'sourceUrl'
         if (imageViewMode === 'original') return 'originalPngDataUrl'
         if (imageViewMode === 'mask') return 'maskPngDataUrl'
         if (imageViewMode === 'diagnostic') return 'diagnosticPngDataUrl'
@@ -36,7 +36,7 @@ export default function ImagePanel() {
                     return {
                         title: sampleNames[item.id] || `Sample ${index}`,
                         subtitle: item.result?.settings?.name || '',
-                        thumbnailUrl: item.result?.previews?.[srcVar],
+                        thumbnailUrl: item.result?.previews?.[`${srcVar}Thumb`] || item.result?.previews?.[srcVar],
                         sequenceId: index + 1,
                         fullSizeUrl: item.result?.previews?.[srcVar],
                         id: item.id
@@ -52,10 +52,10 @@ export default function ImagePanel() {
             <Typography style={{...disabledStyle, fontSize: '1.1rem', fontWeight: 500}}>PARTICLE DETECTION
                 IMAGES</Typography>
             {entry.media?.length > 0 &&
-                <ImageViewModeToggles/>
+                <ImageViewModeToggles queue={queue} activeIdList={activeIdList}/>
             }
             {(entry.media?.length > 0)
-                ? <EntryImageGallery entry={entry}/>
+                ? <EntryImageGallery entry={entry} queue={queue} activeIdList={activeIdList}/>
                 : <Box color={alpha(theme.palette.text.secondary, 0.4)}
                        sx={{
                            display: 'flex',
